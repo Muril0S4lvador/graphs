@@ -1,0 +1,32 @@
+{
+  "configurations": [
+    {
+      "name": "debugar codigo",
+      "type": "cppdbg",
+      "request": "launch",
+      "cwd": ".",
+      "program": "${workspaceRoot}/main",
+      "args": [],
+      "preLaunchTask": "compilacao"
+    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "cwd": "/home/murilo/murilo/labotim/undirected_graphs",
+      "program": "/home/murilo/murilo/labotim/undirected_graphs/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
