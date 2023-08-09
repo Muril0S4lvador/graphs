@@ -13,7 +13,7 @@ Graph *graph_construct(int v){
     return g;
 }
 
-Adjacency *adjacency_create(int vertice, height_type height){
+Adjacency *graph_adjacency_create(int vertice, height_type height){
     Adjacency *adj = malloc(sizeof(Adjacency));
 
     adj->vertice = vertice;
@@ -23,13 +23,13 @@ Adjacency *adjacency_create(int vertice, height_type height){
     return adj;
 }
 
-void edge_create(Graph *g, int vertex, Adjacency *adj, int direction){
+void graph_add_edge(Graph *g, int vertex, Adjacency *adj, int direction){
     adj->next = g->vertices[vertex].head;
     g->vertices[vertex].head = adj;
 
     if(direction == UNDIRECTED){
         Adjacency *adj_directed = adjacency_create(vertex, adj->height);
-        edge_create(g, adj->vertice, adj_directed, DIRECTED);
+        graph_add_edge(g, adj->vertice, adj_directed, DIRECTED);
         return;
     }
 

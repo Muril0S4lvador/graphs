@@ -4,7 +4,7 @@
 
 int main(){
 
-    Graph *graph = graph_construct(500);
+    Graph *graph = graph_construct(5);
 
     graph_add_edge(graph, 0, 1, 2, DIRECTED);
     graph_add_edge(graph, 1, 2, 4, DIRECTED);

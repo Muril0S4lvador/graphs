@@ -29,9 +29,9 @@ typedef struct{
 
 Graph *graph_construct(int v);
 
-Adjacency *adjacency_create(int vertice, height_type height);
+Adjacency *graph_adjacency_create(int vertice, height_type height);
 
-void edge_create(Graph *g, int vertex, Adjacency *adj, int direction);
+void graph_add_edge(Graph *g, int vertex, Adjacency *adj, int direction);
 
 void graph_print(Graph *g);
 
