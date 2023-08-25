@@ -22,6 +22,22 @@ void graph_add_edge(Graph *g, int v1, int v2, height peso, int direction){
     g->num_edges++;
 }
 
+Graph *graph_read_file(Graph *g){
+
+    /*
+    char nameprev[500000];
+    scanf("%*[^:]: ");
+    scanf("%s", nameprev);
+    char name[ strlen(nameprev) ];
+    strcpy(name, nameprev);
+    Essa função acima lê corretamente o nome, 
+    basta fazer p outras situações que funciona
+    */
+
+   
+
+}
+
 void graph_print(Graph *g){
     printf("-- ");
     for(int i = 0; i < g->num_vertices; i++)
