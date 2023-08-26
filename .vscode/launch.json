@@ -16,8 +16,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/murilo/murilo/labotim/undirected_graphs",
-      "program": "/home/murilo/murilo/labotim/undirected_graphs/build/Debug/outDebug",
+      "cwd": "/home/murilo/murilo/labotim/graphs/adjacency_list",
+      "program": "/home/murilo/murilo/labotim/graphs/adjacency_list/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
