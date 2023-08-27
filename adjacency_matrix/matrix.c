@@ -9,8 +9,9 @@ Matrix matrix_construct(int v){
     return m;
 }
 
-void matrix_add_edge(void *vm, int v1, int v2, height peso, int direction){
+void matrix_add_edge(void *vm, int v1, int v2, weight peso, int direction){
     Matrix m = vm;
+
     if(direction == UNDIRECTED)
         m[v2][v1] = peso;
 

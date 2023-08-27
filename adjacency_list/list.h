@@ -4,21 +4,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../data/data.h"
+
 #define UNDIRECTED 1
 #define DIRECTED 0
-#define HEIGHT_DEFAULT 1
+#define WEIGHT_DEFAULT 1
 
-typedef void data_type;
-typedef int height;
+typedef float weight;
+// typedef void data_type;
 
 typedef struct Adjacency Adjacency;
 typedef struct List* List;
 
 List list_construct(int v);
 
-Adjacency *adjacency_create(int vertice, height height);
+Adjacency *adjacency_create(int vertice, weight weight);
 
-void list_add_edge(void *vl, int v1, int v2, height peso, int direction);
+void list_add_edge(void *vl, int v1, int v2, weight peso, int direction);
 
 void list_print(void *vl, int size);
 

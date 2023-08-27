@@ -3,18 +3,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+#include "../data/data.h"
 
 #define UNDIRECTED 1
 #define DIRECTED 0
-#define HEIGHT_DEFAULT 1
+#define WEIGHT_DEFAULT 1
 
+typedef float weight;
 typedef int** Matrix;
-typedef int height;
 
 Matrix matrix_construct(int v);
 
-void matrix_add_edge(void *vm, int v1, int v2, height peso, int direction);
+void matrix_add_edge(void *vm, int v1, int v2, weight peso, int direction);
 
 void matrix_print(void *vm, int size);
 
