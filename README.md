@@ -44,3 +44,12 @@ Dentro de cada pasta, você encontrará um arquivo `main` pronto para ser utiliz
 
 
 # DESATUALIZADO!!
+
+Antes eu tinha 2 mains p cada implementação. Consegui reduzir pra uma, mas pra selecionar a implementação precisa mexer no graph.h nos defines.
+
+Adiciona x, y e damanda do vertice em um vetor. Ainda nao resolvi onde guardar esses dados na struct, então coloquei uma estrutura nova para guardar todos os vertices
+Acho que ate daria para colocar na struct de cada implementação mas n sei se ia ficar extremamente mais custoso doq usando um vector.
+Arquivo de texto é lido por passagem (lê o nome e a capacidade do caminhão, mas não salva em nenhum lugar).
+
+```bash
+./main < file.txt
