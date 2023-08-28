@@ -19,6 +19,8 @@ Graph *graph_construct(int v);
 
 void graph_add_edge(Graph *g, int v1, int v2, weight peso, int direction);
 
+Graph *graph_read_file_CVRPLIB();
+
 Graph *graph_read_file();
 
 void graph_print(Graph *g);

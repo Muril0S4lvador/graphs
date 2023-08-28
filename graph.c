@@ -39,7 +39,7 @@ void graph_add_edge(Graph *g, int v1, int v2, weight peso, int direction){
     g->num_edge++;
 }
 
-Graph *graph_read_file(){
+Graph *graph_read_file_CVRPLIB(){
 
     char nameprev[500];
     int dimension = 0, capacity = 0;
@@ -93,6 +93,21 @@ Graph *graph_read_file(){
         }
     }
 
+    return g;
+}
+
+Graph *graph_read_file(){
+    int v, e;
+
+    scanf("%d %d", &v, &e);
+
+    Graph *g = graph_construct(v);
+
+    for(int i = 0; i < e; i++){
+        int v1 = -1, v2 = -1;
+        scanf("%d %d", &v1, &v2);
+        graph_add_edge(g, v1, v2, WEIGHT_DEFAULT, UNDIRECTED);
+    }
     return g;
 }
 
