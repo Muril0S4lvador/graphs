@@ -63,12 +63,19 @@ Graph *graph_read_file_CVRPLIB(){
 
     Graph *g = graph_construct(dimension);
 
+    FILE *arq = fopen("imgs/graph.dot", "w");
+    char asp = '"';
+    fprintf(arq, "graph {\n");
+
     int x = 0, y = 0;
     for(int i = 0; i < dimension; i++){
         scanf(" %*d %d %d%*c", &x, &y);
         Data *d = data_construct(x, y);
         vector_push_back(g->vertices, d);
+
+        fprintf(arq, "v%d [pos = %c%d, %d!%c];\n", i, asp, x, y, asp);
     }
+
     scanf("%*[^\n]\n");
 
     float demand = 0;
@@ -77,6 +84,7 @@ Graph *graph_read_file_CVRPLIB(){
         Data *d = vector_get(g->vertices, i);
         data_set_demand(d, demand);
     }
+
 
     for(int i = 0; i < g->num_vertices ; i++){
         Data *d1 = vector_get(g->vertices, i);
@@ -90,8 +98,15 @@ Graph *graph_read_file_CVRPLIB(){
 
             graph_add_edge(g, i, j, w, DIRECTED);
 
+            if( i < j && j != i )
+                fprintf(arq, "v%d -- v%d [label = %c%.1f%c];\n", i, j, asp, w, asp);
+
         }
     }
+
+    fprintf(arq, "}");
+    fclose(arq);
+    system("dot -Kneato -Tpng imgs/graph.dot -O");
 
     return g;
 }
