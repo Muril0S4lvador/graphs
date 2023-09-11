@@ -6,7 +6,7 @@
 
 typedef struct Data Data;
 
-Data *data_construct(int x, int y);
+Data *data_construct(int x, int y, float demand);
 
 void data_set_demand(Data *d, float demand);
 

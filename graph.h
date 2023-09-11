@@ -10,7 +10,7 @@
 #include "adjacency_matrix/matrix.h"
 #include "Vector/vector.h"
 
-#define MATRIX 1
+#define MATRIX 0
 #define LIST 1
 
 typedef struct Graph Graph;
@@ -24,6 +24,8 @@ Graph *graph_read_file_CVRPLIB();
 Graph *graph_read_file();
 
 void graph_print(Graph *g);
+
+void graph_img_print(Graph *g);
 
 void graph_destroy(Graph *g);
 

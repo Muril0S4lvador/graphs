@@ -33,6 +33,8 @@ Adjacency *adjacency_create(int vertice, weight weight){
 }
 
 void list_add_edge(void *vl, int v1, int v2, weight peso, int direction){
+    if( v1 == v2 ) return;
+
     List v = vl;
     Adjacency *adj = adjacency_create(v2, peso);
     adj->next = v[v1].head;

@@ -5,11 +5,12 @@ struct Data{
     float demand;
 };
 
-Data *data_construct(int x, int y){
+Data *data_construct(int x, int y, float demand){
     Data *d = malloc(sizeof(Data));
 
     d->x = x;
     d->y = y;
+    d->demand = demand;
 
     return d;
 }

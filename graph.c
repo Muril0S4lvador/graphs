@@ -48,65 +48,42 @@ Graph *graph_read_file_CVRPLIB(){
     char name[ strlen(nameprev) ];
     strcpy(name, nameprev);
 
-    scanf("%*[^\n]\n");
-    scanf("%*[^\n]\n");
+    scanf("%*[^\n]\n"); // COMMENT
+    scanf("%*[^\n]\n"); // TYPE
     scanf("%*[^:]: %d%*c", &dimension);
 
-    scanf("%*[^\n]\n");
+    scanf("%*[^\n]\n"); // EDGE_WEIGHT_TYPE
     scanf("%*[^:]: %d%*c", &capacity);
-    scanf("%*[^\n]\n");
+    scanf("%*[^\n]\n"); //NODE_COORD_SECTION
 
-   
     printf("\n%s\n", name);
     printf("%d\n", dimension);
     printf("%d\n", capacity);
 
     Graph *g = graph_construct(dimension);
 
-    FILE *arq = fopen("imgs/graph.dot", "w");
-    char asp = '"';
-    fprintf(arq, "graph {\n");
+    float m[dimension][3];
 
-    int x = 0, y = 0;
-    for(int i = 0; i < dimension; i++){
-        scanf(" %*d %d %d%*c", &x, &y);
-        Data *d = data_construct(x, y);
+    for(int i = 0; i < dimension; i++)
+        scanf(" %*d %f %f%*c", &m[i][0], &m[i][1]);
+
+    scanf("%*[^\n]\n"); // DEMAND_COORD_SECTION
+
+    for(int i = 0; i < g->num_vertices; i++){
+        
+        scanf("%*c %f %*c", &m[i][2]);
+        int x1 = m[i][0], y1 = m[i][1];
+        Data *d = data_construct((int)x1, (int)y1, m[i][2]);
         vector_push_back(g->vertices, d);
 
-        fprintf(arq, "v%d [pos = %c%d, %d!%c];\n", i, asp, x, y, asp);
-    }
-
-    scanf("%*[^\n]\n");
-
-    float demand = 0;
-    for(int i = 0; i < dimension; i++){
-        scanf("%*c %f %*c", &demand);
-        Data *d = vector_get(g->vertices, i);
-        data_set_demand(d, demand);
-    }
-
-
-    for(int i = 0; i < g->num_vertices ; i++){
-        Data *d1 = vector_get(g->vertices, i);
-        int x1 = data_return_x(d1), y1 = data_return_y(d1);
-
-        for(int j = 0; j < g->num_vertices; j++){
-            Data *d2 = vector_get(g->vertices, j);
-            int x2 = data_return_x(d2), y2 = data_return_y(d2);
+        for(int j = i - 1; j >= 0; j--){
+            int x2 = m[j][0], y2 = m[j][1];
 
             weight w = (float)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
 
             graph_add_edge(g, i, j, w, DIRECTED);
-
-            if( i < j && j != i )
-                fprintf(arq, "v%d -- v%d [label = %c%.1f%c];\n", i, j, asp, w, asp);
-
         }
     }
-
-    fprintf(arq, "}");
-    fclose(arq);
-    system("dot -Kneato -Tpng imgs/graph.dot -O");
 
     return g;
 }
@@ -124,6 +101,38 @@ Graph *graph_read_file(){
         graph_add_edge(g, v1, v2, WEIGHT_DEFAULT, UNDIRECTED);
     }
     return g;
+}
+
+void graph_img_print(Graph *g){
+
+    FILE *arq_vertex = fopen("imgs/vertex.dot", "w");
+    char asp = '"';
+    fprintf(arq_vertex, "graph {\n");
+    fprintf(arq_vertex, "node[fontcolor = white, fillcolor = black, style = filled, shape = circle, width=%c2.5%c, height=%c2.5%c, fontsize = %c50%c];\n"
+    , asp, asp, asp, asp, asp, asp);
+
+    for(int i = 0; i < g->num_vertices; i++){
+        Data *d = vector_get(g->vertices, i);
+        fprintf(arq_vertex, "v%d [pos = %c%d, %d!%c];\n", i, asp, data_return_x(d), data_return_y(d), asp);
+    }
+
+    fclose(arq_vertex);
+    system("cp imgs/vertex.dot imgs/graph.dot");
+    arq_vertex = fopen("imgs/vertex.dot", "a");
+    fprintf(arq_vertex, "}");
+    fclose(arq_vertex);
+
+    FILE *arq_graph = fopen("imgs/graph.dot", "a");
+
+    for(int i = 0; i < g->num_vertices ; i++)
+        for(int j = 0; j < g->num_vertices; j++)
+            if( i < j ) fprintf(arq_graph, "v%d -- v%d;\n", i, j);
+    
+    fprintf(arq_graph, "}");
+    fclose(arq_graph);
+
+    system("dot -Kneato -Tpng imgs/vertex.dot -O");
+    system("dot -Kneato -Tpng imgs/graph.dot -O");
 }
 
 void graph_print(Graph *g){

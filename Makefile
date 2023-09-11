@@ -3,3 +3,6 @@ all:
 
 clean:
 	rm -r main
+
+imgs_clean:
+	rm -r imgs/*

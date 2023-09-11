@@ -8,6 +8,8 @@ int main(){
 
     graph_print(graph);
 
+    graph_img_print(graph);
+
     graph_destroy(graph);
 
     return 0;
