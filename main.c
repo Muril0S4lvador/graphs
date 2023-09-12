@@ -8,7 +8,7 @@ int main(){
 
     graph_print(graph);
 
-    graph_img_print(graph);
+    graph_img_print_vertex(graph, "imgs/vertex.dot");
 
     graph_destroy(graph);
 

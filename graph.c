@@ -3,16 +3,18 @@
 struct Graph{
     int num_vertices; 
     int num_edge;
+    bool direction;
     void *adj;
     Vector *vertices;
 };
 
-Graph *graph_construct(int v){
+Graph *graph_construct(int v, bool direction){
     Graph *g = malloc(sizeof(Graph));
 
     g->num_edge = 0;
     g->num_vertices = v;
     g->vertices = vector_construct();
+    g->direction = direction;
 
     if( MATRIX ){
         g->adj = matrix_construct(g->num_vertices);
@@ -27,13 +29,16 @@ Graph *graph_construct(int v){
     return g;
 }
 
-void graph_add_edge(Graph *g, int v1, int v2, weight peso, int direction){
+void graph_add_edge(Graph *g, int v1, int v2, weight peso){
+    if( v1 == v2 ) return;
+    // Se for não direcionado, o menor aponta para o maior
+    if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
 
     if( MATRIX ){
-        matrix_add_edge(g->adj, v1, v2, peso, direction);
+        matrix_add_edge(g->adj, v1, v2, peso, g->direction);
 
     } else if ( LIST ){
-        list_add_edge(g->adj, v1,v2, peso, direction);
+        list_add_edge(g->adj, v1,v2, peso, g->direction);
 
     }
     g->num_edge++;
@@ -60,7 +65,7 @@ Graph *graph_read_file_CVRPLIB(){
     printf("%d\n", dimension);
     printf("%d\n", capacity);
 
-    Graph *g = graph_construct(dimension);
+    Graph *g = graph_construct(dimension, UNDIRECTED);
 
     float m[dimension][3];
 
@@ -76,12 +81,12 @@ Graph *graph_read_file_CVRPLIB(){
         Data *d = data_construct((int)x1, (int)y1, m[i][2]);
         vector_push_back(g->vertices, d);
 
-        for(int j = i - 1; j >= 0; j--){
+        for(int j = g->num_vertices - 1; j >= 0; j--){
             int x2 = m[j][0], y2 = m[j][1];
 
             weight w = (float)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
 
-            graph_add_edge(g, i, j, w, DIRECTED);
+            graph_add_edge(g, i, j, w);
         }
     }
 
@@ -93,46 +98,33 @@ Graph *graph_read_file(){
 
     scanf("%d %d", &v, &e);
 
-    Graph *g = graph_construct(v);
+    Graph *g = graph_construct(v, DIRECTED);
 
     for(int i = 0; i < e; i++){
         int v1 = -1, v2 = -1;
         scanf("%d %d", &v1, &v2);
-        graph_add_edge(g, v1, v2, WEIGHT_DEFAULT, UNDIRECTED);
+        graph_add_edge(g, v1, v2, WEIGHT_DEFAULT);
     }
     return g;
 }
 
-void graph_img_print(Graph *g){
+void graph_img_print_vertex(Graph *g, char *file_name){
 
-    FILE *arq_vertex = fopen("imgs/vertex.dot", "w");
+    FILE *arq_vertex = fopen(file_name, "w");
     char asp = '"';
+
     fprintf(arq_vertex, "graph {\n");
-    fprintf(arq_vertex, "node[fontcolor = white, fillcolor = black, style = filled, shape = circle, width=%c2.5%c, height=%c2.5%c, fontsize = %c50%c];\n"
-    , asp, asp, asp, asp, asp, asp);
+    fprintf(arq_vertex, "node[fontcolor = white, fillcolor = black, style = filled, shape = circle, fontsize = %c12.5%c];\n", asp, asp);
 
     for(int i = 0; i < g->num_vertices; i++){
         Data *d = vector_get(g->vertices, i);
-        fprintf(arq_vertex, "v%d [pos = %c%d, %d!%c];\n", i, asp, data_return_x(d), data_return_y(d), asp);
+        fprintf(arq_vertex, "v%d [pos = %c%.2f, %.2f!%c];\n", i, asp, (float)data_return_x(d)/3, (float)data_return_y(d)/3, asp);
     }
 
-    fclose(arq_vertex);
-    system("cp imgs/vertex.dot imgs/graph.dot");
-    arq_vertex = fopen("imgs/vertex.dot", "a");
     fprintf(arq_vertex, "}");
     fclose(arq_vertex);
 
-    FILE *arq_graph = fopen("imgs/graph.dot", "a");
-
-    for(int i = 0; i < g->num_vertices ; i++)
-        for(int j = 0; j < g->num_vertices; j++)
-            if( i < j ) fprintf(arq_graph, "v%d -- v%d;\n", i, j);
-    
-    fprintf(arq_graph, "}");
-    fclose(arq_graph);
-
-    system("dot -Kneato -Tpng imgs/vertex.dot -O");
-    system("dot -Kneato -Tpng imgs/graph.dot -O");
+    system("dot -Kneato -Tpng imgs/vertex.dot -O &");
 }
 
 void graph_print(Graph *g){
@@ -146,12 +138,14 @@ void graph_print(Graph *g){
 
     }
 
+/*
     printf("\nVertices:\n");
     for(int i = 0; i < vector_size(g->vertices); i++){
         Data *d = vector_get(g->vertices, i);
         printf("%d : ", i);
         data_print(d);
     }
+*/
 }
 
 void graph_destroy(Graph *g){

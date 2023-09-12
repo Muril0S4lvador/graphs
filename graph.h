@@ -15,17 +15,21 @@
 
 typedef struct Graph Graph;
 
-Graph *graph_construct(int v);
+Graph *graph_construct(int v, bool direction);
 
-void graph_add_edge(Graph *g, int v1, int v2, weight peso, int direction);
+void graph_add_edge(Graph *g, int v1, int v2, weight peso);
+
+void graph_remove_edge(Graph *g, int v1, int v2);
 
 Graph *graph_read_file_CVRPLIB();
 
 Graph *graph_read_file();
 
+Graph *graph_kruskal(Graph *g);
+
 void graph_print(Graph *g);
 
-void graph_img_print(Graph *g);
+void graph_img_print_vertex(Graph *g, char *file_name);
 
 void graph_destroy(Graph *g);
 
