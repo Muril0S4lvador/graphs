@@ -23,6 +23,8 @@ char matrix_edge_exists(void *vm, int v1, int v2);
 
 void matrix_print(void *vm, int size);
 
+void _matrix_file_write(void *vm, int size, FILE *arq, char *edge);
+
 void matrix_destroy(void *vm, int size);
 
 #endif

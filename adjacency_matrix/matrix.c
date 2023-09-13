@@ -43,6 +43,16 @@ void matrix_print(void *vm, int size){
     printf("\n");
 }
 
+void _matrix_file_write(void *vm, int size, FILE *arq, char *edge){
+    Matrix m = vm;
+    for(int i = 0; i < size; i++)
+        for( int j = 0; j < size; j++)
+            if( m[i][j] )
+                fprintf(arq, "v%d %s v%d;\n", i, edge, j);
+
+}
+
+
 void matrix_destroy(void *vm, int size){
     Matrix m = vm;
     for(int i = 0; i < size; i++)

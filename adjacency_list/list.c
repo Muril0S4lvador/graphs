@@ -90,6 +90,19 @@ void list_print(void *vl, int size){
     }
 }
 
+void _list_file_write(void *vl, int size, FILE *arq, char *edge){
+    
+    List l = vl;
+    for(int i = 0; i < size; i++){
+        Adjacency *aux = l[i].head;
+
+        while(aux){
+            fprintf(arq, "v%d %s v%d;\n", i, edge, aux->vertice);
+            aux = aux->next;
+        }
+    }
+}
+
 void list_destroy(void *vl, int size){
     List v = vl;
     for(int i = 0; i < size; i++){

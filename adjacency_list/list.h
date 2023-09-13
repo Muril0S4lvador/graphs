@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "../data/data.h"
 
@@ -25,6 +26,8 @@ void list_remove_edge(void *vl, int v1, int v2);
 char list_edge_exists(void *vl, int v1, int v2);
 
 void list_print(void *vl, int size);
+
+void _list_file_write(void *vl, int size, FILE *arq, char *edge);
 
 void list_destroy(void *vl, int size);
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graph.h"
+#include "graphviz_print/graphviz_print.h"
 
 int main(){
 
@@ -8,7 +9,9 @@ int main(){
 
     graph_print(graph);
 
-    graph_img_print_vertex(graph, "imgs/vertex.dot");
+    img_print_vertex(graph, "imgs/vertex.dot");
+
+    img_print_graph(graph, "imgs/graph.dot");
 
     graph_destroy(graph);
 
