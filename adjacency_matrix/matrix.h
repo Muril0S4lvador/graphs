@@ -15,7 +15,11 @@ typedef int** Matrix;
 
 Matrix matrix_construct(int v);
 
-void matrix_add_edge(void *vm, int v1, int v2, weight peso, int direction);
+void matrix_add_edge(void *vm, int v1, int v2, weight peso);
+
+void matrix_remove_edge(void *vm, int v1, int v2);
+
+char matrix_edge_exists(void *vm, int v1, int v2);
 
 void matrix_print(void *vm, int size);
 

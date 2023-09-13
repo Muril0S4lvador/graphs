@@ -35,13 +35,14 @@ void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
 
     if( MATRIX ){
-        matrix_add_edge(g->adj, v1, v2, peso, g->direction);
+        matrix_add_edge(g->adj, v1, v2, peso);
 
     } else if ( LIST ){
-        list_add_edge(g->adj, v1,v2, peso, g->direction);
+        list_add_edge(g->adj, v1,v2, peso);
 
     }
-    g->num_edge++;
+    g->num_edge += ( g->direction == UNDIRECTED ) ? 2 : 1;
+
 }
 
 Graph *graph_read_file_CVRPLIB(){
@@ -81,7 +82,7 @@ Graph *graph_read_file_CVRPLIB(){
         Data *d = data_construct((int)x1, (int)y1, m[i][2]);
         vector_push_back(g->vertices, d);
 
-        for(int j = g->num_vertices - 1; j >= 0; j--){
+        for(int j = i - 1; j >= 0; j--){
             int x2 = m[j][0], y2 = m[j][1];
 
             weight w = (float)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );

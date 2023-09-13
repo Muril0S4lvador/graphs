@@ -9,13 +9,21 @@ Matrix matrix_construct(int v){
     return m;
 }
 
-void matrix_add_edge(void *vm, int v1, int v2, weight peso, int direction){
+void matrix_add_edge(void *vm, int v1, int v2, weight peso){
+    if( matrix_edge_exists(vm, v1, v2) ) return;
     Matrix m = vm;
-
-    if(direction == UNDIRECTED)
-        m[v2][v1] = peso;
-
     m[v1][v2] = peso;
+}
+
+void matrix_remove_edge(void *vm, int v1, int v2){
+    if( !matrix_edge_exists(vm , v1, v2) ) return;
+    Matrix m = vm;
+    m[v1][v2] = 0;
+}
+
+char matrix_edge_exists(void *vm, int v1, int v2){
+    Matrix m = vm;
+    return m[v1][v2] != 0;
 }
 
 void matrix_print(void *vm, int size){

@@ -32,9 +32,8 @@ Adjacency *adjacency_create(int vertice, weight weight){
     return adj;
 }
 
-void list_add_edge(void *vl, int v1, int v2, weight peso, int direction){
-    if( v1 == v2 ) return;
-    if(list_edge_exists(vl, v1, v2, direction)) return;
+void list_add_edge(void *vl, int v1, int v2, weight peso){
+    if(list_edge_exists(vl, v1, v2)) return;
 
     List v = vl;
     Adjacency *adj = adjacency_create(v2, peso);
@@ -43,9 +42,9 @@ void list_add_edge(void *vl, int v1, int v2, weight peso, int direction){
 
 }
 
-void list_remove_edge(void *vl, int v1, int v2, int direction){
-    if( v1 == v2 ) return;
-    if(!list_edge_exists(vl, v1, v2, direction)) return;
+void list_remove_edge(void *vl, int v1, int v2){
+    
+    if(!list_edge_exists(vl, v1, v2)) return;
 
     List v = vl;
     Adjacency *adj = v[v1].head, *prev = NULL;
@@ -61,11 +60,9 @@ void list_remove_edge(void *vl, int v1, int v2, int direction){
             v[v1].head = adj->next;
         }
     }
-    list_remove_edge(vl, v2, v1, UNDIRECTED);
 }
 
-char list_edge_exists(void *vl, int v1, int v2, int direction){
-    if( v1 == v2 ) return 0;
+char list_edge_exists(void *vl, int v1, int v2){
 
     List v = vl;
     Adjacency *adj = v[v1].head;
@@ -74,7 +71,7 @@ char list_edge_exists(void *vl, int v1, int v2, int direction){
         adj = adj->next;
     }
 
-    return (direction == DIRECTED) ? 0 : list_edge_exists(vl, v2, v1, DIRECTED);
+    return 0;
 }
 
 void list_print(void *vl, int size){

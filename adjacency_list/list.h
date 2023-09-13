@@ -11,8 +11,6 @@
 #define WEIGHT_DEFAULT 1
 
 typedef float weight;
-// typedef void data_type;
-
 typedef struct Adjacency Adjacency;
 typedef struct List* List;
 
@@ -20,11 +18,11 @@ List list_construct(int v);
 
 Adjacency *adjacency_create(int vertice, weight weight);
 
-void list_add_edge(void *vl, int v1, int v2, weight peso, int direction);
+void list_add_edge(void *vl, int v1, int v2, weight peso);
 
-void list_remove_edge(void *vl, int v1, int v2, int direction);
+void list_remove_edge(void *vl, int v1, int v2);
 
-char list_edge_exists(void *vl, int v1, int v2, int direction);
+char list_edge_exists(void *vl, int v1, int v2);
 
 void list_print(void *vl, int size);
 
