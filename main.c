@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "graph.h"
-#include "graphviz_print/graphviz_print.h"
+#include "src/graph/graph.h"
+#include "src/graphviz_print/graphviz_print.h"
 
 int main(){
 

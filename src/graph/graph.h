@@ -6,9 +6,9 @@
 #include <math.h>
 #include <string.h>
 
-#include "adjacency_list/list.h"
-#include "adjacency_matrix/matrix.h"
-#include "Vector/vector.h"
+#include "../adjacency_list/list.h"
+#include "../adjacency_matrix/matrix.h"
+#include "../Vector/vector.h"
 
 #define MATRIX 0
 #define LIST 1

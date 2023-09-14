@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../graph.h"
+#include "../graph/graph.h"
 #include "../data/data.h"
 #include "../Vector/vector.h"
 
