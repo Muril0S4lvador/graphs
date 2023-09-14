@@ -103,18 +103,17 @@ void _list_file_write(void *vl, int size, FILE *arq, char *edge){
     }
 }
 
-char *_list_return_adjacency(void *vl, int idx, int i){
+void *_list_return_adjacencies(void *vl, int size, char direction){
     List l = vl;
-    Adjacency *adj = l[idx].head;
-    for(int j = 0; j < i; j++)
-        adj = adj->next;
+    
+    if( direction == UNDIRECTED ) size/2;
+    
+    for(int i = 0; i < size; i++){
+        Adjacency *adj = l[i].head;
 
-    if(adj){
-        char adjacency[50];
-        sprintf(adjacency, "%d/%f", adj->vertice, adj->weight);
-        char *adj_ret = malloc(sizeof(char) * strlen(adjacency));
-        strcat(adj_ret, adjacency);
-        return adj_ret;
+        while(adj){
+
+        }
     }
 
     return NULL;

@@ -48,7 +48,7 @@ void *graph_return_adjacencies(Graph *g){
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( v1 == v2 ) return;
     // Se for não direcionado, o menor aponta para o maior
-    if( g->direction == DIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
+    if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
 
     if( MATRIX ){
         matrix_add_edge(g->adj, v1, v2, peso);
