@@ -6,11 +6,13 @@
 #include <math.h>
 #include <string.h>
 
-#include "../adjacency_list/list.h"
-#include "../adjacency_matrix/matrix.h"
-#include "../Vector/vector.h"
+typedef unsigned char bool;
+typedef float weight;
 
-#define MATRIX 0
+#define UNDIRECTED 1
+#define DIRECTED 0
+
+#define MATRIX 1
 #define LIST 1
 
 typedef struct Graph Graph;
@@ -19,9 +21,11 @@ Graph *graph_construct(int v, bool direction);
 
 int graph_return_num_vertex(Graph *g);
 
+int graph_return_num_edges(Graph *g);
+
 bool graph_return_direction(Graph *g);
 
-Vector *graph_return_vertex_vector(Graph *g);
+void *graph_return_vertex_vector(Graph *g);
 
 void *graph_return_adjacencies(Graph *g);
 
@@ -35,9 +39,9 @@ Graph *graph_read_file_CVRPLIB();
 
 Graph *graph_read_file();
 
-Graph *graph_kruskal(Graph *g);
-
 void graph_print(Graph *g);
+
+Graph *graph_mst_kruskal(Graph *g);
 
 void graph_destroy(Graph *g);
 

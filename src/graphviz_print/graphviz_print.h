@@ -3,10 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "../graph/graph.h"
-#include "../data/data.h"
-#include "../Vector/vector.h"
 
 #define TYPE "png"
 

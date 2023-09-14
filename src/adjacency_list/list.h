@@ -19,7 +19,7 @@ List list_construct(int v);
 
 Adjacency *adjacency_create(int vertice, weight weight);
 
-void list_add_edge(void *vl, int v1, int v2, weight peso);
+char list_add_edge(void *vl, int v1, int v2, weight peso);
 
 void list_remove_edge(void *vl, int v1, int v2);
 
@@ -27,7 +27,9 @@ char list_edge_exists(void *vl, int v1, int v2);
 
 void list_print(void *vl, int size);
 
-void _list_file_write(void *vl, int size, FILE *arq, char *edge);
+void list_file_write(void *vl, int size, FILE *arq, char *edge);
+
+void list_return_kruskal(void *vl, int sizeVertex, int sizeEdges, void *vk);
 
 void list_destroy(void *vl, int size);
 

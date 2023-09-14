@@ -5,14 +5,15 @@
 #include <stdlib.h>
 
 #include "../graph/graph.h"
-#include "../data/data.h"
 
 typedef struct{
     int src, dest;
     weight weight;
 } Kruskal;
 
-Graph *kruskal_algorithm(Graph *g);
+Graph *kruskal_algorithm(Kruskal *k, int num_vertex, int num_edges);
+
+int kruskal_compare(const void* a, const void* b);
 
 
 #endif

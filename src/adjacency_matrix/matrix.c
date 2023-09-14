@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include "../algorithms/algorithms.h"
 
 Matrix matrix_construct(int v){
     Matrix m = malloc(v * sizeof(int*));
@@ -9,10 +10,11 @@ Matrix matrix_construct(int v){
     return m;
 }
 
-void matrix_add_edge(void *vm, int v1, int v2, weight peso){
-    if( matrix_edge_exists(vm, v1, v2) ) return;
+char matrix_add_edge(void *vm, int v1, int v2, weight peso){
+    if( matrix_edge_exists(vm, v1, v2) ) return 0;
     Matrix m = vm;
     m[v1][v2] = peso;
+    return 1;
 }
 
 void matrix_remove_edge(void *vm, int v1, int v2){
@@ -43,13 +45,31 @@ void matrix_print(void *vm, int size){
     printf("\n");
 }
 
-void _matrix_file_write(void *vm, int size, FILE *arq, char *edge){
+void matrix_file_write(void *vm, int size, FILE *arq, char *edge){
     Matrix m = vm;
     for(int i = 0; i < size; i++)
         for( int j = 0; j < size; j++)
             if( m[i][j] )
                 fprintf(arq, "v%d %s v%d;\n", i, edge, j);
 
+}
+
+void matrix_return_kruskal(void *vm, int sizeVertex, int sizeEdges, void *vk, int direction){
+    Matrix m = vm;
+    Kruskal *k = vk;
+
+    for(int i = 0, k_size = 0; i < sizeVertex; i++){
+
+        int j = ( direction == UNDIRECTED ) ? i + 1 : 0;
+        for( j; j < sizeVertex; j++){
+
+            k[k_size].src = i;
+            k[k_size].dest = j;
+            k[k_size].weight = m[i][j];
+            k_size++;
+
+        }
+    }
 }
 
 

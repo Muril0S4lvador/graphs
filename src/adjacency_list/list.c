@@ -1,4 +1,5 @@
 #include "list.h"
+#include "../algorithms/algorithms.h"
 
 struct Adjacency{
     int vertice;
@@ -32,14 +33,14 @@ Adjacency *adjacency_create(int vertice, weight weight){
     return adj;
 }
 
-void list_add_edge(void *vl, int v1, int v2, weight peso){
-    if(list_edge_exists(vl, v1, v2)) return;
+char list_add_edge(void *vl, int v1, int v2, weight peso){
+    if(list_edge_exists(vl, v1, v2)) return 0;
 
     List v = vl;
     Adjacency *adj = adjacency_create(v2, peso);
     adj->next = v[v1].head;
     v[v1].head = adj;
-
+    return 1;
 }
 
 void list_remove_edge(void *vl, int v1, int v2){
@@ -90,7 +91,7 @@ void list_print(void *vl, int size){
     }
 }
 
-void _list_file_write(void *vl, int size, FILE *arq, char *edge){
+void list_file_write(void *vl, int size, FILE *arq, char *edge){
     
     List l = vl;
     for(int i = 0; i < size; i++){
@@ -103,20 +104,27 @@ void _list_file_write(void *vl, int size, FILE *arq, char *edge){
     }
 }
 
-void *_list_return_adjacencies(void *vl, int size, char direction){
+void list_return_kruskal(void *vl, int sizeVertex, int sizeEdges, void *vk){
     List l = vl;
+    Kruskal *k = vk;
     
-    if( direction == UNDIRECTED ) size/2;
-    
-    for(int i = 0; i < size; i++){
+    for(int i = 0, j = 0; j < sizeEdges ; j++){
+        
         Adjacency *adj = l[i].head;
 
         while(adj){
+            k[j].src = i;
+            k[j].dest = adj->vertice;
+            k[j].weight = adj->weight;
 
+            if(k[j].src == 30 && k[j].dest == 31) printf("%d\n", j);
+
+            adj = adj->next;
+            if( adj ) j++;
         }
+        
+        if( i < sizeVertex ) i++;
     }
-
-    return NULL;
 }
 
 void list_destroy(void *vl, int size){

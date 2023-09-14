@@ -15,7 +15,7 @@ typedef int** Matrix;
 
 Matrix matrix_construct(int v);
 
-void matrix_add_edge(void *vm, int v1, int v2, weight peso);
+char matrix_add_edge(void *vm, int v1, int v2, weight peso);
 
 void matrix_remove_edge(void *vm, int v1, int v2);
 
@@ -23,7 +23,9 @@ char matrix_edge_exists(void *vm, int v1, int v2);
 
 void matrix_print(void *vm, int size);
 
-void _matrix_file_write(void *vm, int size, FILE *arq, char *edge);
+void matrix_file_write(void *vm, int size, FILE *arq, char *edge);
+
+void matrix_return_kruskal(void *vm, int sizeVertex, int sizeEdges, void *vk, int direction);
 
 void matrix_destroy(void *vm, int size);
 

@@ -1,12 +1,12 @@
 #include "union_find.h"
 
 
-UF* UF_init(uint16_t size) {
+UF* UF_init(int size) {
     UF* uf = malloc(sizeof(UF));
-    uf->id = malloc(sizeof(uint16_t) * size);
-    uf->size = malloc(sizeof(uint16_t) * size);
+    uf->id = malloc(sizeof(int) * size);
+    uf->size = malloc(sizeof(int) * size);
     uf->N = size;
-    for (uint16_t i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         uf->id[i] = i;  // Cada objeto comeca na sua propria componente.
         uf->size[i] = 1;// N acessos ao array.
     }                   
@@ -14,7 +14,7 @@ UF* UF_init(uint16_t size) {
 }
 
 
-uint16_t UF_find(UF* uf, uint16_t i) {
+int UF_find(UF* uf, int i) {
     while (i != uf->id[i]){
         uf->id[i] = uf->id[ uf->id[i] ];
         i = uf->id[i]; // Buscar o pai ate a raiz.
@@ -22,9 +22,9 @@ uint16_t UF_find(UF* uf, uint16_t i) {
     return i; // Profundidade de i acessos.
 }
 
-void UF_union(UF* uf, uint16_t p, uint16_t q) {
-    uint16_t i = UF_find(uf, p); // Modifique raiz de p para a raiz de q.
-    uint16_t j = UF_find(uf, q); // Profundidade de p+q acessos.
+void UF_union(UF* uf, int p, int q) {
+    int i = UF_find(uf, p); // Modifique raiz de p para a raiz de q.
+    int j = UF_find(uf, q); // Profundidade de p+q acessos.
     if( i == j ) return;
     else if( uf->size[i] < uf->size[j] ){
         uf->id[i] = j;
@@ -36,7 +36,7 @@ void UF_union(UF* uf, uint16_t p, uint16_t q) {
     }
 }
 
-int UF_connected(UF* uf, uint16_t p, uint16_t q) {
+int UF_connected(UF* uf, int p, int q) {
     return UF_find(uf, p) == UF_find(uf, q); // Verificar se p e q estao na mesma componente.
 }
 

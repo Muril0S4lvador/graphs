@@ -1,4 +1,7 @@
 #include "graphviz_print.h"
+#include "../adjacency_list/list.h"
+#include "../adjacency_matrix/matrix.h"
+#include "../Vector/vector.h"
 
 void _system_call_graphviz(char *file_name){
     char call[ 24 + strlen(file_name) ];
@@ -23,10 +26,10 @@ void _graph_file_write(Graph *g, int size, FILE *arq, int direction){
     (direction == DIRECTED) ? strcat(edge, ">") : strcat(edge, "-");
 
     if( MATRIX ){
-        _matrix_file_write(graph_return_adjacencies(g), size, arq, edge);
+        matrix_file_write(graph_return_adjacencies(g), size, arq, edge);
 
     } else if( LIST ){
-        _list_file_write(graph_return_adjacencies(g), size, arq, edge);
+        list_file_write(graph_return_adjacencies(g), size, arq, edge);
 
     }
 

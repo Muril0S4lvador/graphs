@@ -1,4 +1,8 @@
 #include "graph.h"
+#include "../adjacency_list/list.h"
+#include "../adjacency_matrix/matrix.h"
+#include "../Vector/vector.h"
+#include "../algorithms/algorithms.h"
 
 struct Graph{
     int num_vertex; 
@@ -33,11 +37,15 @@ int graph_return_num_vertex(Graph *g){
     return (g) ? g->num_vertex : -1;
 }
 
+int graph_return_num_edges(Graph *g){
+    return (g) ? g->num_edge : -1;
+}
+
 bool graph_return_direction(Graph *g){
     return g->direction;
 }
 
-Vector *graph_return_vertex_vector(Graph *g){
+void *graph_return_vertex_vector(Graph *g){
     return (g) ? g->vertices : NULL;
 }
 
@@ -51,10 +59,10 @@ void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
 
     if( MATRIX ){
-        matrix_add_edge(g->adj, v1, v2, peso);
+        if( matrix_add_edge(g->adj, v1, v2, peso) == 0) return; 
 
     } else if ( LIST ){
-        list_add_edge(g->adj, v1,v2, peso);
+        if( list_add_edge(g->adj, v1,v2, peso) == 0) return;
 
     }
     g->num_edge += ( g->direction == UNDIRECTED ) ? 2 : 1;
@@ -133,10 +141,6 @@ Graph *graph_read_file(){
     return g;
 }
 
-Graph *graph_kruskal(Graph *g){
-
-}
-
 void graph_print(Graph *g){
     printf("Vértices: %d\nArestas: %d\n", g->num_vertex, g->num_edge);
 
@@ -147,8 +151,8 @@ void graph_print(Graph *g){
         list_print(g->adj, g->num_vertex);
 
     }
-
 /*
+
     printf("\nVertices:\n");
     for(int i = 0; i < vector_size(g->vertices); i++){
         Data *d = vector_get(g->vertices, i);
@@ -156,6 +160,32 @@ void graph_print(Graph *g){
         data_print(d);
     }
 */
+}
+
+Graph *graph_mst_kruskal(Graph *g){
+
+    int sizeEdges = g->num_edge;
+    if (g->direction == UNDIRECTED) sizeEdges /= 2;
+    
+    Kruskal *k = calloc( g->num_edge, sizeof(Kruskal) );
+    
+    if( MATRIX ){
+        matrix_return_kruskal(graph_return_adjacencies(g), g->num_vertex, sizeEdges, k, graph_return_direction(g));
+
+    } else if( LIST ){
+        list_return_kruskal(graph_return_adjacencies(g), g->num_vertex, sizeEdges, k);
+
+    }
+
+    Graph *mst = kruskal_algorithm(k, g->num_vertex, g->num_edge);
+
+    for(int i = 0; i < g->num_vertex; i++){
+        Data *d = vector_get(g->vertices, i);
+        Data *d_mst = data_construct(data_return_x(d), data_return_y(d), data_return_demand(d));
+        vector_push_back(mst->vertices, d_mst);    
+    }
+
+    return mst;
 }
 
 void graph_destroy(Graph *g){
