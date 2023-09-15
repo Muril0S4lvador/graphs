@@ -15,5 +15,8 @@ Graph *kruskal_algorithm(Kruskal *k, int num_vertex, int num_edges);
 
 int kruskal_compare(const void* a, const void* b);
 
+void dfs_algorithm(void *adj, int *route, int *size_route, int *visited);
+
+
 
 #endif

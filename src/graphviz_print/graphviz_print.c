@@ -35,6 +35,13 @@ void _graph_file_write(Graph *g, int size, FILE *arq, int direction){
 
 }
 
+void _route_file_write(int *route, int size, FILE *arq){
+    char asp = '"';
+    
+    for( int i = 0; i < size; i++ )
+        fprintf(arq, "v%d -> v%d [color = %cgreen%c];\n", route[i], route[i+1], asp, asp);
+}
+
 void img_print_vertex(Graph *g, char *file_name){
 
     FILE *arq_vertex = fopen(file_name, "w");
@@ -78,6 +85,7 @@ void img_print_graph(Graph *g, char *file_name){
 
     _vertex_file_write(graph_return_vertex_vector(g), graph_return_num_vertex(g), arq_graph);
     _graph_file_write(g, graph_return_num_vertex(g), arq_graph, direction);
+    if( graph_has_route(g) ) _route_file_write(graph_return_route(g), graph_return_num_vertex(g) - 1, arq_graph);
 
     fprintf(arq_graph, "}");
     fclose(arq_graph);

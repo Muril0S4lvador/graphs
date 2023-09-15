@@ -19,6 +19,10 @@ int main(){
 
     img_print_graph(g, "imgs/mst.dot");
 
+    graph_dfs(g);
+
+    img_print_graph(g, "imgs/route.dot");
+
     graph_destroy(graph);
     graph_destroy(g);
 

@@ -12,7 +12,7 @@ typedef float weight;
 #define UNDIRECTED 1
 #define DIRECTED 0
 
-#define MATRIX 1
+#define MATRIX 0
 #define LIST 1
 
 typedef struct Graph Graph;
@@ -25,9 +25,13 @@ int graph_return_num_edges(Graph *g);
 
 bool graph_return_direction(Graph *g);
 
+bool graph_has_route(Graph *g);
+
 void *graph_return_vertex_vector(Graph *g);
 
 void *graph_return_adjacencies(Graph *g);
+
+void *graph_return_route(Graph *g);
 
 void graph_add_edge(Graph *g, int v1, int v2, weight peso);
 
@@ -42,6 +46,8 @@ Graph *graph_read_file();
 void graph_print(Graph *g);
 
 Graph *graph_mst_kruskal(Graph *g);
+
+void graph_dfs(Graph *g);
 
 void graph_destroy(Graph *g);
 

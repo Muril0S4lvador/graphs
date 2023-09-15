@@ -11,4 +11,7 @@ void img_print_vertex(Graph *g, char *file_name);
 
 void img_print_graph(Graph *g, char *file_name);
 
+void img_print_route(Graph *g, char *file_name);
+
+
 #endif

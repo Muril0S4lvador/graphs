@@ -10,6 +10,7 @@ struct Graph{
     bool direction;
     void *adj;
     Vector *vertices;
+    void *route;
 };
 
 Graph *graph_construct(int v, bool direction){
@@ -19,6 +20,7 @@ Graph *graph_construct(int v, bool direction){
     g->num_vertex = v;
     g->vertices = vector_construct();
     g->direction = direction;
+    g->route = NULL;
 
     if( MATRIX ){
         g->adj = matrix_construct(g->num_vertex);
@@ -45,6 +47,10 @@ bool graph_return_direction(Graph *g){
     return g->direction;
 }
 
+bool graph_has_route(Graph *g){
+    return (g) ? g->route != NULL : 0;
+}
+
 void *graph_return_vertex_vector(Graph *g){
     return (g) ? g->vertices : NULL;
 }
@@ -52,6 +58,11 @@ void *graph_return_vertex_vector(Graph *g){
 void *graph_return_adjacencies(Graph *g){
     return (g) ? g->adj : NULL;
 }
+
+void *graph_return_route(Graph *g){
+    return (g) ? g->route : NULL;
+}
+
 
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( v1 == v2 ) return;
@@ -188,6 +199,19 @@ Graph *graph_mst_kruskal(Graph *g){
     return mst;
 }
 
+void graph_dfs(Graph *g){
+
+    int *route = malloc(sizeof(int) * g->num_vertex), 
+        *size_route = malloc(sizeof(int)),
+        *visited = calloc(g->num_vertex, sizeof(int));
+    *size_route = 0;
+
+    dfs_algorithm(g->adj, route, size_route, visited);
+    g->route = route;
+
+    free(visited);
+}
+
 void graph_destroy(Graph *g){
 
     if( MATRIX ){
@@ -204,5 +228,6 @@ void graph_destroy(Graph *g){
     }
     vector_destroy(g->vertices);
 
+    free(g->route);
     free(g);
 }

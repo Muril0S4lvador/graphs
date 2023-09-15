@@ -127,6 +127,28 @@ void list_return_kruskal(void *vl, int sizeVertex, int sizeEdges, void *vk){
     }
 }
 
+void list_dfs_recursive(void *vl, int *route, int *size_route, int *visited){
+    List l = vl;
+    Adjacency *adj = l[0].head;
+    route[(*size_route)++] = 0;
+    visited[0] = 1;
+    _list_dfs_recursive(adj, vl, route, size_route, visited);
+}
+
+void _list_dfs_recursive(Adjacency *adj, void *vl, int *route, int *size_route, int *visited){
+    List l = vl;
+    if( !adj ) return;
+    if( !visited[adj->vertice] ){
+
+        route[(*size_route)++] = adj->vertice;
+        visited[adj->vertice] = 1;
+        _list_dfs_recursive(l[adj->vertice].head, vl, route, size_route, visited);
+    }
+    _list_dfs_recursive(adj->next, vl, route, size_route, visited);
+
+}
+
+
 void list_destroy(void *vl, int size){
     List v = vl;
     for(int i = 0; i < size; i++){
