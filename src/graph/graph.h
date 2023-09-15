@@ -12,7 +12,7 @@ typedef float weight;
 #define UNDIRECTED 1
 #define DIRECTED 0
 
-#define MATRIX 0
+#define MATRIX 1
 #define LIST 1
 
 typedef struct Graph Graph;

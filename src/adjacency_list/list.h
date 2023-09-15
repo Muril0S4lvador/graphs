@@ -35,7 +35,6 @@ void list_dfs_recursive(void *vl, int *route, int *size_route, int *visited);
 
 void _list_dfs_recursive(Adjacency *adj, void *vl, int *route, int *size_route, int *visited);
 
-
 void list_destroy(void *vl, int size);
 
 #endif

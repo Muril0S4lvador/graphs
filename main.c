@@ -7,19 +7,11 @@ int main(){
 
     Graph *graph = graph_read_file_CVRPLIB();
 
-    // graph_print(graph);
-
-    // img_print_vertex(graph, "imgs/vertex.dot");
-
-    // img_print_graph(graph, "imgs/graph.dot");
-
     Graph *g = graph_mst_kruskal(graph);
 
-    // graph_print(g);
-
-    img_print_graph(g, "imgs/mst.dot");
-
     graph_dfs(g);
+
+    graph_print(g);
 
     img_print_graph(g, "imgs/route.dot");
 

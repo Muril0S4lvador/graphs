@@ -1,8 +1,9 @@
 #include "algorithms.h"
 #include "../union_find/union_find.h"
 #include "../adjacency_list/list.h"
+#include "../adjacency_matrix/matrix.h"
 
-Graph *kruskal_algorithm(Kruskal *k, int num_vertex, int num_edges){
+Graph *kruskal_algorithm(Kruskal *k, int num_vertex, int num_edges, Graph *g){
 
     UF* uf = UF_init(num_vertex);
     Graph *mst = graph_construct(num_vertex, DIRECTED);
@@ -34,10 +35,13 @@ int kruskal_compare(const void* a, const void* b) {
     return (ka->weight - kb->weight) ;
 }
 
-void dfs_algorithm(void *adj, int *route, int *size_route, int *visited){
+void dfs_algorithm(void *adj, int *route, int *visited, int size){
+
+    int *size_route = malloc(sizeof(int));
+    *size_route = 0;
 
     if( MATRIX ){
-        
+        matrix_dfs_recursive(adj, route, size_route, visited, size);
 
     } else if( LIST ){
         list_dfs_recursive(adj, route, size_route, visited);
@@ -45,9 +49,9 @@ void dfs_algorithm(void *adj, int *route, int *size_route, int *visited){
     }
 
     printf("\nRoute\n");
-    for(int i = 0; i < *size_route; i++){
+    for(int i = 000; i < *size_route; i++){
         printf("%d\n", route[i]);
 
     }
-
+    free(size_route);
 }

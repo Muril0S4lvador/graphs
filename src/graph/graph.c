@@ -82,6 +82,7 @@ void graph_add_edge(Graph *g, int v1, int v2, weight peso){
 
 void graph_remove_edge(Graph *g, int v1, int v2){
     ( MATRIX ) ? matrix_remove_edge(g->adj, v1, v2) : list_remove_edge(g->adj, v1, v2);
+    g->num_edge--;
 }
 
 bool graph_edge_exists(Graph *g, int v1, int v2){
@@ -188,7 +189,7 @@ Graph *graph_mst_kruskal(Graph *g){
 
     }
 
-    Graph *mst = kruskal_algorithm(k, g->num_vertex, g->num_edge);
+    Graph *mst = kruskal_algorithm(k, g->num_vertex, g->num_edge, g);
 
     for(int i = 0; i < g->num_vertex; i++){
         Data *d = vector_get(g->vertices, i);
@@ -201,12 +202,10 @@ Graph *graph_mst_kruskal(Graph *g){
 
 void graph_dfs(Graph *g){
 
-    int *route = malloc(sizeof(int) * g->num_vertex), 
-        *size_route = malloc(sizeof(int)),
+    int *route = calloc(g->num_vertex, sizeof(int)), 
         *visited = calloc(g->num_vertex, sizeof(int));
-    *size_route = 0;
 
-    dfs_algorithm(g->adj, route, size_route, visited);
+    dfs_algorithm(g->adj, route, visited, g->num_vertex);
     g->route = route;
 
     free(visited);

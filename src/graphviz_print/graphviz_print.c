@@ -39,7 +39,7 @@ void _route_file_write(int *route, int size, FILE *arq){
     char asp = '"';
     
     for( int i = 0; i < size; i++ )
-        fprintf(arq, "v%d -> v%d [color = %cgreen%c];\n", route[i], route[i+1], asp, asp);
+        fprintf(arq, "v%d -> v%d [color = %cred%c];\n", route[i], route[i+1], asp, asp);
 }
 
 void img_print_vertex(Graph *g, char *file_name){

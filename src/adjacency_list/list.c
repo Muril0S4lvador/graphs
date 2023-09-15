@@ -45,8 +45,6 @@ char list_add_edge(void *vl, int v1, int v2, weight peso){
 
 void list_remove_edge(void *vl, int v1, int v2){
     
-    if(!list_edge_exists(vl, v1, v2)) return;
-
     List v = vl;
     Adjacency *adj = v[v1].head, *prev = NULL;
     while( adj && adj->vertice != v2 ){
@@ -60,6 +58,7 @@ void list_remove_edge(void *vl, int v1, int v2){
         } else {
             v[v1].head = adj->next;
         }
+        free(adj);
     }
 }
 
@@ -116,8 +115,6 @@ void list_return_kruskal(void *vl, int sizeVertex, int sizeEdges, void *vk){
             k[j].src = i;
             k[j].dest = adj->vertice;
             k[j].weight = adj->weight;
-
-            if(k[j].src == 30 && k[j].dest == 31) printf("%d\n", j);
 
             adj = adj->next;
             if( adj ) j++;
