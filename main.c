@@ -9,10 +9,6 @@ int main(){
 
     Graph *g = graph_mst_kruskal(graph);
 
-    // graph_dfs(g);
-
-    img_print_graph(g, "imgs/muguel.dot");
-
     graph_destroy(graph);
     graph_destroy(g);
 

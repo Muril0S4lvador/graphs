@@ -1,4 +1,5 @@
 #include "algorithms.h"
+#include "../graphviz_print/graphviz_print.h"
 #include "../union_find/union_find.h"
 #include "../adjacency_list/list.h"
 #include "../adjacency_matrix/matrix.h"
@@ -6,22 +7,25 @@
 Graph *kruskal_algorithm(Kruskal *k, int num_vertex, int num_edges, Graph *g){
 
     UF* uf = UF_init(num_vertex);
-    Graph *mst = graph_construct(num_vertex, DIRECTED);
+    Graph *mst = graph_construct(num_vertex, UNDIRECTED);
     
     qsort(k, num_edges, sizeof(Kruskal), kruskal_compare);
 
     Kruskal *current_k = k;
-    for(int i = 0; i < num_edges; i++) {
+    for(int i = 0, j = 0; i < num_edges; i++) {
         int u = UF_find(uf, current_k->src);
         int v = UF_find(uf, current_k->dest);
 
         if(!UF_connected(uf, u, v)) {
             UF_union(uf, u, v);
             graph_add_edge(mst, current_k->src, current_k->dest, current_k->weight);
-            graph_add_edge(mst, current_k->dest, current_k->src, current_k->weight);
+            img_print_graph_per_edge(g, mst, j++, "imgs/mst");
+
         }
         current_k++;
     }
+
+    system("mv imgs/*.dot imgs/arq_dots/");
 
     UF_free(uf);
     free(k);

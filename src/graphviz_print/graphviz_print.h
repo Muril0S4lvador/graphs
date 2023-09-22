@@ -11,4 +11,6 @@ void img_print_vertex(Graph *g, char *file_name);
 
 void img_print_graph(Graph *g, char *file_name);
 
+void img_print_graph_per_edge(Graph *g1, Graph *g2, int it, char *file_name);
+
 #endif

@@ -13,11 +13,20 @@ void _vertex_file_write(void *vertices, int size, FILE *arq){
     Vector *v = vertices;
     char asp = '"';
 
-    fprintf(arq, "node[fontcolor = white, fillcolor = black, style = filled, shape = circle, fontsize = %c12.5%c];\n", asp, asp);
+    fprintf(arq, "node[fontcolor = white, fillcolor = black, style = filled, shape = circle, fontsize = %c10%c, overlap = %cfalse%c];\n", asp, asp, asp, asp);
+
+    Data *d = vector_get(v, 0);
+    int denX = data_return_x(d), denY = data_return_y(d);
+    for(int i = 1; i < size; i++){
+        d = vector_get(v, i);
+        int dataX = data_return_x(d), dataY = data_return_y(d);
+        denX = ( dataX > denX ) ? dataX : denX;
+        denY = ( dataY > denY ) ? dataY : denY;
+    }
 
     for(int i = 0; i < size; i++){
-        Data *d = vector_get(v, i);
-        fprintf(arq, "v%d [pos = %c%.2f, %.2f!%c];\n", i, asp, (float)data_return_x(d)/3, (float)data_return_y(d)/3, asp);
+        d = vector_get(v, i);
+        fprintf(arq, "v%d [pos = %c%.2f, %.2f!%c];\n", i, asp, (float)data_return_x(d)/ (denX * 0.1) , (float)data_return_y(d)/ (denY * 0.1), asp);
     }
 }
 
@@ -91,4 +100,38 @@ void img_print_graph(Graph *g, char *file_name){
     fclose(arq_graph);
 
     _system_call_graphviz(file_name);
+}
+
+void img_print_graph_per_edge(Graph *g1, Graph *g2, int it, char *file_name){
+
+    char real_filename[50];
+    sprintf(real_filename, "%s%d.dot",file_name, it);
+
+    FILE *arq_graph = fopen(real_filename, "w");
+    char asp = '"';
+    char open_arq[9] = "graph {\n";
+
+    if( !arq_graph ){
+        printf("Não foi possivel abrir o arquivo %s\n", real_filename);
+        return;
+    }
+
+    if( graph_return_direction(g2) == DIRECTED ){
+        printf("Necessária uma mst não direcionada para função\n");
+        return;
+    }
+
+    fprintf(arq_graph, "%s", open_arq);
+
+    _vertex_file_write(graph_return_vertex_vector(g1), graph_return_num_vertex(g1), arq_graph);
+
+    fprintf(arq_graph, "edge [ color = black ];");
+
+    _graph_file_write(g2, graph_return_num_vertex(g2), arq_graph, graph_return_direction(g2));
+
+    fprintf(arq_graph, "}");
+    fclose(arq_graph);
+
+    _system_call_graphviz(real_filename);
+
 }
