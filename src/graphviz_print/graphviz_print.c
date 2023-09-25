@@ -15,6 +15,8 @@ void _vertex_file_write(void *vertices, int size, FILE *arq){
 
     fprintf(arq, "node[fontcolor = white, fillcolor = black, style = filled, shape = circle, fontsize = %c10%c, overlap = %cfalse%c];\n", asp, asp, asp, asp);
 
+    if(!vector_size(v)) return;
+
     Data *d = vector_get(v, 0);
     int denX = data_return_x(d), denY = data_return_y(d);
     for(int i = 1; i < size; i++){
