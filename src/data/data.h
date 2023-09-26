@@ -6,13 +6,13 @@
 
 typedef struct Data Data;
 
-Data *data_construct(int x, int y, float demand);
+Data *data_construct(float x, float y, float demand);
 
 void data_set_demand(Data *d, float demand);
 
-int data_return_x(Data *d);
+float data_return_x(Data *d);
 
-int data_return_y(Data *d);
+float data_return_y(Data *d);
 
 float data_return_demand(Data *d);
 

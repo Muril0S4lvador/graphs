@@ -1,11 +1,11 @@
 #include "data.h"
 
 struct Data{
-    int x, y;
-    float demand;
+    float x, y,
+    demand;
 };
 
-Data *data_construct(int x, int y, float demand){
+Data *data_construct(float x, float y, float demand){
     Data *d = malloc(sizeof(Data));
 
     d->x = x;
@@ -19,11 +19,11 @@ void data_set_demand(Data *d, float demand){
     d->demand = demand;
 }
 
-int data_return_x(Data *d){
+float data_return_x(Data *d){
     return (d) ? d->x : 0 ;
 }
 
-int data_return_y(Data *d){
+float data_return_y(Data *d){
     return (d) ? d->y : 0 ;
 }
 
@@ -32,7 +32,7 @@ float data_return_demand(Data *d){
 }
 
 void data_print(Data *d){
-    printf("(%d, %d) - %.1f\n", d->x, d->y, d->demand);
+    printf("(%.2f, %.2f) - %.1f\n", d->x, d->y, d->demand);
 }
 
 void data_destroy(Data *d){

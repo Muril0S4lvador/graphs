@@ -13,7 +13,7 @@ Matrix matrix_construct(int v){
 char matrix_add_edge(void *vm, int v1, int v2, weight peso){
     if( matrix_edge_exists(vm, v1, v2) ) return 0;
     Matrix m = vm;
-    m[v1][v2] = peso * 2.5;
+    m[v1][v2] = peso;
     return 1;
 }
 
@@ -50,7 +50,7 @@ void matrix_file_write(void *vm, int size, FILE *arq, char *edge){
     for(int i = 0; i < size; i++)
         for( int j = 0; j < size; j++)
             if( m[i][j] )
-                fprintf(arq, "v%d %s v%d;\n", i, edge, j);
+                fprintf(arq, "v%d %s v%d [label = %c%.2d%c];\n", i, edge, j, '"', m[i][j], '"');
 
 }
 

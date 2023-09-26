@@ -65,7 +65,7 @@ void *graph_return_route(Graph *g){
 
 
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
-    if( v1 == v2 ) return;
+    if( !(v1 - v2) ) return;
     // Se for não direcionado, o menor aponta para o maior
     if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
 
@@ -123,7 +123,7 @@ Graph *graph_read_file_CVRPLIB(){
         
         scanf("%*c %f %*c", &m[i][2]);
         int x1 = m[i][0], y1 = m[i][1];
-        Data *d = data_construct((int)x1, (int)y1, m[i][2]);
+        Data *d = data_construct(x1, y1, m[i][2]);
         vector_push_back(g->vertices, d);
 
         for(int j = i - 1; j >= 0; j--){
@@ -190,6 +190,8 @@ Graph *graph_mst_kruskal(Graph *g){
     }
 
     Graph *mst = kruskal_algorithm(k, g->num_vertex, g->num_edge, g);
+
+    if(!vector_size(g->vertices)) return mst;
 
     for(int i = 0; i < g->num_vertex; i++){
         Data *d = vector_get(g->vertices, i);

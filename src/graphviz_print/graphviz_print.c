@@ -5,17 +5,20 @@
 
 void _system_call_graphviz(char *file_name){
     char call[ 24 + strlen(file_name) ];
-    sprintf(call, "dot -Kneato -T%s %s -O &", TYPE, file_name);
+    sprintf(call, "neato -T%s %s -O &", TYPE, file_name);
     system(call);
 }
 
 void _vertex_file_write(void *vertices, int size, FILE *arq){
     Vector *v = vertices;
     char asp = '"';
-
+    
     fprintf(arq, "node[fontcolor = white, fillcolor = black, style = filled, shape = circle, fontsize = %c10%c, overlap = %cfalse%c];\n", asp, asp, asp, asp);
 
+    if (!vector_size(v)) return;
+
     Data *d = vector_get(v, 0);
+
     int denX = data_return_x(d), denY = data_return_y(d);
     for(int i = 1; i < size; i++){
         d = vector_get(v, i);
@@ -92,6 +95,8 @@ void img_print_graph(Graph *g, char *file_name){
 
     fprintf(arq_graph, "%s", open_arq);
 
+    fprintf(arq_graph, "edge [len = 5];\n");
+
     _vertex_file_write(graph_return_vertex_vector(g), graph_return_num_vertex(g), arq_graph);
     _graph_file_write(g, graph_return_num_vertex(g), arq_graph, direction);
     if( graph_has_route(g) ) _route_file_write(graph_return_route(g), graph_return_num_vertex(g) - 1, arq_graph);
@@ -125,7 +130,7 @@ void img_print_graph_per_edge(Graph *g1, Graph *g2, int it, char *file_name){
 
     _vertex_file_write(graph_return_vertex_vector(g1), graph_return_num_vertex(g1), arq_graph);
 
-    fprintf(arq_graph, "edge [ color = black ];");
+    fprintf(arq_graph, "edge [ color = black, len = 5 ];\n");
 
     _graph_file_write(g2, graph_return_num_vertex(g2), arq_graph, graph_return_direction(g2));
 
