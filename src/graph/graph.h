@@ -12,7 +12,7 @@ typedef float weight;
 #define UNDIRECTED 1
 #define DIRECTED 0
 
-#define MATRIX 1
+#define MATRIX 0
 #define LIST 1
 
 typedef struct Graph Graph;
@@ -46,6 +46,8 @@ Graph *graph_read_file();
 void graph_print(Graph *g);
 
 Graph *graph_mst_kruskal(Graph *g);
+
+Graph *graph_Clarke_Wright_route(Graph *g);
 
 void graph_dfs(Graph *g);
 

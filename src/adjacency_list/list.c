@@ -103,9 +103,9 @@ void list_file_write(void *vl, int size, FILE *arq, char *edge){
     }
 }
 
-void list_return_kruskal(void *vl, int sizeVertex, int sizeEdges, void *vk){
+void list_return_edges(void *vl, int sizeVertex, int sizeEdges, void *vk){
     List l = vl;
-    Kruskal *k = vk;
+    Edges *k = vk;
     
     for(int i = 0, j = 0; j < sizeEdges ; j++){
         

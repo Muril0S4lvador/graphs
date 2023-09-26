@@ -25,7 +25,7 @@ void matrix_print(void *vm, int size);
 
 void matrix_file_write(void *vm, int size, FILE *arq, char *edge);
 
-void matrix_return_kruskal(void *vm, int sizeVertex, int sizeEdges, void *vk, int direction);
+void matrix_return_edges(void *vm, int sizeVertex, int sizeEdges, void *vk, int direction);
 
 void matrix_dfs_recursive(void *vm, int *route, int *size_route, int *visited, int size);
 

@@ -29,7 +29,7 @@ void list_print(void *vl, int size);
 
 void list_file_write(void *vl, int size, FILE *arq, char *edge);
 
-void list_return_kruskal(void *vl, int sizeVertex, int sizeEdges, void *vk);
+void list_return_edges(void *vl, int sizeVertex, int sizeEdges, void *vk);
 
 void list_dfs_recursive(void *vl, int *route, int *size_route, int *visited);
 

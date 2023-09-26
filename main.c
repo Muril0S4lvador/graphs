@@ -5,6 +5,11 @@
 
 int main(){
 
+    Graph *g = graph_read_file_CVRPLIB();
+
+    graph_Clarke_Wright_route(g);
+
+    graph_destroy(g);
 
     return 0;
 }

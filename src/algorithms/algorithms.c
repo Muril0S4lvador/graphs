@@ -4,14 +4,14 @@
 #include "../adjacency_list/list.h"
 #include "../adjacency_matrix/matrix.h"
 
-Graph *kruskal_algorithm(Kruskal *k, int num_vertex, int num_edges, Graph *g){
+Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
 
     UF* uf = UF_init(num_vertex);
     Graph *mst = graph_construct(num_vertex, UNDIRECTED);
     
-    qsort(k, num_edges, sizeof(Kruskal), kruskal_compare);
+    qsort(k, num_edges, sizeof(Edges), kruskal_compare);
 
-    Kruskal *current_k = k;
+    Edges *current_k = k;
     for(int i = 0, j = 0; i < num_edges; i++) {
         int u = UF_find(uf, current_k->src);
         int v = UF_find(uf, current_k->dest);
@@ -33,8 +33,8 @@ Graph *kruskal_algorithm(Kruskal *k, int num_vertex, int num_edges, Graph *g){
 }
 
 int kruskal_compare(const void* a, const void* b) {
-    Kruskal* ka = (Kruskal*) a;
-    Kruskal* kb = (Kruskal*) b;
+    Edges* ka = (Edges*) a;
+    Edges* kb = (Edges*) b;
 
     return (ka->weight - kb->weight) ;
 }
@@ -59,3 +59,5 @@ void dfs_algorithm(void *adj, int *route, int *visited, int size){
     }
     free(size_route);
 }
+
+Graph *clarke_wright_algorithm(Graph *g, Edges *e, int sizeE);

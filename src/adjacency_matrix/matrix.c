@@ -54,9 +54,9 @@ void matrix_file_write(void *vm, int size, FILE *arq, char *edge){
 
 }
 
-void matrix_return_kruskal(void *vm, int sizeVertex, int sizeEdges, void *vk, int direction){
+void matrix_return_edges(void *vm, int sizeVertex, int sizeEdges, void *vk, int direction){
     Matrix m = vm;
-    Kruskal *k = vk;
+    Edges *k = vk;
 
     for(int i = 0, k_size = 0; i < sizeVertex; i++){
 
