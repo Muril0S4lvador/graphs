@@ -23,6 +23,8 @@ int graph_return_num_vertex(Graph *g);
 
 int graph_return_num_edges(Graph *g);
 
+int graph_return_capacity(Graph *g);
+
 bool graph_return_direction(Graph *g);
 
 bool graph_has_route(Graph *g);
@@ -47,7 +49,7 @@ void graph_print(Graph *g);
 
 Graph *graph_mst_kruskal(Graph *g);
 
-Graph *graph_Clarke_Wright_route(Graph *g);
+void graph_Clarke_Wright_route(Graph *g);
 
 void graph_dfs(Graph *g);
 

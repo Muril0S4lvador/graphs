@@ -3,6 +3,7 @@
 #include "../union_find/union_find.h"
 #include "../adjacency_list/list.h"
 #include "../adjacency_matrix/matrix.h"
+#include "../Vector/vector.h"
 
 Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
 
@@ -67,12 +68,68 @@ void dfs_algorithm(void *adj, int *route, int *visited, int size){
     free(size_route);
 }
 
-Graph *clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
+char _find_in_route(int *route, int size, Edges e){
+    for(int i = 1; i < size - 1; i++)
+        if( route[i] == e.src || route[i] == e.dest ) return 1;
+    return 0;
+}
+
+void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
 
     qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);
     
-    Graph *cw = graph_construct(graph_return_num_vertex(g), DIRECTED);
+    int size_act_route = 1, size_gl_route = 1,
+        demand_act_route = 0,
+        capacity = graph_return_capacity(g),
+        trucks = graph_return_trucks(g),
+        *act_route = malloc(sizeof(int) * graph_return_num_vertex(g) ),
+        *global_route = malloc(sizeof(int) * ((graph_return_num_vertex(g) * 2) + 1) );
 
-    //algoritmo
+    float *demands = malloc(sizeof(float) * graph_return_num_vertex(g));
+    char rest1 = 0, rest2 = 0;
 
+    *(act_route) = *(global_route) = 0;
+
+    int size = graph_return_num_vertex(g);
+    for(int i = 0; i < size; i++){
+        Data *d = vector_get(graph_return_vertex_vector(g), i);
+        demands[i] = data_return_demand(d);
+    }
+
+    for(int i = 0; i < trucks; i++){
+
+        demand_act_route = 0;
+        size_act_route = 1;
+
+        for(int j = 0; j < sizeEdges; j++){
+
+            // Garante que não é alguém do meio do vetor
+            if( !_find_in_route(act_route, size_act_route, e[i]) && !_find_in_route(global_route, size_gl_route, e[i]) ){
+
+                int search = ( e[j].src == act_route[0] || e[j].src == act_route[size_act_route-1] ) ? e[j].dest : e[j].src;
+                
+                if( demand_act_route += demands[search] <= capacity ){
+
+                    // add na rota atual
+
+
+
+
+
+                }
+            }
+        }
+
+        // add rota atual na global
+        int k = size_gl_route, l = 0;
+        size_gl_route += size_act_route + 2;
+        for( k, l ; l < size_act_route; l++, k++){
+
+            if( l < size_act_route )
+                global_route[k] = act_route[l];
+
+        }
+        global_route[k++] = 0;
+
+    }
 }
