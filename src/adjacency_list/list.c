@@ -124,6 +124,47 @@ void list_return_edges(void *vl, int sizeVertex, int sizeEdges, void *vk){
     }
 }
 
+void list_return_edges_cost(void *vl, int sizeVertex, void *vk){
+    List l = vl;
+    Edges *e = vk;
+    int sizeE = 0;
+    
+    Adjacency *adj_i, *adj_j, *adj_ij;
+    char ctli, ctlj, ctlij, ctl;
+
+    for(int i = 1; i < sizeVertex; i++){
+
+        adj_i = l[0].head;
+
+        // j é sempre > i
+        for(int j = i + 1; j < sizeVertex; j++){
+        
+            adj_ij = l[i].head;
+            adj_j = l[0].head;
+            ctli = ctlj = ctlij = ctl = 0;
+
+            while(1){
+
+                if( adj_i->vertice  != i )  adj_i = adj_i->next;   else ctli++;
+                if( adj_j->vertice  != j )  adj_j = adj_j->next;   else ctlj++;
+                if( adj_ij->vertice != j ) adj_ij = adj_ij->next;  else ctlij++;
+
+                if( ctli && ctlj && ctlij ) break;
+
+                if( !adj_i || !adj_ij || !adj_j ){ ctl = 1; break; }
+
+            }
+
+            if( !ctl ){
+                e[sizeE].src = i;
+                e[sizeE].dest = j;
+                e[sizeE].weight = (adj_i->weight + adj_j->weight) - adj_ij->weight;
+                sizeE++;
+            }
+        }
+    }
+}
+
 void list_dfs_recursive(void *vl, int *route, int *size_route, int *visited){
     List l = vl;
     Adjacency *adj = l[0].head;

@@ -9,7 +9,7 @@ Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
     UF* uf = UF_init(num_vertex);
     Graph *mst = graph_construct(num_vertex, UNDIRECTED);
     
-    qsort(k, num_edges, sizeof(Edges), kruskal_compare);
+    qsort(k, num_edges, sizeof(Edges), edges_compare_growing);
 
     Edges *current_k = k;
     for(int i = 0, j = 0; i < num_edges; i++) {
@@ -32,11 +32,18 @@ Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
     return mst;
 }
 
-int kruskal_compare(const void* a, const void* b) {
+int edges_compare_growing(const void* a, const void* b) {
     Edges* ka = (Edges*) a;
     Edges* kb = (Edges*) b;
 
     return (ka->weight - kb->weight) ;
+}
+
+int edges_compare_descending(const void* a, const void* b) {
+    Edges* ka = (Edges*) a;
+    Edges* kb = (Edges*) b;
+
+    return (kb->weight - ka->weight) ;
 }
 
 void dfs_algorithm(void *adj, int *route, int *visited, int size){
@@ -60,4 +67,12 @@ void dfs_algorithm(void *adj, int *route, int *visited, int size){
     free(size_route);
 }
 
-Graph *clarke_wright_algorithm(Graph *g, Edges *e, int sizeE);
+Graph *clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
+
+    qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);
+    
+    Graph *cw = graph_construct(graph_return_num_vertex(g), DIRECTED);
+
+    //algoritmo
+
+}

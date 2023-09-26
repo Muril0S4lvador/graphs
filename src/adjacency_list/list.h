@@ -31,6 +31,8 @@ void list_file_write(void *vl, int size, FILE *arq, char *edge);
 
 void list_return_edges(void *vl, int sizeVertex, int sizeEdges, void *vk);
 
+void list_return_edges_cost(void *vl, int sizeVertex, void *vk);
+
 void list_dfs_recursive(void *vl, int *route, int *size_route, int *visited);
 
 void _list_dfs_recursive(Adjacency *adj, void *vl, int *route, int *size_route, int *visited);

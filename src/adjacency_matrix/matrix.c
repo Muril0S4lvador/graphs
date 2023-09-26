@@ -39,7 +39,7 @@ void matrix_print(void *vm, int size){
         printf("v%d:", i);
 
         for(int j = 0; j < size; j++)
-            printf(" %d", m[i][j]);
+            printf(" %.2f", m[i][j]);
 
     }
     printf("\n");
@@ -50,11 +50,11 @@ void matrix_file_write(void *vm, int size, FILE *arq, char *edge){
     for(int i = 0; i < size; i++)
         for( int j = 0; j < size; j++)
             if( m[i][j] )
-                fprintf(arq, "v%d %s v%d [label = %c%.2d%c];\n", i, edge, j, '"', m[i][j], '"');
+                fprintf(arq, "v%d %s v%d [label = %c%.2f%c];\n", i, edge, j, '"', m[i][j], '"');
 
 }
 
-void matrix_return_edges(void *vm, int sizeVertex, int sizeEdges, void *vk, int direction){
+void matrix_return_edges(void *vm, int sizeVertex, void *vk, int direction){
     Matrix m = vm;
     Edges *k = vk;
 
@@ -68,6 +68,26 @@ void matrix_return_edges(void *vm, int sizeVertex, int sizeEdges, void *vk, int 
             k[k_size].weight = m[i][j];
             k_size++;
 
+        }
+    }
+}
+
+void matrix_return_edges_cost(void *vm, int sizeVertex, void *vk){
+    Matrix m = vm;
+    Edges *e = vk;
+    int sizeE = 0;
+
+    for(int i = 1; i < sizeVertex; i++){
+
+        for(int j = i + 1; j < sizeVertex; j++){
+
+            if( m[i][j] && m[0][i] && m[0][j] ){
+
+                e[sizeE].src = i;
+                e[sizeE].dest = j;
+                e[sizeE].weight = m[0][i] + m[0][j] - m[i][j];
+                sizeE++;
+            }
         }
     }
 }

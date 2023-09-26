@@ -13,11 +13,13 @@ typedef struct{
 
 Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g);
 
-int kruskal_compare(const void* a, const void* b);
+int edges_compare_growing(const void* a, const void* b);
+
+int edges_compare_descending(const void* a, const void* b);
 
 void dfs_algorithm(void *adj, int *route, int *visited, int size);
 
-Graph *clarke_wright_algorithm(Graph *g, Edges *e, int sizeE);
+Graph *clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges);
 
 
 

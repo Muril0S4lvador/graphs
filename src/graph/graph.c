@@ -184,7 +184,7 @@ Graph *graph_mst_kruskal(Graph *g){
     Edges *k = calloc( g->num_edge, sizeof(Edges) );
     
     if( MATRIX ){
-        matrix_return_edges(graph_return_adjacencies(g), g->num_vertex, sizeEdges, k, graph_return_direction(g));
+        matrix_return_edges(graph_return_adjacencies(g), g->num_vertex, k, graph_return_direction(g));
 
     } else if( LIST ){
         list_return_edges(graph_return_adjacencies(g), g->num_vertex, sizeEdges, k);
@@ -206,45 +206,39 @@ Graph *graph_mst_kruskal(Graph *g){
 
 Graph *graph_Clarke_Wright_route(Graph *g){
 
-    int sizeEdges = g->num_edge;
-    if (g->direction == UNDIRECTED) sizeEdges /= 2;
+    if( g->direction == DIRECTED ){
+        printf("Grafo não compatível com o que o algoritmo espera.\n");
+        return NULL;
+    }
 
-    printf("%d\n\n", sizeEdges);
-    
-    Edges *e = calloc( g->num_edge, sizeof(Edges) );
+    int sizeEdges = (g->num_edge / 2) - (g->num_vertex - 1);
+
+    Edges *e = calloc( sizeEdges, sizeof(Edges) );
+    Graph *cw = graph_construct(g->num_vertex, DIRECTED);
     
     if( MATRIX ){
-        matrix_return_edges(graph_return_adjacencies(g), g->num_vertex, sizeEdges, e, graph_return_direction(g));
+        matrix_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e);
 
     } else if( LIST ){
-        list_return_edges(graph_return_adjacencies(g), g->num_vertex, sizeEdges, e);
+        list_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e);
 
     }
 
-    /* Jogando os vértices com 0 para o final, para nao serem considerados */
-    int sizeE = g->num_edge - 1;
-    for(int i = 0 ; i < sizeE; i++){
-        if( !e[i].dest || !e[i].src ){
-
-            while( !e[sizeE].dest || !e[sizeE].src ) sizeE--;
-
-            Edges aux = e[i];
-            e[i] = e[sizeE];
-            e[sizeE] = aux;
-        }
+    for(int i = 0; i < sizeEdges; i++){
+        // printf("%d -> %d (%.2f)\n", e[i].src, e[i].dest, e[i].weight);
     }
 
-    Graph *new_g = clarke_wright_algorithm(g, e, sizeE);
+    clarke_wright_algorithm(g, e, sizeEdges, cw);
 
-    if(!vector_size(g->vertices)) return new_g;
+    if(!vector_size(g->vertices)) return cw;
 
     for(int i = 0; i < g->num_vertex; i++){
         Data *d = vector_get(g->vertices, i);
         Data *d_new = data_construct(data_return_x(d), data_return_y(d), data_return_demand(d));
-        vector_push_back(new_g->vertices, d_new);    
+        vector_push_back(cw->vertices, d_new);    
     }
 
-    return new_g;
+    return cw;
 }
 
 void graph_dfs(Graph *g){
