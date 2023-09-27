@@ -78,7 +78,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
 
     qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);
     
-    int size_act_route = 1, size_gl_route = 1,
+    int size_act_route = 0, size_gl_route = 1,
         demand_act_route = 0,
         capacity = graph_return_capacity(g),
         trucks = graph_return_trucks(g),
@@ -99,23 +99,69 @@ void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
     for(int i = 0; i < trucks; i++){
 
         demand_act_route = 0;
-        size_act_route = 1;
+        size_act_route = 0;
 
         for(int j = 0; j < sizeEdges; j++){
 
-            // Garante que não é alguém do meio do vetor
+            //se nao esta em uma rota ja feita
+            if( !_find_in_route(global_route, size_gl_route, e[j]) ){
+
+                // se for o primeiro elemento da rota
+                if( !size_act_route ){
+                /* verifica demanda e add */ 
+
+                
+                // se for um elemento no final da rota
+                } else if( act_route[0] == e[j].dest ) {
+                /* verifica demanda e add */ 
+
+
+                // se for um elemento no inicio da rota
+                } else if( act_route[size_act_route - 1] == e[j].src ){
+                /* verifica demanda e add */ 
+
+                
+                }
+            }
+
+            // Garante que não é alguém do meio do vetor ou ja foi visto em outras rotas anteriores
             if( !_find_in_route(act_route, size_act_route, e[i]) && !_find_in_route(global_route, size_gl_route, e[i]) ){
 
-                int search = ( e[j].src == act_route[0] || e[j].src == act_route[size_act_route-1] ) ? e[j].dest : e[j].src;
-                
-                if( demand_act_route += demands[search] <= capacity ){
+                int dest = -1, src = -1, brek = 0;
+                if( act_route[0] == e[i].src ) brek = 1;
+                else if( act_route[0] == e[i].dest ) {src = 1; dest = 0}
+                else if( act_route[size_act_route-1] == e[i].dest ) brek = 1;
+                else if( act_route[size_act_route-1] == e[i].src ) {dest = 1; src = 0}
 
-                    // add na rota atual
+                if(brek) break;
+
+                float demand = 0;
+                if( dest == src && dest == -1 ){
+                    demand = demands[e[j].src] + demands[e[j].dest];
+
+                } else if( dest == 1 ){
+                    demand = demands[e[j].dest];
+
+                } else if(src == 1){
+                    demand = demands[e[j].src];
+
+                }
+
+                if( demand_act_route += demand <= capacity ){
+
+                    if( src && !dest ){
+                        // adiciona inicio vetor
 
 
+                    } else if( !src && dest ){
+                        // adiciona final vetor
 
 
+                    } else if( src && dest ){
+                        // adiciona os dois no vetor (caso inicial)
 
+
+                    }
                 }
             }
         }
