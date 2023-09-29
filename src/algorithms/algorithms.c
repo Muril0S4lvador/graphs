@@ -76,7 +76,13 @@ char _find_in_route(int *route, int size, Edges e){
 
 void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
 
+    // Erro de logica, debugar depois
+
     qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);
+
+    for(int i = 0 ;  i < sizeEdges; i++){
+        printf("%d -- %d (%.2f)\n", e[i].src, e[i].dest, e[i].weight);
+    }
     
     int size_act_route = 0, size_gl_route = 1,
         demand_act_route = 0,
@@ -104,66 +110,47 @@ void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
         for(int j = 0; j < sizeEdges; j++){
 
             //se nao esta em uma rota ja feita
-            if( !_find_in_route(global_route, size_gl_route, e[j]) ){
+            if( !_find_in_route(global_route, size_gl_route, e[j]) && !_find_in_route(act_route, size_act_route - 1, e[j]) ){
 
                 // se for o primeiro elemento da rota
                 if( !size_act_route ){
                 /* verifica demanda e add */ 
+                    if( demands[e[j].src] + demands[e[j].dest] <= capacity ){
 
+                        // add rota
+                        act_route[size_act_route++] = e[j].src;
+                        act_route[size_act_route++] = e[j].dest;
+                    }
                 
                 // se for um elemento no final da rota
                 } else if( act_route[0] == e[j].dest ) {
                 /* verifica demanda e add */ 
+                    if( demand_act_route += demands[e[j].src] <= capacity ){
 
+                        act_route[size_act_route++] = e[j].dest;
+                        int *r = malloc(sizeof(int) * graph_return_num_vertex(g));
+                        r[0] = e[j].src;
+                        for(int c = 1; c < size_act_route; c++){
+                            r[c] = act_route[c-1];
+                        }
+                        size_act_route++;
+                        free(act_route);
+                        act_route = r;
+
+                        // add rota
+                    }
 
                 // se for um elemento no inicio da rota
                 } else if( act_route[size_act_route - 1] == e[j].src ){
                 /* verifica demanda e add */ 
+                    if( demand_act_route += demands[e[j].dest] <= capacity ){
 
-                
-                }
-            }
-
-            // Garante que não é alguém do meio do vetor ou ja foi visto em outras rotas anteriores
-            if( !_find_in_route(act_route, size_act_route, e[i]) && !_find_in_route(global_route, size_gl_route, e[i]) ){
-
-                int dest = -1, src = -1, brek = 0;
-                if( act_route[0] == e[i].src ) brek = 1;
-                else if( act_route[0] == e[i].dest ) {src = 1; dest = 0}
-                else if( act_route[size_act_route-1] == e[i].dest ) brek = 1;
-                else if( act_route[size_act_route-1] == e[i].src ) {dest = 1; src = 0}
-
-                if(brek) break;
-
-                float demand = 0;
-                if( dest == src && dest == -1 ){
-                    demand = demands[e[j].src] + demands[e[j].dest];
-
-                } else if( dest == 1 ){
-                    demand = demands[e[j].dest];
-
-                } else if(src == 1){
-                    demand = demands[e[j].src];
-
-                }
-
-                if( demand_act_route += demand <= capacity ){
-
-                    if( src && !dest ){
-                        // adiciona inicio vetor
-
-
-                    } else if( !src && dest ){
-                        // adiciona final vetor
-
-
-                    } else if( src && dest ){
-                        // adiciona os dois no vetor (caso inicial)
-
-
+                        act_route[size_act_route++] = e[j].dest;
+                        // add rota
                     }
                 }
             }
+
         }
 
         // add rota atual na global
@@ -176,6 +163,11 @@ void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
 
         }
         global_route[k++] = 0;
+    }
 
+    for(int i = 0; i < size_gl_route; i++){
+        printf("%d ", global_route[i]);
+        if(i < size_gl_route - 1)
+            printf("-> ");
     }
 }

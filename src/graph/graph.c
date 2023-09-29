@@ -51,7 +51,7 @@ int graph_return_capacity(Graph *g){
     return (g) ? g->capacity : -1;
 }
 
-int graph_return_capacity(Graph *g){
+int graph_return_trucks(Graph *g){
     return (g) ? g->trucks : -1;
 }
 
@@ -126,7 +126,7 @@ Graph *graph_read_file_CVRPLIB(){
 
     Graph *g = graph_construct(dimension, UNDIRECTED);
 
-    sscanf(name, "%*[^k]k%d" &g->trucks);
+    sscanf(name, "%*[^k]k%d" , &g->trucks);
     g->capacity = capacity;
 
     float m[dimension][3];
@@ -223,7 +223,7 @@ void graph_Clarke_Wright_route(Graph *g){
 
     if( g->direction == DIRECTED ){
         printf("Grafo não compatível com o que o algoritmo espera.\n");
-        return NULL;
+        return;
     }
 
     int sizeEdges = (g->num_edge / 2) - (g->num_vertex - 1);

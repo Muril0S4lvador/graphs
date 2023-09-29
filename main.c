@@ -9,6 +9,8 @@ int main(){
 
     graph_Clarke_Wright_route(g);
 
+    img_print_vertex(g, "imgs/vertex.dot");
+
     graph_destroy(g);
 
     return 0;

@@ -25,6 +25,8 @@ int graph_return_num_edges(Graph *g);
 
 int graph_return_capacity(Graph *g);
 
+int graph_return_trucks(Graph *g);
+
 bool graph_return_direction(Graph *g);
 
 bool graph_has_route(Graph *g);
