@@ -6,7 +6,7 @@
       "request": "launch",
       "cwd": ".",
       "program": "${workspaceRoot}/main",
-      "args": ["<entradas/A-n32-k5.vrp"],
+      "args": ["<entradas/A-n80-k10.vrp"],
       "preLaunchTask": "compilacao"
     }
   ]

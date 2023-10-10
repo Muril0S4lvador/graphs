@@ -27,7 +27,7 @@ void matrix_file_write(void *vm, int size, FILE *arq, char *edge);
 
 void matrix_return_edges(void *vm, int sizeVertex, void *vk, int direction);
 
-void matrix_return_edges_cost(void *vm, int sizeVertex, void *vk);
+void matrix_return_edges_cost(void *vm, int sizeVertex, void *vk, void *vn);
 
 void matrix_dfs_recursive(void *vm, int *route, int *size_route, int *visited, int size);
 

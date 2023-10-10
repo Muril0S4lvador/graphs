@@ -72,12 +72,16 @@ void matrix_return_edges(void *vm, int sizeVertex, void *vk, int direction){
     }
 }
 
-void matrix_return_edges_cost(void *vm, int sizeVertex, void *vk){
+void matrix_return_edges_cost(void *vm, int sizeVertex, void *vk, void *vn){
     Matrix m = vm;
-    Edges *e = vk;
+    Edges *e = vk,
+          *near_0 = vn;
     int sizeE = 0;
 
     for(int i = 1; i < sizeVertex; i++){
+        near_0[i-1].src = 0;
+        near_0[i-1].dest = i;
+        near_0[i-1].weight = m[0][i];
 
         for(int j = i + 1; j < sizeVertex; j++){
 

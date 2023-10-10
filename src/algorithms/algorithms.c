@@ -37,14 +37,14 @@ int edges_compare_growing(const void* a, const void* b) {
     Edges* ka = (Edges*) a;
     Edges* kb = (Edges*) b;
 
-    return (ka->weight - kb->weight) ;
+    return (ka->weight - kb->weight)*100 ;
 }
 
 int edges_compare_descending(const void* a, const void* b) {
     Edges* ka = (Edges*) a;
     Edges* kb = (Edges*) b;
 
-    return (kb->weight - ka->weight) ;
+    return (kb->weight - ka->weight)*100 ;
 }
 
 void dfs_algorithm(void *adj, int *route, int *visited, int size){
@@ -68,33 +68,24 @@ void dfs_algorithm(void *adj, int *route, int *visited, int size){
     free(size_route);
 }
 
-char _find_in_route(int *route, int size, Edges e){
-    for(int i = 1; i < size - 1; i++)
-        if( route[i] == e.src || route[i] == e.dest ) return 1;
-    return 0;
-}
-
-void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
-
-    // Erro de logica, debugar depois
+void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
     qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);
+    qsort(near_0, graph_return_num_vertex(g)-1, sizeof(Edges), edges_compare_growing);
 
-    for(int i = 0 ;  i < sizeEdges; i++){
-        printf("%d -- %d (%.2f)\n", e[i].src, e[i].dest, e[i].weight);
-    }
-    
     int size_act_route = 0, size_gl_route = 1,
-        demand_act_route = 0,
         capacity = graph_return_capacity(g),
         trucks = graph_return_trucks(g),
         *act_route = malloc(sizeof(int) * graph_return_num_vertex(g) ),
-        *global_route = malloc(sizeof(int) * ((graph_return_num_vertex(g) * 2) + 1) );
+        *global_route = malloc(sizeof(int) * ((graph_return_num_vertex(g) * 2) + 1) ),
+        *gl_visited = calloc(graph_return_num_vertex(g), sizeof(int));
 
-    float *demands = malloc(sizeof(float) * graph_return_num_vertex(g));
-    char rest1 = 0, rest2 = 0;
+    float *demands = malloc(sizeof(float) * graph_return_num_vertex(g)),
+            demand_act_route = 0;
+    char control = 0;
 
     *(act_route) = *(global_route) = 0;
+
 
     int size = graph_return_num_vertex(g);
     for(int i = 0; i < size; i++){
@@ -106,68 +97,100 @@ void clarke_wright_algorithm(Graph *g, Edges *e, int sizeEdges){
 
         demand_act_route = 0;
         size_act_route = 0;
+        control = 0;
+        int *act_visited = calloc(graph_return_num_vertex(g), sizeof(int));
+
+        if( i == 1 )
+            i = 4 - 3 * 1;
 
         for(int j = 0; j < sizeEdges; j++){
 
-            //se nao esta em uma rota ja feita
-            if( !_find_in_route(global_route, size_gl_route, e[j]) && !_find_in_route(act_route, size_act_route - 1, e[j]) ){
+            if( !size_act_route ){
+            // SE FOR PRIMEIRO ELEMENTO DA ROTA, PEGA O + PROX DO DEPOSITO //
 
-                // se for o primeiro elemento da rota
-                if( !size_act_route ){
-                /* verifica demanda e add */ 
-                    if( demands[e[j].src] + demands[e[j].dest] <= capacity ){
-
-                        // add rota
-                        act_route[size_act_route++] = e[j].src;
-                        act_route[size_act_route++] = e[j].dest;
+                for(int k = 0; k < graph_return_num_vertex(g)-1; k++){
+                    if( !gl_visited[near_0[k].dest] ){
+                        act_route[size_act_route++] = near_0[k].dest;
+                        demand_act_route = demands[near_0[k].dest];
+                        act_visited[near_0[k].dest] = 1;
+                        gl_visited[near_0[k].dest] = 1;
+                        control = 1;
+                        j = -1;
+                        break;
                     }
-                
-                // se for um elemento no final da rota
-                } else if( act_route[0] == e[j].dest ) {
-                /* verifica demanda e add */ 
-                    if( demand_act_route += demands[e[j].src] <= capacity ){
+                }
+            
+            } else if( act_route[0] == e[j].dest || act_route[0] == e[j].src ) {
+            // SE O DEST ESTIVER NO INICIO, ADICIONA O SRC NO INICIO DA ROTA //
 
-                        act_route[size_act_route++] = e[j].dest;
-                        int *r = malloc(sizeof(int) * graph_return_num_vertex(g));
-                        r[0] = e[j].src;
-                        for(int c = 1; c < size_act_route; c++){
-                            r[c] = act_route[c-1];
-                        }
-                        size_act_route++;
-                        free(act_route);
-                        act_route = r;
+                int search = ( act_route[0] == e[j].dest ) ? e[j].src : e[j].dest;
+                if( demand_act_route + demands[search] <= capacity && !act_visited[search] && !gl_visited[search] ){
+                    
+                    demand_act_route += demands[search];
+                    act_visited[search] = 1;
+                    gl_visited[search] = 1;
 
-                        // add rota
+                    int *r = malloc(sizeof(int) * graph_return_num_vertex(g));
+                    r[0] = search;
+                    for(int c = 1; c <= size_act_route; c++){
+                        r[c] = act_route[c-1];
                     }
+                    size_act_route++;
+                    free(act_route);
+                    act_route = r;
+                    control = 1;
+                }
 
-                // se for um elemento no inicio da rota
-                } else if( act_route[size_act_route - 1] == e[j].src ){
-                /* verifica demanda e add */ 
-                    if( demand_act_route += demands[e[j].dest] <= capacity ){
+            } else if( act_route[size_act_route - 1] == e[j].src && act_route[size_act_route - 1] == e[j].dest ){
+            // SE ESTIVER NO FINAL, ADICIONA NO FINAL DA ROTA //
 
-                        act_route[size_act_route++] = e[j].dest;
-                        // add rota
-                    }
+                int search = ( act_route[size_act_route - 1] == e[j].dest ) ? e[j].src : e[j].dest;
+                if( demand_act_route + demands[search] <= capacity && !act_visited[search] && !gl_visited[search] ){
+
+                    demand_act_route += demands[search];
+                    act_visited[search] = 1;
+                    gl_visited[search] = 1;
+
+                    act_route[size_act_route++] = search;
+                    control = 1;
                 }
             }
 
+            if( j == sizeEdges - 1 ){
+                int tam = graph_return_num_vertex(g);
+                for(int d = 1; d < tam; d++){
+                    if( !gl_visited[d] && !act_visited[d] && demand_act_route + demands[d] <= capacity ){
+                        j = 0;                        
+                    }
+                }
+            }
+        } // Fim for edges e
+
+        if(control){
+            int *r = malloc(sizeof(int) * graph_return_num_vertex(g));
+            r[0] = 0;
+            for(int c = 1; c <= size_act_route; c++){
+                r[c] = act_route[c-1];
+            }
+            size_act_route++;
+            free(act_route);
+            act_route = r;
+            act_route[size_act_route++] = 0;
+            graph_set_route(g, i, act_route, size_act_route);
         }
 
-        // add rota atual na global
-        int k = size_gl_route, l = 0;
-        size_gl_route += size_act_route + 2;
-        for( k, l ; l < size_act_route; l++, k++){
-
-            if( l < size_act_route )
-                global_route[k] = act_route[l];
-
+        printf("Rota %d - Demanda = %.2f\n", i, demand_act_route);
+        for(int i = 0; i < size_act_route; i++){
+            printf("v%d ", act_route[i]);
+            if(i < size_act_route -1) printf("-- ");
         }
-        global_route[k++] = 0;
-    }
+        printf("\n");
 
-    for(int i = 0; i < size_gl_route; i++){
-        printf("%d ", global_route[i]);
-        if(i < size_gl_route - 1)
-            printf("-> ");
-    }
+    } // Fim for trucks
+
+    int count = 0;
+    for(int i = 1; i < graph_return_num_vertex(g); i++)
+        if( !gl_visited[i] )
+            printf("%d(%.2f)\n", i, demands[i]);
+
 }

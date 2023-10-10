@@ -2,6 +2,21 @@
 #include "../adjacency_list/list.h"
 #include "../adjacency_matrix/matrix.h"
 #include "../Vector/vector.h"
+#include "../graph/graph.h"
+
+enum Color {
+    BLACK,
+    GREEN,
+    BLUE,
+    YELLOW,
+    RED,
+    PURPLE,
+    ORANGE,
+    BROWN,
+    PINK,
+    CYAN,
+    GRAY
+};
 
 void _system_call_graphviz(char *file_name){
     char call[ 24 + strlen(file_name) ];
@@ -47,11 +62,46 @@ void _graph_file_write(Graph *g, int size, FILE *arq, int direction){
 
 }
 
-void _route_file_write(int *route, int size, FILE *arq){
-    char asp = '"';
+char *_color_return(int i){
+    switch( i ){
+        case BLACK: return "black";
+        case GREEN: return "green";
+        case BLUE: return "blue";
+        case YELLOW: return "yellow";
+        case RED: return "red";
+        case PURPLE: return "purple";
+        case ORANGE: return "orange";
+        case BROWN: return "brown";
+        case PINK: return "pink";
+        case CYAN: return "cyan";
+        default : return "gray";
+    }
+}
+
+void _route_file_write(Graph *g, int size, FILE *arq){
+    char asp = '"', ini_color[16], end_color[5];
+
+    sprintf(ini_color, "edge [color = %c", asp);
+    sprintf(end_color, "%c];\n", asp);
+
+    fprintf(arq, "edge [dir = forward];\n");
+
+    for(int i = 0; i < size; i++){
+        char color[30] = "";
+        strcat(color, ini_color);
+        strcat(color, _color_return(i));
+        strcat(color, end_color);
+        fprintf(arq, "\n%s\n", color);
+
+        int route_size = route_return_size(g, i), *rt = route_return_route(g, i);
+        for( int j = 0; j < route_size; j++ ){
+            fprintf(arq, "v%d ", rt[j]);
+                if( j < route_size - 1) fprintf(arq, "-- ");
+            
+        }
+        fprintf(arq, ";\n");
+    }
     
-    for( int i = 0; i < size; i++ )
-        fprintf(arq, "v%d -> v%d [color = %cred%c];\n", route[i], route[i+1], asp, asp);
 }
 
 void img_print_vertex(Graph *g, char *file_name){
@@ -95,11 +145,38 @@ void img_print_graph(Graph *g, char *file_name){
 
     fprintf(arq_graph, "%s", open_arq);
 
-    fprintf(arq_graph, "edge [len = 5];\n");
-
     _vertex_file_write(graph_return_vertex_vector(g), graph_return_num_vertex(g), arq_graph);
     _graph_file_write(g, graph_return_num_vertex(g), arq_graph, direction);
-    if( graph_has_route(g) ) _route_file_write(graph_return_route(g), graph_return_num_vertex(g) - 1, arq_graph);
+
+    fprintf(arq_graph, "}");
+    fclose(arq_graph);
+
+    _system_call_graphviz(file_name);
+}
+
+void img_print_route(Graph *g, char *file_name){
+
+    FILE *arq_graph = fopen(file_name, "w");
+    char asp = '"';
+    char open_arq[11] = "di", suf[9] = "graph {\n";
+    int direction = graph_return_direction(g);
+
+    if( !arq_graph ){
+        printf("Não foi possivel abrir o arquivo %s\n", file_name);
+        return;
+    }
+
+    if( direction == DIRECTED ){
+        strcat(open_arq, suf);
+    } else {
+        // direction == UNDIRECTED
+        strcpy(open_arq, suf);
+    }
+
+    fprintf(arq_graph, "%s", open_arq);
+
+    _vertex_file_write(graph_return_vertex_vector(g), graph_return_num_vertex(g), arq_graph);
+    _route_file_write(g, graph_return_trucks(g), arq_graph);
 
     fprintf(arq_graph, "}");
     fclose(arq_graph);

@@ -4,6 +4,11 @@
 #include "../Vector/vector.h"
 #include "../algorithms/algorithms.h"
 
+struct Route{
+    int size;
+    void *route;
+};
+
 struct Graph{
     int num_vertex; 
     int num_edge;
@@ -12,7 +17,7 @@ struct Graph{
     bool direction;
     void *adj;
     Vector *vertices;
-    void *route;
+    Route *route;
 };
 
 Graph *graph_construct(int v, bool direction){
@@ -71,10 +76,13 @@ void *graph_return_adjacencies(Graph *g){
     return (g) ? g->adj : NULL;
 }
 
-void *graph_return_route(Graph *g){
-    return (g) ? g->route : NULL;
+void *route_return_route(Graph *g, int i){
+    return (g) ? g->route[i].route : NULL;
 }
 
+int route_return_size(Graph *g, int i){
+    return (g) ? g->route[i].size : -1;
+}
 
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( !(v1 - v2) ) return;
@@ -156,6 +164,33 @@ Graph *graph_read_file_CVRPLIB(){
 }
 
 Graph *graph_read_file(){
+    int vx, trucks, cap;
+    scanf("%d %d %d", &vx, &trucks, &cap);
+    Graph *g2 = graph_construct(vx, UNDIRECTED);
+    g2->capacity = cap;
+    g2->trucks = trucks;
+    weight weight;
+    scanf("\nDISTANCES\n");
+    for(int i = 0; i < vx; i++){
+        for(int j = i + 1; j < vx; j++){
+
+            scanf("%f", &weight);
+            graph_add_edge(g2, i, j, weight);
+        }
+    }
+    scanf("\nDEMAND\n");
+    float demand;
+    vector_push_back(g2->vertices, data_construct(0,0,0));
+    for(int i = 1; i < vx; i++){
+        scanf("%f", &demand);
+        Data *d = data_construct(i, i, demand);
+        vector_push_back(g2->vertices, d);
+    }
+
+    graph_print(g2);
+    return g2;
+    
+    
     int v, e;
 
     scanf("%d %d", &v, &e);
@@ -180,7 +215,6 @@ void graph_print(Graph *g){
         list_print(g->adj, g->num_vertex);
 
     }
-/*
 
     printf("\nVertices:\n");
     for(int i = 0; i < vector_size(g->vertices); i++){
@@ -188,6 +222,7 @@ void graph_print(Graph *g){
         printf("%d : ", i);
         data_print(d);
     }
+/*
 */
 }
 
@@ -228,21 +263,25 @@ void graph_Clarke_Wright_route(Graph *g){
 
     int sizeEdges = (g->num_edge / 2) - (g->num_vertex - 1);
 
-    Edges *e = calloc( sizeEdges, sizeof(Edges) );
+    Edges *e = calloc( sizeEdges, sizeof(Edges) ), *near_0 = malloc( g->num_vertex * sizeof(Edges) );
     
     if( MATRIX ){
-        matrix_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e);
+        matrix_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e, near_0);
 
     } else if( LIST ){
-        list_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e);
+        list_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e, near_0);
 
     }
 
-    for(int i = 0; i < sizeEdges; i++){
-        // printf("%d -> %d (%.2f)\n", e[i].src, e[i].dest, e[i].weight);
-    }
+    clarke_wright_algorithm(g, e, near_0, sizeEdges);
+}
 
-    clarke_wright_algorithm(g, e, sizeEdges);
+void graph_set_route(Graph *g, int idx, void *route, int size){
+    if( !idx )
+        g->route = malloc(sizeof(route) * g->trucks);
+    g->route[idx].route = malloc(sizeof(int) * size);
+    g->route[idx].route = memcpy(g->route[idx].route, route, sizeof(int) * size);
+    g->route[idx].size = size;
 }
 
 void graph_dfs(Graph *g){
@@ -251,7 +290,6 @@ void graph_dfs(Graph *g){
         *visited = calloc(g->num_vertex, sizeof(int));
 
     dfs_algorithm(g->adj, route, visited, g->num_vertex);
-    g->route = route;
 
     free(visited);
 }

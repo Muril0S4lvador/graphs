@@ -124,9 +124,10 @@ void list_return_edges(void *vl, int sizeVertex, int sizeEdges, void *vk){
     }
 }
 
-void list_return_edges_cost(void *vl, int sizeVertex, void *vk){
+void list_return_edges_cost(void *vl, int sizeVertex, void *vk, void *vn){
     List l = vl;
-    Edges *e = vk;
+    Edges *e = vk,
+          *near_0 = vn;
     int sizeE = 0;
     
     Adjacency *adj_i, *adj_j, *adj_ij;
@@ -162,6 +163,16 @@ void list_return_edges_cost(void *vl, int sizeVertex, void *vk){
                 sizeE++;
             }
         }
+    }
+
+    adj_i = l[0].head;
+    int i = 0;
+    while(adj_i){
+        near_0[i].src = 0;
+        near_0[i].dest = adj_i->vertice;
+        near_0[i].weight = adj_i->weight;
+        i++;
+        adj_i = adj_i->next;
     }
 }
 
