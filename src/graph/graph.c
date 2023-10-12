@@ -274,14 +274,22 @@ void graph_Clarke_Wright_route(Graph *g){
     }
 
     clarke_wright_algorithm(g, e, near_0, sizeEdges);
+    free(e);
+    free(near_0);
 }
 
 void graph_set_route(Graph *g, int idx, void *route, int size){
     if( !idx )
-        g->route = malloc(sizeof(route) * g->trucks);
+        g->route = malloc(sizeof(Route) * g->trucks);
     g->route[idx].route = malloc(sizeof(int) * size);
     g->route[idx].route = memcpy(g->route[idx].route, route, sizeof(int) * size);
     g->route[idx].size = size;
+
+    printf("Rota %d\n", idx);
+    for(int i = 0; i < size; i++){
+        int *v = g->route[idx].route;
+        printf("%d ", (v[i]));
+    }
 }
 
 void graph_dfs(Graph *g){
@@ -309,6 +317,9 @@ void graph_destroy(Graph *g){
         data_destroy(d);
     }
     vector_destroy(g->vertices);
+
+    for(int i = 0; i < g->trucks; i++)
+        free(g->route[i].route);
 
     free(g->route);
     free(g);

@@ -77,15 +77,13 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
         capacity = graph_return_capacity(g),
         trucks = graph_return_trucks(g),
         *act_route = malloc(sizeof(int) * graph_return_num_vertex(g) ),
-        *global_route = malloc(sizeof(int) * ((graph_return_num_vertex(g) * 2) + 1) ),
         *gl_visited = calloc(graph_return_num_vertex(g), sizeof(int));
 
     float *demands = malloc(sizeof(float) * graph_return_num_vertex(g)),
             demand_act_route = 0;
     char control = 0;
 
-    *(act_route) = *(global_route) = 0;
-
+    *(act_route) = 0;
 
     int size = graph_return_num_vertex(g);
     for(int i = 0; i < size; i++){
@@ -186,11 +184,15 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
         }
         printf("\n");
 
+        free(act_visited);
     } // Fim for trucks
 
     int count = 0;
     for(int i = 1; i < graph_return_num_vertex(g); i++)
         if( !gl_visited[i] )
             printf("%d(%.2f)\n", i, demands[i]);
+    free(gl_visited);
+    free(act_route);
+    free(demands);
 
 }
