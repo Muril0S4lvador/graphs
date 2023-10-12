@@ -56,7 +56,7 @@ Graph *graph_mst_kruskal(Graph *g);
 
 void graph_Clarke_Wright_route(Graph *g);
 
-void graph_set_route(Graph *g, int idx, void *route, int size);
+void graph_set_route(Graph *g, int idx, void *route, int size, float cost, float demand);
 
 void graph_dfs(Graph *g);
 

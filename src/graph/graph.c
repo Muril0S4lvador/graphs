@@ -7,6 +7,8 @@
 struct Route{
     int size;
     void *route;
+    float cost;
+    float demand;
 };
 
 struct Graph{
@@ -278,12 +280,14 @@ void graph_Clarke_Wright_route(Graph *g){
     free(near_0);
 }
 
-void graph_set_route(Graph *g, int idx, void *route, int size){
+void graph_set_route(Graph *g, int idx, void *route, int size, float cost, float demand){
     if( !idx )
         g->route = malloc(sizeof(Route) * g->trucks);
     g->route[idx].route = malloc(sizeof(int) * size);
     g->route[idx].route = memcpy(g->route[idx].route, route, sizeof(int) * size);
     g->route[idx].size = size;
+    g->route[idx].cost = cost;
+    g->route[idx].demand = demand;
 
     printf("Rota %d\n", idx);
     for(int i = 0; i < size; i++){

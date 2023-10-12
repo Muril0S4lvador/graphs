@@ -80,7 +80,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
         *gl_visited = calloc(graph_return_num_vertex(g), sizeof(int));
 
     float *demands = malloc(sizeof(float) * graph_return_num_vertex(g)),
-            demand_act_route = 0;
+            demand_act_route = 0, cost = 0;
     char control = 0;
 
     *(act_route) = 0;
@@ -95,6 +95,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
         demand_act_route = 0;
         size_act_route = 0;
+        cost = 0;
         control = 0;
         int *act_visited = calloc(graph_return_num_vertex(g), sizeof(int));
 
@@ -114,6 +115,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
                         gl_visited[near_0[k].dest] = 1;
                         control = 1;
                         j = -1;
+                        cost += near_0[k].weight;
                         break;
                     }
                 }
@@ -125,6 +127,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
                 if( demand_act_route + demands[search] <= capacity && !act_visited[search] && !gl_visited[search] ){
                     
                     demand_act_route += demands[search];
+                    cost += e[j].weight;
                     act_visited[search] = 1;
                     gl_visited[search] = 1;
 
@@ -146,6 +149,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
                 if( demand_act_route + demands[search] <= capacity && !act_visited[search] && !gl_visited[search] ){
 
                     demand_act_route += demands[search];
+                    cost += e[j].weight;
                     act_visited[search] = 1;
                     gl_visited[search] = 1;
 
@@ -170,14 +174,17 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
             for(int c = 1; c <= size_act_route; c++){
                 r[c] = act_route[c-1];
             }
+            for(int c = 0; c < graph_return_num_vertex(g) - 1; c++)
+                if(near_0[c].dest == act_route[size_act_route - 1])
+                    cost += near_0[c].weight;
             size_act_route++;
             free(act_route);
             act_route = r;
             act_route[size_act_route++] = 0;
-            graph_set_route(g, i, act_route, size_act_route);
+            graph_set_route(g, i, act_route, size_act_route, cost, demand_act_route);
         }
 
-        printf("Rota %d - Demanda = %.2f\n", i, demand_act_route);
+        printf("Rota %d - Demanda = %.2f\n", i, cost);
         for(int i = 0; i < size_act_route; i++){
             printf("v%d ", act_route[i]);
             if(i < size_act_route -1) printf("-- ");
