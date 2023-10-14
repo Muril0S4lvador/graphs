@@ -5,10 +5,13 @@
 
 int main(){
 
-    Graph *g = graph_read_file_CVRPLIB();
     /*
+    Graph *g = graph_read_file_CVRPLIB();
     
     */
+
+   Graph *g = graph_read_file();
+
     graph_Clarke_Wright_route(g);
 
     img_print_route(g, "imgs/routes.dot");
