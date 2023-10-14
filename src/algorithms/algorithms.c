@@ -68,25 +68,27 @@ void dfs_algorithm(void *adj, int *route, int *visited, int size){
     free(size_route);
 }
 
-void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
+void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
     qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);
     qsort(near_0, graph_return_num_vertex(g)-1, sizeof(Edges), edges_compare_growing);
 
-    int size_act_route = 0, size_gl_route = 1,
+    int num_vertex = graph_return_num_vertex(g),
+        num_trucks = graph_return_trucks(g),
+        size_act_route = 0, size_gl_route = 1,
         capacity = graph_return_capacity(g),
-        trucks = graph_return_trucks(g),
-        *act_route = malloc(sizeof(int) * graph_return_num_vertex(g) ),
-        *gl_visited = calloc(graph_return_num_vertex(g), sizeof(int));
+        trucks = num_trucks,
+        *act_route = malloc( sizeof(int) * num_vertex ),
+        *gl_visited = malloc( sizeof(int) * num_vertex );
 
-    float *demands = malloc(sizeof(float) * graph_return_num_vertex(g)),
+    float *demands = malloc(sizeof(float) * num_vertex),
             demand_act_route = 0, cost = 0;
     char control = 0;
 
     *(act_route) = 0;
 
-    int size = graph_return_num_vertex(g);
-    for(int i = 0; i < size; i++){
+    for(int i = 0; i < num_vertex; i++){
+        gl_visited[i] = 0;
         Data *d = vector_get(graph_return_vertex_vector(g), i);
         demands[i] = data_return_demand(d);
     }
@@ -97,17 +99,14 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
         size_act_route = 0;
         cost = 0;
         control = 0;
-        int *act_visited = calloc(graph_return_num_vertex(g), sizeof(int));
-
-        if( i == 1 )
-            i = 4 - 3 * 1;
+        int *act_visited = calloc(num_vertex, sizeof(int));
 
         for(int j = 0; j < sizeEdges; j++){
 
             if( !size_act_route ){
             // SE FOR PRIMEIRO ELEMENTO DA ROTA, PEGA O + PROX DO DEPOSITO //
 
-                for(int k = 0; k < graph_return_num_vertex(g)-1; k++){
+                for(int k = 0; k < num_vertex - 1; k++){
                     if( !gl_visited[near_0[k].dest] ){
                         act_route[size_act_route++] = near_0[k].dest;
                         demand_act_route = demands[near_0[k].dest];
@@ -131,7 +130,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
                     act_visited[search] = 1;
                     gl_visited[search] = 1;
 
-                    int *r = malloc(sizeof(int) * graph_return_num_vertex(g));
+                    int *r = malloc(sizeof(int) * num_vertex);
                     r[0] = search;
                     for(int c = 1; c <= size_act_route; c++){
                         r[c] = act_route[c-1];
@@ -159,8 +158,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
             }
 
             if( j == sizeEdges - 1 ){
-                int tam = graph_return_num_vertex(g);
-                for(int d = 1; d < tam; d++){
+                for(int d = 1; d < num_vertex; d++){
                     if( !gl_visited[d] && !act_visited[d] && demand_act_route + demands[d] <= capacity ){
                         j = 0;                        
                     }
@@ -169,12 +167,12 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
         } // Fim for edges e
 
         if(control){
-            int *r = malloc(sizeof(int) * graph_return_num_vertex(g));
+            int *r = malloc(sizeof(int) * num_vertex);
             r[0] = 0;
             for(int c = 1; c <= size_act_route; c++){
                 r[c] = act_route[c-1];
             }
-            for(int c = 0; c < graph_return_num_vertex(g) - 1; c++)
+            for(int c = 0; c < num_vertex - 1; c++)
                 if(near_0[c].dest == act_route[size_act_route - 1])
                     cost += near_0[c].weight;
             size_act_route++;
@@ -195,7 +193,7 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
     } // Fim for trucks
 
     int count = 0;
-    for(int i = 1; i < graph_return_num_vertex(g); i++)
+    for(int i = 1; i < num_vertex; i++)
         if( !gl_visited[i] )
             printf("%d(%.2f)\n", i, demands[i]);
     free(gl_visited);
@@ -203,3 +201,151 @@ void clarke_wright_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
     free(demands);
 
 }
+
+void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
+
+    // Pegar a menor edge e, conferir se posso adicionar na atual, 
+    // se puder, beleza.
+    // Caso não, verifico se posso adicionar na próxima.
+    // Caso nao posso adicionar em nenhuma, passo p proxima edge e.
+
+    // matriz de rotas atuais, cada linha uma rota diferente, cada coluna um vertice.
+
+    // 1 vetor de vertice, so marca positivo se estiver "dentro" do vetor(nem no inicio nem no ultimo)
+
+   int num_vertex = graph_return_num_vertex(g),        // Número de vértices no grafo
+        num_trucks = graph_return_trucks(g),           // Número de caminhões no grafo
+        **route = malloc(sizeof(int*) * num_trucks),   // Matriz de rotas
+        *visited = malloc(sizeof(int) * num_vertex),   // Vetor bool se vértice foi visitado ou não
+        noVisiteds = num_vertex - 2,                   // Número de vértices não visitados
+        *size = malloc(sizeof(int) * num_trucks),      // Tamanho de cada rota
+        capacity = graph_return_capacity(g);           // Capacidade dos caminhões
+
+    float *demands = malloc(sizeof(float) * num_vertex),              // Vetor de demanda de todos os vertices
+            *demand_route = malloc(sizeof(float) * num_trucks),       // vetor de demanda das rotas
+            *cost = malloc(sizeof(float) * num_trucks);               // vetor de custo de cada rota
+
+    // Inicializa elementos de rota
+    for( int i = 0; i < num_trucks; i++){
+        route[i] = malloc(sizeof(int) * num_vertex);
+        size[i] = demand_route[i] = cost[i] = 0;
+    }
+
+    // Preenche vetor de demanda dos vértices
+    for(int i = 0; i < num_vertex; i++){   
+        visited[i] = 0; 
+        Data *d = vector_get(graph_return_vertex_vector(g), i);
+        demands[i] = data_return_demand(d);
+    }
+    
+    while( noVisiteds ){
+        
+        for( int i = 0; i < sizeEdges; i++){
+
+            for(int j = 0; j < num_trucks; j++){
+
+                if( !size[j] ){
+                    if( !visited[e[i].src] && !visited[e[i].dest] && (demands[e[i].src] + demands[e[i].dest]) <= capacity ){
+
+                        demand_route[j] = demands[e[i].src] + demands[e[i].dest];
+                        cost[j] = e[i].weight;
+                        visited[e[i].src] = visited[e[i].dest] = 1;
+
+                        route[j][size[j]++] = e[i].src;
+                        route[j][size[j]++] = e[i].dest;
+
+                        noVisiteds -= 2;
+                        break;
+
+                    }
+
+                } else if( route[j][0] == e[i].dest || route[j][0] == e[i].src ) {
+                // SE O DEST ESTIVER NO INICIO, ADICIONA O SRC NO INICIO DA ROTA //
+
+                    int search = ( route[j][0] == e[i].dest ) ? e[i].src : e[i].dest;
+                    if( demand_route[j] + demands[search] <= capacity && !visited[search] ){
+
+                        demand_route[j] += demands[search];
+                        cost[j] += e[i].weight;
+                        visited[search] = 1;
+
+                        for(int c = size[j] - 1; c >= 0 && c < num_vertex - 1; c--){
+                            route[j][c + 1] = route[j][c];
+                        }
+
+                        route[j][0] = search;
+                        size[j]++;
+                        noVisiteds--;
+                        break;
+                    }
+                    // confere e add
+
+                } else if( route[j][size[j] - 1] == e[j].src && route[j][size[j] - 1] == e[j].dest ){
+                // SE ESTIVER NO FINAL, ADICIONA NO FINAL DA ROTA //
+
+                    int search = ( route[j][size[j] - 1] == e[j].dest ) ? e[j].src : e[j].dest;
+                    if( demand_route[j] + demands[search] <= capacity && !visited[search] ){
+
+                        demand_route[j] += demands[search];
+                        cost[j] += e[i].weight;
+                        visited[search] = 1;
+
+                        route[j][size[j]++] = search;
+                        noVisiteds--;
+                        break;
+
+                    }
+                }
+
+            } // Fim for trucks
+
+        } // Fim for Edges
+
+    } // Fim while non_visited
+
+    for( int i = 0; i < num_trucks; i++ ){
+
+        if( i == 4 )
+            i = 2*2;
+
+        int ctr = 0;
+        for(int k = 0; k < num_vertex; k++){
+            if(near_0[k].dest == route[i][0] || near_0[k].dest == route[i][size[i] - 1]){
+                cost[i] += near_0[k].weight;
+                ctr++;
+                if( ctr == 2 ) break;
+            }
+        }
+
+        for(int j = size[i] - 1; j >= 0 && j < num_vertex - 1; j++){
+            route[i][j + 1] = route[i][j];
+        }
+        route[i][0] = 0;
+        route[i][size[i]++] = 0;
+
+        graph_set_route(g, i, route[i], size[i], cost[i], demand_route[i]);
+
+    }
+
+}
+
+/*
+A-n32-k5
+32
+100
+Rota 0
+0 26 5 21 10 31 24 19 30 0 Rota 0 - Demanda = 214.32
+v0 -- v26 -- v5 -- v21 -- v10 -- v31 -- v24 -- v19 -- v30 -- v0
+Rota 1
+0 22 29 7 14 13 15 17 16 0 Rota 1 - Demanda = 403.19
+v0 -- v22 -- v29 -- v7 -- v14 -- v13 -- v15 -- v17 -- v16 -- v0
+Rota 2
+0 12 25 1 9 27 0 Rota 2 - Demanda = 146.41
+v0 -- v12 -- v25 -- v1 -- v9 -- v27 -- v0
+Rota 3
+0 3 11 28 4 6 23 8 18 20 0 Rota 3 - Demanda = 1074.64
+v0 -- v3 -- v11 -- v28 -- v4 -- v6 -- v23 -- v8 -- v18 -- v20 -- v0
+Rota 4
+0 2 0 Rota 4 - Demanda = 155.76
+v0 -- v2 -- v0
+*/

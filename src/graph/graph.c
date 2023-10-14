@@ -86,6 +86,14 @@ int route_return_size(Graph *g, int i){
     return (g) ? g->route[i].size : -1;
 }
 
+int route_return_demand(Graph *g, int i){
+    return (g) ? g->route[i].demand : -1;
+}
+
+int route_return_cost(Graph *g, int i){
+    return (g) ? g->route[i].cost : -1;
+}
+
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( !(v1 - v2) ) return;
     // Se for não direcionado, o menor aponta para o maior
@@ -224,8 +232,6 @@ void graph_print(Graph *g){
         printf("%d : ", i);
         data_print(d);
     }
-/*
-*/
 }
 
 Graph *graph_mst_kruskal(Graph *g){
@@ -275,7 +281,8 @@ void graph_Clarke_Wright_route(Graph *g){
 
     }
 
-    clarke_wright_algorithm(g, e, near_0, sizeEdges);
+    // clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
+    clarke_wright_paralel_algorithm(g, e, near_0, sizeEdges);
     free(e);
     free(near_0);
 }
@@ -289,11 +296,12 @@ void graph_set_route(Graph *g, int idx, void *route, int size, float cost, float
     g->route[idx].cost = cost;
     g->route[idx].demand = demand;
 
-    printf("Rota %d\n", idx);
+    printf("Rota %d Demanda %.2f Custo %.2f\n", idx, demand, cost);
     for(int i = 0; i < size; i++){
         int *v = g->route[idx].route;
         printf("%d ", (v[i]));
     }
+    printf("\n");
 }
 
 void graph_dfs(Graph *g){

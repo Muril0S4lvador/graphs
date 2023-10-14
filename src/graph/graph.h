@@ -12,7 +12,7 @@ typedef float weight;
 #define UNDIRECTED 1
 #define DIRECTED 0
 
-#define MATRIX 1
+#define MATRIX 0
 #define LIST 1
 
 typedef struct Graph Graph;
@@ -39,6 +39,10 @@ void *graph_return_adjacencies(Graph *g);
 void *route_return_route(Graph *g, int i);
 
 int route_return_size(Graph *g, int i);
+
+int route_return_demand(Graph *g, int i);
+
+int route_return_cost(Graph *g, int i);
 
 void graph_add_edge(Graph *g, int v1, int v2, weight peso);
 
