@@ -300,4 +300,11 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
 
     }
 
+    free(visited);
+    free(size);
+    free(demand_route);
+    free(demands);
+    for(int i = 0; i < num_trucks; i++)
+        free(route[i]);
+    free(route);
 }
