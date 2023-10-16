@@ -178,6 +178,8 @@ void img_print_route(Graph *g, char *file_name){
     _vertex_file_write(graph_return_vertex_vector(g), graph_return_num_vertex(g), arq_graph);
     _route_file_write(g, graph_return_trucks(g), arq_graph);
 
+    printf("Total route cost = %.2f\n", route_return_total_cost(g));
+
     fprintf(arq_graph, "}");
     fclose(arq_graph);
 

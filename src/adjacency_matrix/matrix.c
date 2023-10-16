@@ -72,7 +72,7 @@ void matrix_return_edges(void *vm, int sizeVertex, void *vk, int direction){
     }
 }
 
-void matrix_return_edges_cost(void *vm, int sizeVertex, void *vk, void *vn){
+void matrix_return_edges_savings(void *vm, int sizeVertex, void *vk, void *vn){
     Matrix m = vm;
     Edges *e = vk,
           *near_0 = vn;
@@ -94,6 +94,17 @@ void matrix_return_edges_cost(void *vm, int sizeVertex, void *vk, void *vn){
             }
         }
     }
+}
+
+float matrix_return_route_cost(void *vm, int *route, int size_route){
+    Matrix m = vm;
+    float cost = 0;
+
+    for(int i = 0; i < size_route - 1; i++){
+        cost += m[route[i]][route[i+1]];
+    }
+
+    return cost;
 }
 
 void matrix_dfs_recursive(void *vm, int *route, int *size_route, int *visited, int size){

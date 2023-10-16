@@ -90,8 +90,16 @@ int route_return_demand(Graph *g, int i){
     return (g) ? g->route[i].demand : -1;
 }
 
-int route_return_cost(Graph *g, int i){
+float route_return_cost(Graph *g, int i){
     return (g) ? g->route[i].cost : -1;
+}
+
+float route_return_total_cost(Graph *g){
+    if(!g) return -1;
+    float cost = 0;
+    for(int i = 0; i < g->trucks; i++)
+        cost += g->route[i].cost;
+    return cost;
 }
 
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
@@ -273,13 +281,7 @@ void graph_Clarke_Wright_route(Graph *g){
 
     Edges *e = calloc( sizeEdges, sizeof(Edges) ), *near_0 = malloc( g->num_vertex * sizeof(Edges) );
     
-    if( MATRIX ){
-        matrix_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e, near_0);
-
-    } else if( LIST ){
-        list_return_edges_cost(graph_return_adjacencies(g), g->num_vertex, e, near_0);
-
-    }
+    matrix_return_edges_savings(graph_return_adjacencies(g), g->num_vertex, e, near_0);
 
     // clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
     clarke_wright_paralel_algorithm(g, e, near_0, sizeEdges);
@@ -294,8 +296,9 @@ void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
     g->route[idx].route = memcpy(g->route[idx].route, route, sizeof(int) * size);
     g->route[idx].size = size;
     g->route[idx].demand = demand;
+    g->route[idx].cost = matrix_return_route_cost(g->adj, route, size);
 
-    printf("Rota %d Demanda %.2f \n", idx, demand);
+    printf("Rota %d Demanda %.2f Custo %.2f\n", idx, demand, g->route[idx].cost);
     for(int i = 0; i < size; i++){
         int *v = g->route[idx].route;
         printf("%d ", (v[i]));

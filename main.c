@@ -5,12 +5,7 @@
 
 int main(){
 
-    /*
     Graph *g = graph_read_file_CVRPLIB();
-    
-    */
-
-   Graph *g = graph_read_file();
 
     graph_Clarke_Wright_route(g);
 
@@ -20,3 +15,12 @@ int main(){
 
     return 0;
 }
+
+/*
+Loops:
+    A-n39-k6.vrp
+    A-n45-k6.vrp
+    A-n61-k9.vrp
+    A-n63-k9.vrp
+    A-n65-k9.vrp
+*/

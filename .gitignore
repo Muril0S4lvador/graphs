@@ -1,4 +1,5 @@
 main
 output/
-imgs/*.pdf
+imgs/*.dot*
+*dot*
 imgs/arq_dots/*
