@@ -28,6 +28,12 @@ char matrix_edge_exists(void *vm, int v1, int v2){
     return m[v1][v2] != 0;
 }
 
+float matrix_return_edge_weight(void *vm, int v1, int v2, int direction){
+    if( direction == UNDIRECTED )if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
+    Matrix m = vm;
+    return m[v1][v2];
+}
+
 void matrix_print(void *vm, int size){
     Matrix m = vm;
     printf("-- ");
@@ -101,7 +107,7 @@ float matrix_return_route_cost(void *vm, int *route, int size_route){
     float cost = 0;
 
     for(int i = 0; i < size_route - 1; i++){
-        cost += m[route[i]][route[i+1]];
+        cost += matrix_return_edge_weight(vm, route[i], route[i+1], UNDIRECTED);
     }
 
     return cost;

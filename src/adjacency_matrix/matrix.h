@@ -21,6 +21,8 @@ void matrix_remove_edge(void *vm, int v1, int v2);
 
 char matrix_edge_exists(void *vm, int v1, int v2);
 
+float matrix_return_edge_weight(void *vm, int v1, int v2, int direction);
+
 void matrix_print(void *vm, int size);
 
 void matrix_file_write(void *vm, int size, FILE *arq, char *edge);

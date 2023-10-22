@@ -3,11 +3,19 @@
 #include "src/graph/graph.h"
 #include "src/graphviz_print/graphviz_print.h"
 
-int main(){
+int main( int argc, char* argv[] ){
 
-    Graph *g = graph_read_file_CVRPLIB();
+    Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    graph_Clarke_Wright_route(g);
+    graph_Clarke_Wright_serial_route(g);
+
+    img_print_route(g, "imgs/routes.dot");
+
+    graph_destroy(g);
+
+    g = graph_read_file_CVRPLIB(argv[1]);
+
+    graph_Clarke_Wright_paralel_route(g);
 
     img_print_route(g, "imgs/routes.dot");
 
@@ -15,12 +23,3 @@ int main(){
 
     return 0;
 }
-
-/*
-Loops:
-    A-n39-k6.vrp
-    A-n45-k6.vrp
-    A-n61-k9.vrp
-    A-n63-k9.vrp
-    A-n65-k9.vrp
-*/

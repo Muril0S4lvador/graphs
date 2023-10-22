@@ -12,6 +12,8 @@ struct Route{
 };
 
 struct Graph{
+    char *name;
+    char *comment;
     int num_vertex; 
     int num_edge;
     int capacity;
@@ -25,6 +27,8 @@ struct Graph{
 Graph *graph_construct(int v, bool direction){
     Graph *g = malloc(sizeof(Graph));
 
+    g->name = NULL;
+    g->comment = NULL;
     g->num_edge = 0;
     g->num_vertex = v;
     g->vertices = vector_construct();
@@ -129,42 +133,27 @@ bool graph_edge_exists(Graph *g, int v1, int v2){
     return ( MATRIX ) ? matrix_edge_exists(g->adj, v1, v2) : list_edge_exists(g->adj, v1, v2);
 }
 
-Graph *graph_read_file_CVRPLIB(){
+void _trataString(char *string){
+    int tam = strlen(string);
+    for(int i = 0; i < tam; i++){
+        if(string[i] == ' ')
+            string[i] = 0;
+    }
+}
 
-    char nameprev[500];
-    int dimension = 0, capacity = 0;
+void _read_EUC_2D(Graph *g, FILE *arq){
 
-    scanf("%*[^:]: %s%*c", nameprev);
-    char name[ strlen(nameprev) ];
-    strcpy(name, nameprev);
-
-    scanf("%*[^\n]\n"); // COMMENT
-    scanf("%*[^\n]\n"); // TYPE
-    scanf("%*[^:]: %d%*c", &dimension);
-
-    scanf("%*[^\n]\n"); // EDGE_WEIGHT_TYPE
-    scanf("%*[^:]: %d%*c", &capacity);
-    scanf("%*[^\n]\n"); //NODE_COORD_SECTION
-
-    printf("\n%s\n", name);
-    printf("%d\n", dimension);
-    printf("%d\n", capacity);
-
-    Graph *g = graph_construct(dimension, UNDIRECTED);
-
-    sscanf(name, "%*[^k]k%d" , &g->trucks);
-    g->capacity = capacity;
-
+    int dimension = g->num_vertex;
     float m[dimension][3];
 
     for(int i = 0; i < dimension; i++)
-        scanf(" %*d %f %f%*c", &m[i][0], &m[i][1]);
+        fscanf(arq, " %*d %f %f%*c", &m[i][0], &m[i][1]);
 
-    scanf("%*[^\n]\n"); // DEMAND_COORD_SECTION
+    fscanf(arq, "%*[^\n]\n"); // DEMAND_COORD_SECTION
 
-    for(int i = 0; i < g->num_vertex; i++){
+    for(int i = 0; i < dimension; i++){
         
-        scanf("%*c %f %*c", &m[i][2]);
+        fscanf(arq, "%*c %f %*c", &m[i][2]);
         int x1 = m[i][0], y1 = m[i][1];
         Data *d = data_construct(x1, y1, m[i][2]);
         vector_push_back(g->vertices, d);
@@ -177,6 +166,81 @@ Graph *graph_read_file_CVRPLIB(){
             graph_add_edge(g, i, j, w);
         }
     }
+
+}
+
+void _read_LOWER_ROW(Graph *g, FILE *arq){
+    int dimension = g->num_vertex;
+    float demand;
+    weight weight;
+
+    // Le EDGE_WEIGHT_SECTION
+    for(int i = 0; i < dimension; i++){
+        for(int j = i + 1; j < dimension; j++){
+            fscanf(arq, "%f", &weight);
+            graph_add_edge(g, i, j, weight);
+        }
+    }
+
+    fscanf(arq, "%*[^\n]\n"); // DEMAND_COORD_SECTION
+
+    for(int i = 0; i < dimension; i++){
+        fscanf(arq, "%*c %f %*c", &demand);
+        Data *d = data_construct(i, i, demand);
+        vector_push_back(g->vertices, d);
+    }
+
+}
+
+Graph *graph_read_file_CVRPLIB(char *fileName){
+
+    if( !fileName ) exit(printf("ERROR\nrun ./<exe> <CVRP file>\n"));
+    FILE *arq = fopen(fileName, "r");
+    if( !arq ) exit(printf("ERRO: Falha ao abrir %s\n", fileName));
+
+    char nameprev[64], commentprev[256];
+    int dimension = 0, capacity = 0;
+
+    fscanf(arq, "%*[^:]: %s%*c", nameprev); // NAME
+    char *name = malloc(sizeof(char) * strlen(nameprev));
+    memcpy(name, nameprev, sizeof(char));
+
+    fscanf(arq, "%*[^:]: "); // COMMENT
+    fgets(commentprev, 256, arq);
+    char *comment = malloc(sizeof(char) * strlen(commentprev));
+    memcpy(comment, commentprev, sizeof(char));
+
+    fscanf(arq, "%*[^\n]\n"); // TYPE
+
+    fscanf(arq, "%*[^:]: %d%*c", &dimension); // DIMENSION
+
+    char edgeWType[20] = "";
+    fscanf(arq, "%*[^:]: "); // EDGE_WEIGHT_TYPE
+    fscanf(arq, "%[^\n]\n", edgeWType); // TYPE
+    _trataString(edgeWType);
+
+    if( !strcmp(edgeWType, "EXPLICIT") ){
+        fscanf(arq, "%*[^:]: "); // EDGE_WEIGHT_FORMAT
+        fscanf(arq, "%[^\n]\n", edgeWType);
+        _trataString(edgeWType);
+    }
+    
+    fscanf(arq, "%*[^:]: %d%*c", &capacity); // CAPACITY
+    
+    fscanf(arq, "%*[^\n]\n"); //NODE_COORD_SECTION ou EDGE_WEIGHT_SECTION
+
+    Graph *g = graph_construct(dimension, UNDIRECTED);
+    sscanf(nameprev, "%*[^k]k%d" , &g->trucks);
+    g->capacity = capacity;
+    g->name = name;
+    g->comment = comment;
+
+    if( !strcmp(edgeWType, "EUC_2D") ){
+        _read_EUC_2D(g, arq);
+    } else if( !strcmp(edgeWType, "LOWER_ROW") ){
+        _read_LOWER_ROW(g, arq);
+    }
+    fclose(arq);
 
     return g;
 }
@@ -270,7 +334,7 @@ Graph *graph_mst_kruskal(Graph *g){
     return mst;
 }
 
-void graph_Clarke_Wright_route(Graph *g){
+void graph_Clarke_Wright_route(Graph *g, char control){
 
     if( g->direction == DIRECTED ){
         printf("Grafo não compatível com o que o algoritmo espera.\n");
@@ -283,10 +347,21 @@ void graph_Clarke_Wright_route(Graph *g){
     
     matrix_return_edges_savings(graph_return_adjacencies(g), g->num_vertex, e, near_0);
 
-    // clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
-    clarke_wright_paralel_algorithm(g, e, near_0, sizeEdges);
+    if(control == 1)
+        clarke_wright_paralel_algorithm(g, e, near_0, sizeEdges);
+    else
+        clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
+
     free(e);
     free(near_0);
+}
+
+void graph_Clarke_Wright_paralel_route(Graph *g){
+    graph_Clarke_Wright_route(g, 1);
+}
+
+void graph_Clarke_Wright_serial_route(Graph *g){
+    graph_Clarke_Wright_route(g, 0);
 }
 
 void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
@@ -298,6 +373,7 @@ void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
     g->route[idx].demand = demand;
     g->route[idx].cost = matrix_return_route_cost(g->adj, route, size);
 
+    return;
     printf("Rota %d Demanda %.2f Custo %.2f\n", idx, demand, g->route[idx].cost);
     for(int i = 0; i < size; i++){
         int *v = g->route[idx].route;
@@ -335,6 +411,8 @@ void graph_destroy(Graph *g){
     for(int i = 0; i < g->trucks; i++)
         free(g->route[i].route);
 
+    free(g->name);
+    free(g->comment);
     free(g->route);
     free(g);
 }

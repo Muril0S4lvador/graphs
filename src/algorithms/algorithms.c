@@ -176,7 +176,6 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
     free(gl_visited);
     free(act_route);
     free(demands);
-
 }
 
 void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
@@ -278,7 +277,10 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
                         if(!visited[v])
                             printf("%.1f ", demands[v]);
                     printf("demand(s) in any routes\n");
-                    exit(-12);
+                    noVisiteds = 0;
+                    i = sizeEdges + 1;
+                    j = num_trucks + 1;
+                    break;
                 }
 
             } // Fim for trucks

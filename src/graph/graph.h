@@ -52,7 +52,7 @@ void graph_remove_edge(Graph *g, int v1, int v2);
 
 bool graph_edge_exists(Graph *g, int v1, int v2);
 
-Graph *graph_read_file_CVRPLIB();
+Graph *graph_read_file_CVRPLIB(char *fileName);
 
 Graph *graph_read_file();
 
@@ -60,7 +60,9 @@ void graph_print(Graph *g);
 
 Graph *graph_mst_kruskal(Graph *g);
 
-void graph_Clarke_Wright_route(Graph *g);
+void graph_Clarke_Wright_paralel_route(Graph *g);
+
+void graph_Clarke_Wright_serial_route(Graph *g);
 
 void graph_set_route(Graph *g, int idx, void *route, int size, float demand);
 
