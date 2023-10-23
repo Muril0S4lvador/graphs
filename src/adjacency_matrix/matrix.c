@@ -45,7 +45,7 @@ void matrix_print(void *vm, int size){
         printf("v%d:", i);
 
         for(int j = 0; j < size; j++)
-            printf(" %.2f", m[i][j]);
+            printf(" %2.0f", m[i][j]);
 
     }
     printf("\n");

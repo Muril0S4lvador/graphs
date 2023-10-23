@@ -7,7 +7,7 @@
       "cwd": ".",
       "program": "${workspaceRoot}/main",
       "args": [
-        "<entradas/A-n39-k6.vrp"
+        "entradas/a/A-n55-k9.vrp"
       ],
       "preLaunchTask": "compilacao"
     },

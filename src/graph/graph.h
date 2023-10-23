@@ -46,6 +46,10 @@ float route_return_cost(Graph *g, int i);
 
 float route_return_total_cost(Graph *g);
 
+float route_return_optmal_cost(Graph *g);
+
+char *graph_return_name(Graph *g);
+
 void graph_add_edge(Graph *g, int v1, int v2, weight peso);
 
 void graph_remove_edge(Graph *g, int v1, int v2);

@@ -77,7 +77,6 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
         num_trucks = graph_return_trucks(g),
         size_act_route = 0, size_gl_route = 1,
         capacity = graph_return_capacity(g),
-        trucks = num_trucks,
         *act_route = malloc( sizeof(int) * num_vertex ),
         *gl_visited = malloc( sizeof(int) * num_vertex );
 
@@ -92,8 +91,14 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
         Data *d = vector_get(graph_return_vertex_vector(g), i);
         demands[i] = data_return_demand(d);
     }
+/*
+    for(int i = 0; i < sizeEdges; i++)
+        printf("%d -- %d (%.2f)\n", e[i].src, e[i].dest, e[i].weight);
+    printf("%d trucks\n", num_trucks);
+    // exit(-1);
+*/
 
-    for(int i = 0; i < trucks; i++){
+    for(int i = 0; i < num_trucks; i++){
 
         demand_act_route = 0;
         size_act_route = 0;
@@ -152,7 +157,8 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
             if( j == sizeEdges - 1 ){
                 for(int d = 1; d < num_vertex; d++){
                     if( !gl_visited[d] && demand_act_route + demands[d] <= capacity ){
-                        j = 0;                        
+                        j = -1;
+                        break;
                     }
                 }
             }
@@ -269,6 +275,10 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
                 }
 
                 if( ver == 5 ){
+                    noVisiteds = 0;
+                    i = sizeEdges + 1;
+                    j = num_trucks + 1;
+                    break;
                     for(int r = 0; r < num_trucks; r++){
                         printf("Demand route %d %.1f\n", r, demand_route[r]);
                     }
@@ -277,10 +287,6 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
                         if(!visited[v])
                             printf("%.1f ", demands[v]);
                     printf("demand(s) in any routes\n");
-                    noVisiteds = 0;
-                    i = sizeEdges + 1;
-                    j = num_trucks + 1;
-                    break;
                 }
 
             } // Fim for trucks

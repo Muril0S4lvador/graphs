@@ -106,6 +106,27 @@ float route_return_total_cost(Graph *g){
     return cost;
 }
 
+float route_return_optmal_cost(Graph *g){
+    if(!g) return -1;
+    float cost = -1;
+    char value[7] = "value:", comment[strlen(g->comment) + 1], *token = NULL;
+    memcpy(comment, g->comment, strlen(g->comment) + 1);
+
+    token = strtok(comment, " ");
+    while( token ){
+        if( !strcmp(token, value) ){
+            token = strtok(NULL, " ");
+            sscanf(token, "%f", &cost);
+        }
+        token = strtok(NULL, " ");
+    }
+    return cost;
+}
+
+char *graph_return_name(Graph *g){
+    return (g) ? g->name : "";
+}
+
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( !(v1 - v2) ) return;
     // Se for não direcionado, o menor aponta para o maior
@@ -175,14 +196,14 @@ void _read_LOWER_ROW(Graph *g, FILE *arq){
     weight weight;
 
     // Le EDGE_WEIGHT_SECTION
-    for(int i = 0; i < dimension; i++){
+    for(int i = 0; i < dimension-1; i++){
         for(int j = i + 1; j < dimension; j++){
             fscanf(arq, "%f", &weight);
             graph_add_edge(g, i, j, weight);
         }
     }
 
-    fscanf(arq, "%*[^\n]\n"); // DEMAND_COORD_SECTION
+    fscanf(arq, "%*c%*[^\n]\n"); // DEMAND_COORD_SECTION
 
     for(int i = 0; i < dimension; i++){
         fscanf(arq, "%*c %f %*c", &demand);
@@ -202,13 +223,13 @@ Graph *graph_read_file_CVRPLIB(char *fileName){
     int dimension = 0, capacity = 0;
 
     fscanf(arq, "%*[^:]: %s%*c", nameprev); // NAME
-    char *name = malloc(sizeof(char) * strlen(nameprev));
-    memcpy(name, nameprev, sizeof(char));
+    char *name = malloc(sizeof(char) * strlen(nameprev) + 1);
+    memcpy(name, nameprev, strlen(nameprev) + 1);
 
     fscanf(arq, "%*[^:]: "); // COMMENT
     fgets(commentprev, 256, arq);
-    char *comment = malloc(sizeof(char) * strlen(commentprev));
-    memcpy(comment, commentprev, sizeof(char));
+    char *comment = malloc(sizeof(char) * strlen(commentprev) + 1);
+    memcpy(comment, commentprev, strlen(commentprev) + 1);
 
     fscanf(arq, "%*[^\n]\n"); // TYPE
 
@@ -223,6 +244,7 @@ Graph *graph_read_file_CVRPLIB(char *fileName){
         fscanf(arq, "%*[^:]: "); // EDGE_WEIGHT_FORMAT
         fscanf(arq, "%[^\n]\n", edgeWType);
         _trataString(edgeWType);
+        fscanf(arq, "%*[^\n]\n"); //DISPLAY_DATA_TYPE
     }
     
     fscanf(arq, "%*[^:]: %d%*c", &capacity); // CAPACITY
@@ -408,8 +430,9 @@ void graph_destroy(Graph *g){
     }
     vector_destroy(g->vertices);
 
-    for(int i = 0; i < g->trucks; i++)
-        free(g->route[i].route);
+    if( graph_has_route(g) )
+        for(int i = 0; i < g->trucks; i++)
+            free(g->route[i].route);
 
     free(g->name);
     free(g->comment);
