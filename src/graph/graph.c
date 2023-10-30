@@ -66,6 +66,10 @@ int graph_return_trucks(Graph *g){
     return (g) ? g->trucks : -1;
 }
 
+void graph_set_trucks(Graph *g, int numTrucks){
+    g->trucks = numTrucks;
+}
+
 bool graph_return_direction(Graph *g){
     return g->direction;
 }

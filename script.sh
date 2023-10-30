@@ -10,7 +10,7 @@ output_file="Resultados.csv"
 
 # Cria um arquivo vazio para as saídas consolidadas
 > "$output_file"
-echo "Nome;Serial Cost;time;Paralel cost;time;Optimal cost" >> "$output_file"
+echo "Nome;Serial Cost;time;Paralel cost;time;Optimal cost;Optimal distance" >> "$output_file"
 echo "Diretório atual: $(pwd)"
 
 

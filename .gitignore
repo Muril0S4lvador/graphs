@@ -3,3 +3,4 @@ output/
 imgs/*.dot*
 *dot*
 imgs/arq_dots/*
+*.csv

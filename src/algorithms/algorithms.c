@@ -253,6 +253,7 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
                         route[j][0] = search;
                         size[j]++;
                         noVisiteds--;
+
                         break;
                     }
                     // confere e add
@@ -274,19 +275,28 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
                     }
                 }
 
-                if( ver == 5 ){
-                    noVisiteds = 0;
-                    i = sizeEdges + 1;
-                    j = num_trucks + 1;
-                    break;
-                    for(int r = 0; r < num_trucks; r++){
-                        printf("Demand route %d %.1f\n", r, demand_route[r]);
+                if( ver == 4 ){
+                    for(int v = 1; v < num_vertex; v++){
+                        if(!visited[v]){
+                            num_trucks++;
+                            graph_set_trucks(g, num_trucks);
+
+                            route = realloc(route, sizeof(int*) * num_trucks);
+                            size = realloc(size, sizeof(int) * num_trucks);
+                            demand_route = realloc(demand_route, sizeof(float) * num_trucks);
+                            route[num_trucks - 1] = malloc(sizeof(int) * num_vertex);
+
+                            demand_route[num_trucks - 1] = demands[v];
+                            size[num_trucks - 1] = 1;
+                            visited[v] = 1;
+                            route[num_trucks - 1][size[num_trucks - 1] - 1] = v;
+
+                            noVisiteds--;
+                            i = -1;
+                            j = num_trucks + 1;
+                            break;
+                        }
                     }
-                    printf("\nNot able to fit ");
-                    for(int v = 1; v < num_vertex; v++)
-                        if(!visited[v])
-                            printf("%.1f ", demands[v]);
-                    printf("demand(s) in any routes\n");
                 }
 
             } // Fim for trucks
@@ -305,7 +315,6 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
         route[i][size[i]++] = 0;
 
         graph_set_route(g, i, route[i], size[i], demand_route[i]);
-
     }
 
     free(visited);
