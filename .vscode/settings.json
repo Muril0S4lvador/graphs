@@ -58,7 +58,8 @@
   "files.associations": {
     "graph.h": "c",
     "data.h": "c",
-    "graphviz_print.h": "c"
+    "graphviz_print.h": "c",
+    "stdio.h": "c"
   },
   "C_Cpp.dimInactiveRegions": false,
   "C_Cpp.errorSquiggles": "disabled",

@@ -1,5 +1,4 @@
 #include "graph.h"
-#include "../adjacency_list/list.h"
 #include "../adjacency_matrix/matrix.h"
 #include "../Vector/vector.h"
 #include "../algorithms/algorithms.h"
@@ -37,15 +36,7 @@ Graph *graph_construct(int v, bool direction){
     g->capacity = 1;
     g->trucks = 0;
 
-    if( MATRIX ){
-        g->adj = matrix_construct(g->num_vertex);
-
-    } else if ( LIST ){
-        g->adj = list_construct(g->num_vertex);
-
-    } else {
-        exit(printf("Choose a representation. Change the defines in 'graph.h' file\n"));
-    }
+    g->adj = matrix_construct(g->num_vertex);
 
     return g;
 }
@@ -136,26 +127,20 @@ void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     // Se for não direcionado, o menor aponta para o maior
     if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
 
-    if( MATRIX ){
-        if( matrix_add_edge(g->adj, v1, v2, peso) == 0) return; 
+    if( matrix_add_edge(g->adj, v1, v2, peso) == 0) return; 
 
-    } else if ( LIST ){
-        if( list_add_edge(g->adj, v1,v2, peso) == 0) return;
-
-    }
     g->num_edge += ( g->direction == UNDIRECTED ) ? 2 : 1;
-
 }
 
 void graph_remove_edge(Graph *g, int v1, int v2){
     if( !(v1 - v2) ) return;
     if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
-    ( MATRIX ) ? matrix_remove_edge(g->adj, v1, v2) : list_remove_edge(g->adj, v1, v2);
+    matrix_remove_edge(g->adj, v1, v2);
     g->num_edge--;
 }
 
 bool graph_edge_exists(Graph *g, int v1, int v2){
-    return ( MATRIX ) ? matrix_edge_exists(g->adj, v1, v2) : list_edge_exists(g->adj, v1, v2);
+    return matrix_edge_exists(g->adj, v1, v2);
 }
 
 void _trataString(char *string){
@@ -214,7 +199,6 @@ void _read_LOWER_ROW(Graph *g, FILE *arq){
         Data *d = data_construct(i, i, demand);
         vector_push_back(g->vertices, d);
     }
-
 }
 
 Graph *graph_read_file_CVRPLIB(char *fileName){
@@ -298,7 +282,6 @@ Graph *graph_read_file(){
     graph_print(g2);
     return g2;
     
-    
     int v, e;
 
     scanf("%d %d", &v, &e);
@@ -316,13 +299,7 @@ Graph *graph_read_file(){
 void graph_print(Graph *g){
     printf("Vértices: %d\nArestas: %d\n", g->num_vertex, g->num_edge);
 
-    if( MATRIX ){
-        matrix_print(g->adj, g->num_vertex);
-
-    } else if ( LIST ){
-        list_print(g->adj, g->num_vertex);
-
-    }
+    matrix_print(g->adj, g->num_vertex);
 
     printf("\nVertices:\n");
     for(int i = 0; i < vector_size(g->vertices); i++){
@@ -339,13 +316,7 @@ Graph *graph_mst_kruskal(Graph *g){
     
     Edges *k = calloc( g->num_edge, sizeof(Edges) );
     
-    if( MATRIX ){
-        matrix_return_edges(graph_return_adjacencies(g), g->num_vertex, k, graph_return_direction(g));
-
-    } else if( LIST ){
-        list_return_edges(graph_return_adjacencies(g), g->num_vertex, sizeEdges, k);
-
-    }
+    matrix_return_edges(graph_return_adjacencies(g), g->num_vertex, k, graph_return_direction(g));
 
     Graph *mst = kruskal_algorithm(k, g->num_vertex, g->num_edge, g);
 
@@ -408,25 +379,18 @@ void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
     printf("\n");
 }
 
-void graph_dfs(Graph *g){
-
-    int *route = calloc(g->num_vertex, sizeof(int)), 
-        *visited = calloc(g->num_vertex, sizeof(int));
-
-    dfs_algorithm(g->adj, route, visited, g->num_vertex);
-
-    free(visited);
+void graph_2opt(Graph *g){
+    for(int i = 0; i < g->trucks; i++){
+        int *route = route_return_route(g, i),
+            size = route_return_size(g, i);
+        opt2_algorithm(route, size, g->adj);
+        g->route[i].cost = matrix_return_route_cost(g->adj, route, size);
+    }
 }
 
 void graph_destroy(Graph *g){
 
-    if( MATRIX ){
-        matrix_destroy(g->adj, g->num_vertex);
-
-    } else if ( LIST ){
-        list_destroy(g->adj, g->num_vertex);
-
-    }
+    matrix_destroy(g->adj, g->num_vertex);
 
     for(int i = 0; vector_size(g->vertices); i++){
         Data *d = vector_pop_back(g->vertices);

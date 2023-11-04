@@ -1,5 +1,4 @@
 #include "graphviz_print.h"
-#include "../adjacency_list/list.h"
 #include "../adjacency_matrix/matrix.h"
 #include "../Vector/vector.h"
 #include "../graph/graph.h"
@@ -51,15 +50,7 @@ void _vertex_file_write(void *vertices, int size, FILE *arq){
 void _graph_file_write(Graph *g, int size, FILE *arq, int direction){
     char edge[3] = "-";
     (direction == DIRECTED) ? strcat(edge, ">") : strcat(edge, "-");
-
-    if( MATRIX ){
-        matrix_file_write(graph_return_adjacencies(g), size, arq, edge);
-
-    } else if( LIST ){
-        list_file_write(graph_return_adjacencies(g), size, arq, edge);
-
-    }
-
+    matrix_file_write(graph_return_adjacencies(g), size, arq, edge);
 }
 
 char *_color_return(int i){
@@ -177,8 +168,6 @@ void img_print_route(Graph *g, char *file_name){
 
     _vertex_file_write(graph_return_vertex_vector(g), graph_return_num_vertex(g), arq_graph);
     _route_file_write(g, graph_return_trucks(g), arq_graph);
-
-    printf("Total route cost = %.2f\n", route_return_total_cost(g));
 
     fprintf(arq_graph, "}");
     fclose(arq_graph);

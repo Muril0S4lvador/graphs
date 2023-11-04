@@ -1,7 +1,6 @@
 #include "algorithms.h"
 #include "../graphviz_print/graphviz_print.h"
 #include "../union_find/union_find.h"
-#include "../adjacency_list/list.h"
 #include "../adjacency_matrix/matrix.h"
 #include "../Vector/vector.h"
 
@@ -47,27 +46,6 @@ int edges_compare_descending(const void* a, const void* b) {
     return (kb->weight - ka->weight)*100 ;
 }
 
-void dfs_algorithm(void *adj, int *route, int *visited, int size){
-
-    int *size_route = malloc(sizeof(int));
-    *size_route = 0;
-
-    if( MATRIX ){
-        matrix_dfs_recursive(adj, route, size_route, visited, size);
-
-    } else if( LIST ){
-        list_dfs_recursive(adj, route, size_route, visited);
-        
-    }
-
-    printf("\nRoute\n");
-    for(int i = 000; i < *size_route; i++){
-        printf("%d\n", route[i]);
-
-    }
-    free(size_route);
-}
-
 void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
     qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);
@@ -91,12 +69,6 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
         Data *d = vector_get(graph_return_vertex_vector(g), i);
         demands[i] = data_return_demand(d);
     }
-/*
-    for(int i = 0; i < sizeEdges; i++)
-        printf("%d -- %d (%.2f)\n", e[i].src, e[i].dest, e[i].weight);
-    printf("%d trucks\n", num_trucks);
-    // exit(-1);
-*/
 
     for(int i = 0; i < num_trucks; i++){
 
@@ -324,4 +296,40 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
     for(int i = 0; i < num_trucks; i++)
         free(route[i]);
     free(route);
+}
+
+void _reverse_route(int lo, int hi, int *route){
+    while( hi > lo ){
+        int aux = route[hi];
+        route[lo] = route[hi] ^ route[lo];
+        route[hi] = route[hi] ^ route[lo];
+        route[lo] = route[hi] ^ route[lo];
+        hi--;
+        lo++;
+    }
+}
+
+void opt2_algorithm(int *route, int sizeRoute, void *graph_adj){
+    char improved = 1;
+
+    while( improved ){
+        improved = 0;
+        sizeRoute -= 2;
+        for(int i = 0; i < sizeRoute; i++){
+            for(int j = i + 1; j < sizeRoute; j++){
+                int vi1 = route[i], vi2 = route[i+1],
+                    vj1 = route[j], vj2 = route[(j+1) % (sizeRoute+1)];
+                weight cur_weight = matrix_return_edge_weight(graph_adj, vi1, vi2, UNDIRECTED) +
+                matrix_return_edge_weight(graph_adj, vj1, vj2, UNDIRECTED);
+
+                weight new = matrix_return_edge_weight(graph_adj, vi1, vj1, UNDIRECTED) +
+                matrix_return_edge_weight(graph_adj, vi2, vj2, UNDIRECTED);
+                if(new < cur_weight){
+                    improved = 1;
+                    _reverse_route(i+1, j, route);
+
+                }
+            }
+        }
+    }
 }

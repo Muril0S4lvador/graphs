@@ -17,12 +17,10 @@ int edges_compare_growing(const void* a, const void* b);
 
 int edges_compare_descending(const void* a, const void* b);
 
-void dfs_algorithm(void *adj, int *route, int *visited, int size);
-
 void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges);
 
 void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges);
 
-
+void opt2_algorithm(int *route, int sizeRoute, void *graph_adj);
 
 #endif

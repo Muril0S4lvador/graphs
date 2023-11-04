@@ -12,9 +12,6 @@ typedef float weight;
 #define UNDIRECTED 1
 #define DIRECTED 0
 
-#define MATRIX 1
-#define LIST 0
-
 typedef struct Graph Graph;
 typedef struct Route Route;
 
@@ -72,7 +69,7 @@ void graph_Clarke_Wright_serial_route(Graph *g);
 
 void graph_set_route(Graph *g, int idx, void *route, int size, float demand);
 
-void graph_dfs(Graph *g);
+void graph_2opt(Graph *g);
 
 void graph_destroy(Graph *g);
 
