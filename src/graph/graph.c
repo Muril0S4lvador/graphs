@@ -101,7 +101,7 @@ float route_return_total_cost(Graph *g){
     return cost;
 }
 
-float route_return_optmal_cost(Graph *g){
+float route_return_optimal_cost(Graph *g){
     if(!g) return -1;
     float cost = -1;
     char value[7] = "value:", comment[strlen(g->comment) + 1], *token = NULL;

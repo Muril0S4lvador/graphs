@@ -18,7 +18,7 @@ echo "Diretório atual: $(pwd)"
 
 
 # Loop para percorrer as pastas "a," "b," e "e"
-for folder in "$root_folder"/{a,b,e}; do
+for folder in "$root_folder"/{a,b,e,f}; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
         echo "Achado $folder/"

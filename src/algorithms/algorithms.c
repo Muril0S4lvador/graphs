@@ -186,10 +186,14 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
 
     int ver = 0, rot = 0;
 
+
     while( noVisiteds ){
 
         for( int i = 0; i < sizeEdges; i++){
             if(!i) ver++;
+
+    // if( demands[e[i].src] < capacity)
+    // printf("uai\n");
 
             for(int j = 0; j < num_trucks; j++){
                 if(!j) rot++;

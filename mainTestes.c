@@ -119,8 +119,8 @@ int main( int argc, char* argv[] ){
     printf("%.2lf;", serialTime);
     printf("%.2f;", paralelCost);
     printf("%.2lf;", paralelTime);
-    printf("%.2f;", route_return_optmal_cost(g));
-    distanceToOptimal(paralelCost, route_return_optmal_cost(g));
+    printf("%.2f;", route_return_optimal_cost(g));
+    distanceToOptimal(paralelCost, route_return_optimal_cost(g));
     printf("\n");
 
     graph_destroy(g);

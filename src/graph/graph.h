@@ -45,7 +45,7 @@ float route_return_cost(Graph *g, int i);
 
 float route_return_total_cost(Graph *g);
 
-float route_return_optmal_cost(Graph *g);
+float route_return_optimal_cost(Graph *g);
 
 char *graph_return_name(Graph *g);
 
