@@ -369,14 +369,27 @@ void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
     g->route[idx].size = size;
     g->route[idx].demand = demand;
     g->route[idx].cost = matrix_return_route_cost(g->adj, route, size);
+}
 
-    return;
-    printf("Rota %d Demanda %.2f Custo %.2f\n", idx, demand, g->route[idx].cost);
-    for(int i = 0; i < size; i++){
-        int *v = g->route[idx].route;
-        printf("%d ", (v[i]));
+void route_print(Graph *g){
+    for(int i = 0; i < g->trucks; i++){
+        printf("Rota %d Demanda %d Custo %.2f\n", i, route_return_demand(g, i), g->route[i].cost);
+        int size = route_return_size(g, i);
+        for(int j = 0; j < size; j++){
+            int *v = g->route[i].route;
+            printf("%d ", (v[j]));
+        }
+        printf("\n");
     }
-    printf("\n");
+}
+
+void graph_Variable_Neighborhood_Search(Graph *g){
+    int *demands = malloc(sizeof(int) * g->trucks - 1);
+    for(int i = 0; i < g->trucks - 1; i++)
+        demands[i] = i;
+    
+    vns_algorithm(g, demands);
+
 }
 
 void graph_2opt(Graph *g){

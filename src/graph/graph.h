@@ -69,7 +69,11 @@ void graph_Clarke_Wright_serial_route(Graph *g);
 
 void graph_set_route(Graph *g, int idx, void *route, int size, float demand);
 
+void route_print(Graph *g);
+
 void graph_2opt(Graph *g);
+
+void graph_Variable_Neighborhood_Search(Graph *g);
 
 void graph_destroy(Graph *g);
 

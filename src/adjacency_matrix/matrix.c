@@ -113,27 +113,6 @@ float matrix_return_route_cost(void *vm, int *route, int size_route){
     return cost;
 }
 
-void matrix_dfs_recursive(void *vm, int *route, int *size_route, int *visited, int size){
-    Matrix m = vm;
-    route[(*size_route)++] = 0;
-    visited[0] = 1;
-    _matrix_dfs_recursive(vm, 0, 0, route, size_route, visited, size);
-}
-
-void _matrix_dfs_recursive(void *vm, int i, int j, int *route, int *size_route, int *visited, int size){
-    Matrix m = vm;
-    // if( i >= size ) return;
-
-    if( j >= size  ) { return; }
-    if( m[i][j] && !visited[j] ){
-        route[(*size_route)++] = j;
-        visited[j] = 1;
-        _matrix_dfs_recursive(vm, j, 0, route, size_route, visited, size);
-    }
-    _matrix_dfs_recursive(vm, i, j+1, route, size_route, visited, size);
-
-}
-
 void matrix_destroy(void *vm, int size){
     Matrix m = vm;
     for(int i = 0; i < size; i++)

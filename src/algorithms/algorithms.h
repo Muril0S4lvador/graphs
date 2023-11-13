@@ -23,4 +23,6 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
 
 void opt2_algorithm(int *route, int sizeRoute, void *graph_adj);
 
+void vns_algorithm(Graph *g, int *demands);
+
 #endif
