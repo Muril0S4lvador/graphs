@@ -184,19 +184,14 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
         demands[i] = data_return_demand(d);
     }
 
-    int ver = 0, rot = 0;
-
+    char imp;
 
     while( noVisiteds ){
 
+        imp = 0;
         for( int i = 0; i < sizeEdges; i++){
-            if(!i) ver++;
-
-    // if( demands[e[i].src] < capacity)
-    // printf("uai\n");
 
             for(int j = 0; j < num_trucks; j++){
-                if(!j) rot++;
 
                 if( !size[j] ){
                     if( !visited[e[i].src] && !visited[e[i].dest] && (demands[e[i].src] + demands[e[i].dest]) <= capacity ){
@@ -208,6 +203,7 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
                         route[j][size[j]++] = e[i].dest;
 
                         noVisiteds -= 2;
+                        imp = 1;
 
                         break;
 
@@ -229,6 +225,7 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
                         route[j][0] = search;
                         size[j]++;
                         noVisiteds--;
+                        imp = 1;
 
                         break;
                     }
@@ -245,48 +242,28 @@ void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int size
 
                         route[j][size[j]++] = search;
                         noVisiteds--;
+                        imp = 1;
 
                         break;
 
                     }
                 }
 
-                if( ver == 4 ){
+                if( imp == 0 ){
                     for(int v = 1; v < num_vertex; v++){
                         if(!visited[v]){
-                            char control = 0;
-                            for(int sz = 0; sz < num_trucks; sz++){
-                                if( size[sz] == 0 ){
-                                    route[sz][size[sz++]] = v;
-                                    demand_route[sz] = demands[v];
-                                    visited[v] = 1;
-                                    noVisiteds--;
-                                    i = -1;
-                                    j = num_trucks + 1;
-                                    control = 1;
-                                }
-                            }
-                            if( control ) break;
 
-                            num_trucks++;
-                            graph_set_trucks(g, num_trucks);
-
-                            route = realloc(route, sizeof(int*) * num_trucks);
-                            size = realloc(size, sizeof(int) * num_trucks);
-                            demand_route = realloc(demand_route, sizeof(float) * num_trucks);
-                            route[num_trucks - 1] = malloc(sizeof(int) * num_vertex);
-
-                            demand_route[num_trucks - 1] = demands[v];
-                            size[num_trucks - 1] = 1;
+                            demand_route[num_trucks - 1] += demands[v];
                             visited[v] = 1;
-                            route[num_trucks - 1][size[num_trucks - 1] - 1] = v;
+
+                            route[num_trucks - 1][size[num_trucks - 1]++] = v;
 
                             noVisiteds--;
-                            i = -1;
-                            j = num_trucks + 1;
-                            break;
                         }
                     }
+                    i = sizeEdges + 1;
+                    j = num_trucks + 1;
+                    break;
                 }
 
             } // Fim for trucks

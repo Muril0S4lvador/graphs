@@ -389,7 +389,6 @@ void graph_Variable_Neighborhood_Search(Graph *g){
         demands[i] = i;
     
     vns_algorithm(g, demands);
-
 }
 
 void graph_2opt(Graph *g){
