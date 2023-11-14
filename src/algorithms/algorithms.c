@@ -329,101 +329,26 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj){
     } // Fim while
 }
 
-void _merge(Graph *g, int *a, int *aux, int lo, int mid, int hi) {
-    for (int k = lo; k <= hi; k++)
-        aux[k] = a[k]; // Copy array
-    int i = lo, j = mid+1;
-    for (int k = lo; k <= hi; k++) { // Merge
-        if (i > mid) a[k] = aux[j++];
-        else if (j > hi) a[k] = aux[i++];
-        else if ( route_return_demand(g, aux[j]) < route_return_demand(g, aux[i]) ) a[k] = aux[j++];
-        else a[k] = aux[i++];
-    }
-}
-#define SZ2 (sz+sz)
-#define MIN(X,Y) ((X < Y) ? (X) : (Y))
-void _sort(Graph *g, int *a, int lo, int hi) {
-    int N = (hi - lo) + 1;
-    int y = N - 1;
-    int *aux = malloc(N * sizeof(int));
-    for (int sz = 1; sz < N; sz = SZ2) {
-        for (int lo = 0; lo < N-sz; lo += SZ2) {
-            int x = lo + SZ2 - 1;
-            _merge(g, a, aux, lo, lo+sz-1, MIN(x,y));
-        }
-    }
-    free(aux);
-}
-
-char demandFits(Data *d1, Data *d2, Graph *g, int idx){
-    if( route_return_demand(g, idx) - data_return_demand(d2) + data_return_demand(d1)
-        <= graph_return_capacity(g) ){
-            return 1;
-    }
-    return 0;
-}
-
-void _route_swap(int *route1, int v1, int *route2, int v2){
-    route1[v1] = route1[v1] ^ route2[v2];
-    route2[v2] = route1[v1] ^ route2[v2];
-    route1[v1] = route1[v1] ^ route2[v2];
-}
-
-void _route_remove(int *route, int v, int *size){
-
-    for(int i = v; i < *size - 1; i++){
-        route[i] = route[i + 1];
-    }
-    *size--;
-}
-
 void vns_algorithm(Graph *g, int *demands){
-    _sort(g, demands, 0, graph_return_trucks(g));
-    for(int i = 0; i < graph_return_trucks(g); i++)
-        printf("%d ,", route_return_demand(g, demands[i]));
 
-    int numTrucks, realTrucks = graph_return_trucks(g),
-        **route = malloc(sizeof(int*) * realTrucks),
-        *route_size = malloc(sizeof(int) * realTrucks);
-    char *name = graph_return_name(g);
-    sscanf(name, "%*[^k]k%d" , &numTrucks);
-
-    for(int i = 0; i < realTrucks; i++){
-        route[i] = malloc(sizeof(int) * graph_return_num_vertex(g));
-        memcpy(route[i], route_return_route(g, i), route_return_size(g, i) + 1);
-        route_size[i] = route_return_size(g, i);
-    }
-
-    while( realTrucks > numTrucks ){
-        int k = 0;
-        _sort(g, demands, 0, graph_return_trucks(g) - 1);
-
-        while( k < realTrucks - 2 ){
-
-            for( int i = 1; i < route_size[k] - 1; i++){
-                Data *d1 = vector_get(graph_return_vertex_vector(g), route[k][i]);
-                for(int j = 1; j < route_size[k + 1] - 1; j++){
-                    Data *d2 = vector_get(graph_return_vertex_vector(g), route[k + 1][j]); 
-                    if( data_return_demand(d2) < data_return_demand(d1) && demandFits(d1, d2, g, k + 1)){
-                        _route_swap(route[k], i, route[k + 1], j);
-                    }
-                }
-            }
-        }
-        Data *left;
-        for(int i = 0; i < realTrucks - 1; i++){
-            for(int j = 1; j < route_size[realTrucks - 1] - 1; j++){
-                left = vector_get(graph_return_vertex_vector(g), route[realTrucks - 1][j]);
-                if( route_return_demand(g, i) + data_return_demand(left) <= graph_return_capacity(g) )
-                    route[i][--route_size[i]] = route[realTrucks - 1][j];
-                    route_size[i]++;
-                    route[i][route_size[i]++] = 0;
-                    _route_remove(route[realTrucks + 1], route[realTrucks - 1][j], &route_size[realTrucks + 1]);
-            }
-        }
-        if( route_size[realTrucks - 1] == 2 ){
-            free(route[realTrucks - 1]);
-            realTrucks--;
-        }
-    }
 }
+
+/*
+    PRECISO
+ * Diminuir demanda de rotas fora do limite
+ * Reajustar as rotas de modo a menor distância
+ 
+    ALGORITMOS:
+ * ILS:
+    S0 <- Gera solução inicial
+    S* <- Local Search(S0)
+    Enquanto (_CRITERIO_)
+        s <- Perturba (Troca com elemento de outra rota)
+        s' <- LocalSearch(s)
+        S* <- AcceptanceCriterion(S*, s', history)
+
+    Condição de Perturbação: adicionar/trocar itens entre rotas com demanda <= capacidade
+    Condição de Aceitação: Custo total de TODAS as rotas tenha diminuido
+    Caso tenha acontecido um número alto de iterações(definir) pare o algoritmo
+
+*/
