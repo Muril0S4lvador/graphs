@@ -6,11 +6,16 @@
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    graph_Clarke_Wright_paralel_route(g);
+
+    graph_Clarke_Wright_parallel_route(g);
+
+    printf("\nAF VNS: %.3f\n", route_return_total_cost(g));
+    
+    graph_Variable_Neighborhood_Search(g);
     // graph_2opt(g);
 
-    route_print(g);
-    img_print_route(g, "imgs/route.dot");
+    printf("%.3f\n", route_return_total_cost(g));
+    printf("%.0f\n", route_return_optimal_cost(g));
 
     graph_destroy(g);
 

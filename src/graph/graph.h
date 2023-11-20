@@ -63,11 +63,13 @@ void graph_print(Graph *g);
 
 Graph *graph_mst_kruskal(Graph *g);
 
-void graph_Clarke_Wright_paralel_route(Graph *g);
+void graph_Clarke_Wright_parallel_route(Graph *g);
 
 void graph_Clarke_Wright_serial_route(Graph *g);
 
 void graph_set_route(Graph *g, int idx, void *route, int size, float demand);
+
+float *graph_return_demands(Graph *g);
 
 void route_print(Graph *g);
 

@@ -345,7 +345,7 @@ void graph_Clarke_Wright_route(Graph *g, char control){
     matrix_return_edges_savings(graph_return_adjacencies(g), g->num_vertex, e, near_0);
 
     if(control == 1)
-        clarke_wright_paralel_algorithm(g, e, near_0, sizeEdges);
+        clarke_wright_parallel_algorithm(g, e, near_0, sizeEdges);
     else
         clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
 
@@ -353,7 +353,7 @@ void graph_Clarke_Wright_route(Graph *g, char control){
     free(near_0);
 }
 
-void graph_Clarke_Wright_paralel_route(Graph *g){
+void graph_Clarke_Wright_parallel_route(Graph *g){
     graph_Clarke_Wright_route(g, 1);
 }
 
@@ -371,6 +371,15 @@ void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
     g->route[idx].cost = matrix_return_route_cost(g->adj, route, size);
 }
 
+float *graph_return_demands(Graph *g){
+    float *demands = malloc(sizeof(float) * g->num_vertex);
+    for(int i = 0; i < g->num_vertex; i++){
+        Data *d = vector_get(g->vertices, i);
+        demands[i] = data_return_demand(d);
+    }
+    return demands;
+}
+
 void route_print(Graph *g){
     for(int i = 0; i < g->trucks; i++){
         printf("Rota %d Demanda %d Custo %.2f\n", i, route_return_demand(g, i), g->route[i].cost);
@@ -384,11 +393,14 @@ void route_print(Graph *g){
 }
 
 void graph_Variable_Neighborhood_Search(Graph *g){
-    int *demands = malloc(sizeof(int) * g->trucks - 1);
-    for(int i = 0; i < g->trucks - 1; i++)
-        demands[i] = i;
-    
-    vns_algorithm(g, demands);
+// void variable_Neighborhood_Descent(Graph *g, int **route, int *size, float *demand){
+    int **routes = malloc(sizeof(int*) * g->trucks),
+        *size = malloc(sizeof(int) * g->trucks);
+    for(int i = 0; i < g->trucks; i++){
+        routes[i] = route_return_route(g, i);
+        size[i] = route_return_size(g, i);
+    }
+    variable_Neighborhood_Descent(g, routes, size, graph_return_demands(g));
 }
 
 void graph_2opt(Graph *g){

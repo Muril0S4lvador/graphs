@@ -19,10 +19,14 @@ int edges_compare_descending(const void* a, const void* b);
 
 void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges);
 
-void clarke_wright_paralel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges);
+void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges);
 
 void opt2_algorithm(int *route, int sizeRoute, void *graph_adj);
 
-void vns_algorithm(Graph *g, int *demands);
+int** first_improvement(Graph *g, int **routes, int *sizeRoute, float *demands, int k);
+
+void variable_Neighborhood_Descent(Graph *g, int **route, int *size, float *demand);
+
+int **neighborhood_Change_Cyclic(int **currentSolution, int **testSolution, int *k, float testCost, float *currentCost);
 
 #endif

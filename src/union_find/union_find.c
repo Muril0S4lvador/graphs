@@ -1,6 +1,5 @@
 #include "union_find.h"
 
-
 UF* UF_init(int size) {
     UF* uf = malloc(sizeof(UF));
     uf->id = malloc(sizeof(int) * size);
