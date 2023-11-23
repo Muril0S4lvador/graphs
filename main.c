@@ -9,11 +9,6 @@ int main( int argc, char* argv[] ){
 
     graph_Clarke_Wright_parallel_route(g);
 
-    printf("\nAF VNS: %.3f\n", route_return_total_cost(g));
-    
-    graph_Variable_Neighborhood_Search(g);
-    // graph_2opt(g);
-
     printf("%.3f\n", route_return_total_cost(g));
     printf("%.0f\n", route_return_optimal_cost(g));
 
