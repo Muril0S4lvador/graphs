@@ -409,11 +409,6 @@ int *_route_delete_vertex(int *route, int size, int v){
 
 char _route_delete_vertex(int *route, int *size, int v) {
 
-    // printf("OLD\n");
-    // for(int i = 0; i < *size; i++)
-    //     printf("%d ", route[i]);
-    // printf("\n");
-
     int i = 0;
     char control = 0;
     for( i; i < (*size - 1); i++ ){
@@ -431,20 +426,9 @@ char _route_delete_vertex(int *route, int *size, int v) {
         return 1;
     }
     return 0;
-
-// printf("NEW DELETED:\n");
-// for(int i = 0; i < *size; i++)
-//         printf("%d ", route[i]);
-//     printf("\n");
 }
 
 void _route_add_vertex(int *route, int *size, int v) {
-
-
-    // printf("OLD\n");
-    // for(int i = 0; i < *size; i++)
-    //     printf("%d ", route[i]);
-    // printf("\n");
 
     for(int i = (*size); i > 1; i--){
         route[i] = route[i - 1];
@@ -452,13 +436,7 @@ void _route_add_vertex(int *route, int *size, int v) {
     route[0] = 0;  // Adiciona o elemento 0
     route[1] = v;  // Adiciona o novo elemento no índice 1
 
-
     (*size)++;
-
-    // printf("NEW ADDED:\n");
-    // for(int i = 0; i < *size; i++)
-    //     printf("%d ", route[i]);
-    // printf("\n");
 }
 
 int **_copy_route_matrix(int **dest, int **src, int size, int *sizeRoute, int num_vertex){
@@ -470,9 +448,7 @@ int **_copy_route_matrix(int **dest, int **src, int size, int *sizeRoute, int nu
         result[i] = malloc(sizeof(int) * num_vertex);
         memcpy(result[i], src[i], sizeof(int) * sizeRoute[i]);
     }
-
     if( dest ) free(dest);
-
     return result;
 }
 
@@ -539,7 +515,6 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands
                 _route_add_vertex(routes[j], &sizeRoutes[j], vertex);
 
                 }
-                // printf("moving %d from %d to %d\n", vertex, k, j);
             }
         }
     }
@@ -568,18 +543,6 @@ void printsd(int **routes, int size, int *sizeR, int *demandR){
     printf("\n");
 }
 
-void _prepareRoutes(int **routes, int size, int num_vertex){
-    for(int i = 0; i < size; i++){
-        routes[i] = realloc(routes[i], sizeof(int) * (num_vertex + 1));
-    }
-}
-
-void _prepareBackRoutes(int **routes, int size, int *sizeR){
-    for(int i = 0; i < size; i++){
-        routes[i] = realloc(routes[i], sizeof(int) * sizeR[i]);
-    }
-}
-
 void _destroyRoutesMatrix(int **routes, int size){
     for(int i = 0; i < size; i++)
         free(routes[i]);
@@ -599,8 +562,6 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
 
     memcpy(best_sizeRoutes, sizeRoutes, sizeof(int) * num_trucks);      // Salva tamanhos da rota inicial
     memcpy(best_demandRoutes, demandRoutes, sizeof(int) * num_trucks);  // Salva demandas da rota inicial
-
-    // _prepareRoutes(bestSolution, num_trucks, num_vertex);
 
     for(int i = 0; i < num_trucks; i++)
         for(int j = 1; j < sizeRoutes[i] - 1; j++)
@@ -628,21 +589,13 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
             int **solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
             random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes); // Gera vizinhança aleatoria
-            // printf("\nRandom Pertubation:\n");
-            // printsd(solutionTest, num_trucks, test_sizeR, test_demandR);
 
             _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g)); // Move itens nas rotas
 
-            // printf("\nRelocate Operator:\n");
-            
             _melhorarRotas(solutionTest, num_trucks, test_sizeR, graph_return_adjacencies(g)); // Melhora custo intra-rotas
-            
-            // printsd(solutionTest, num_trucks, test_sizeR, test_demandR);
             
             newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
 
-                // printf("\nNew Cost: %.3f || Current Cost: %.3f || noImp : %d || k : %d\n", newCost, currentCost, noImp, k);
-            
             if( newCost < currentCost && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)) ){
                 k = 0;
 
