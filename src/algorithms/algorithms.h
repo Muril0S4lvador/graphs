@@ -26,7 +26,7 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj);
 
 int** first_improvement(Graph *g, int **routes, int *sizeRoute, float *demands, int k);
 
-void variable_Neighborhood_Descent(Graph *g, int **route, int *size, float *demand);
+void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes);
 
 int **neighborhood_Change_Cyclic(int **currentSolution, int **testSolution, int *k, float testCost, float *currentCost);
 

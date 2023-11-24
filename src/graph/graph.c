@@ -394,6 +394,16 @@ void route_print(Graph *g){
 
 void graph_Variable_Neighborhood_Search(Graph *g){
 // void variable_Neighborhood_Descent(Graph *g, int **route, int *size, float *demand){
+    int **routes = malloc(sizeof(int*) * g->trucks),
+        *sizeR = malloc(sizeof(int) * g->trucks),
+        *demandsR = malloc(sizeof(int) * g->trucks);
+    for(int i = 0; i < g->trucks; i++){
+        routes[i] = route_return_route(g, i);
+        sizeR[i] = route_return_size(g, i);
+        demandsR[i] = route_return_demand(g, i);
+    }
+    
+    variable_Neighborhood_Search(g, routes, sizeR, graph_return_demands(g), demandsR);
 }
 
 void graph_2opt(Graph *g){

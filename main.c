@@ -9,8 +9,10 @@ int main( int argc, char* argv[] ){
 
     graph_Clarke_Wright_parallel_route(g);
 
-    printf("%.3f\n", route_return_total_cost(g));
-    printf("%.0f\n", route_return_optimal_cost(g));
+    graph_Variable_Neighborhood_Search(g);
+
+    // printf("%.3f\n", route_return_total_cost(g));
+    // printf("%.0f\n", route_return_optimal_cost(g));
 
     graph_destroy(g);
 

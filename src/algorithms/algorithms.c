@@ -280,15 +280,15 @@ void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int siz
     free(route);
 }
 
-void _swap_local_inRoute(int *local_inRoute, int idx1, int idx2){
-    local_inRoute[idx2] = local_inRoute[idx1] ^ local_inRoute[idx2];
-    local_inRoute[idx1] = local_inRoute[idx1] ^ local_inRoute[idx2];
-    local_inRoute[idx2] = local_inRoute[idx1] ^ local_inRoute[idx2];
+void _swap_idx_inRoute(int *idx_inRoute, int idx1, int idx2){
+    idx_inRoute[idx2] = idx_inRoute[idx1] ^ idx_inRoute[idx2];
+    idx_inRoute[idx1] = idx_inRoute[idx1] ^ idx_inRoute[idx2];
+    idx_inRoute[idx2] = idx_inRoute[idx1] ^ idx_inRoute[idx2];
 }
 
 void _reverse_route(int lo, int hi, int *route){
     while( hi > lo ){
-        _swap_local_inRoute(route, hi, lo);
+        _swap_idx_inRoute(route, hi, lo);
         hi--;
         lo++;
     }
@@ -361,13 +361,7 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj){
     } while ( PARE )
     return s'
 */
-
-void _swap_elements(int *route, int sizeRoute, int old_v, int new_v){
-    for(int i = 0; i < sizeRoute; i++)
-        if(route[i] == old_v)
-            route[i] = new_v;
-}
-
+/*
 int *_route_add_vertex(int *route, int size, int v){
     int *new_route = malloc( sizeof(int) * (size + 1) );
     for(int idx_r = 0, idx_n = 0; idx_r < size; idx_r++, idx_n++)
@@ -380,12 +374,14 @@ int *_route_add_vertex(int *route, int size, int v){
         else
             new_route[idx_n] = route[idx_r];
     }
+    free(route);
     return new_route;
 }
-
+*/
+/*
 int *_route_delete_vertex(int *route, int size, int v){
     int *new_route = malloc(sizeof(int) * (size - 1) );
-    // printf("Desejado: %d", v);
+    // printf("Desejado: %d\n", v);
     for(int idx_r = 0, idx_n = 0; idx_r < size; idx_r++, idx_n++)
     {
         if(route[idx_r] == v)
@@ -393,7 +389,8 @@ int *_route_delete_vertex(int *route, int size, int v){
         else
             new_route[idx_n] = route[idx_r];
     }
-    // free(route);
+    
+    if(route) free(route);
 
     // printf("\nOld ROUTE\n");
     // for(int i = 0; i < size; i++){
@@ -408,33 +405,55 @@ int *_route_delete_vertex(int *route, int size, int v){
     
     return new_route;
 }
+*/
+
+int *_route_delete_vertex(int *route, int size, int v) {
+    int *new_route = malloc(sizeof(int) * (size - 1));
+    if (new_route == NULL) {
+        // handle malloc failure, e.g., return NULL or exit
+        exit(-90);
+    }
+
+    for (int idx_r = 0, idx_n = 0; idx_r < size; idx_r++) {
+        if (route[idx_r] != v) {
+            new_route[idx_n] = route[idx_r];
+            idx_n++;
+        }
+    }
+
+    free(route);
+    return new_route;
+}
+
+int *_route_add_vertex(int *route, int size, int v) {
+    int *new_route = malloc(sizeof(int) * (size + 1));
+    if (new_route == NULL) {
+        // handle malloc failure, e.g., return NULL or exit
+        exit(-12);
+    }
+
+    new_route[0] = 0;  // Adiciona o elemento 0
+    new_route[1] = v;  // Adiciona o novo elemento no índice 1
+
+    // Readição dos elementos do vetor antigo
+    for (int idx_r = 1; idx_r < size; idx_r++) {
+        new_route[idx_r + 1] = route[idx_r];
+    }
+
+    free(route);
+    return new_route;
+}
 
 int **_copy_route_matrix(int **dest, int **src, int size, int *sizeRoute){
     char fre;
     int **result = malloc(sizeof(int*) * size);
-    for(int i = 0; i < size; i++){
-        if( dest != NULL ) free(dest[i]); 
+    for(int i = 0; i < size; i++)
+    {
+        if( dest != NULL ) free(dest[i]);
         result[i] = malloc(sizeof(int) * sizeRoute[i]);
         memcpy(result[i], src[i], sizeof(int) * sizeRoute[i]);
     }
 
-    printf("\nSRC:\n");
-    for(int i = 0; i < size; i++){
-        printf("\nRoute %d : ", i);
-        for(int j = 0; j < sizeRoute[i]; j++){
-            printf("%d ", src[i][j]);
-        }
-    }
-
-    printf("\nDEST:");
-    for(int i = 0; i < size; i++){
-        printf("\nRoute %d : ", i);
-        for(int j = 0; j < sizeRoute[i]; j++){
-            printf("%d ", result[i][j]);
-        }
-    }
-
-    printf("\n");
     if( dest ) free(dest);
 
     return result;
@@ -448,32 +467,50 @@ float _return_total_cost_route(int **routes, int *sizeRoute, int num_trucks, voi
     return sum;
 }
 
-void random_Pertubation(int **routes, int size, int *sizeRoutes, float *demands, float *demandRoutes, int *idx_InRoute){
+void random_Pertubation(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute){
     srand(time(NULL));
 
     for(int i = 0; i < size; i++){
         // Gera numero aleatorio entre o 2º e penultimo elemento da rota
-        int vertex = rand() % (sizeRoutes[i] - 2) + 1,
+        char control = 0;
+        while( sizeRoutes[i] <= 2 )
+        {
+            i++;
+            if( i >= size ){
+                control = 1;
+                break;
+            }
+        }
+        if( control ) break;
+        
+        int vertex = rand() % (sizeRoutes[i] - 2) + 1, 
             random_route = i;
         
         while( random_route == i )
             random_route = rand() % size;
         
-        routes[i] = _route_delete_vertex(routes[i], sizeRoutes[i], vertex);
-        routes[random_route] = _route_add_vertex(routes[random_route], sizeRoutes[random_route], vertex);
+        vertex = routes[i][vertex];
+        
         idx_InRoute[vertex] = random_route;
         demandRoutes[i] -= demands[vertex];
         demandRoutes[random_route] += demands[vertex];
+        routes[random_route] = _route_add_vertex(routes[random_route], sizeRoutes[random_route], vertex);
+        routes[i] = _route_delete_vertex(routes[i], sizeRoutes[i], vertex);
+        sizeRoutes[i]--;
+        sizeRoutes[random_route]++;
     }
 }
 
-void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands, float *demandRoutes, int *idx_InRoute, int k, int capacity){
+void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity){
 
     for(int i = 1; i < sizeRoutes[k] - 1; i++)
     {
         int vertex = routes[k][i];
-        for(int j = 0; (j < size) && (j != k); j++)
+        for(int j = 0; j < size; j++)
         {
+            if( j == k ) j++;
+            if( j >= size ) break;
+        
             if( demandRoutes[j]  + demands[vertex] <= capacity )
             {
                 demandRoutes[j] += demands[vertex];
@@ -481,13 +518,112 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands
                 idx_InRoute[vertex] = j;
                 routes[j] = _route_add_vertex(routes[j], sizeRoutes[j], vertex);
                 routes[k] = _route_delete_vertex(routes[k], sizeRoutes[k], vertex);
+                sizeRoutes[j]++;
+                sizeRoutes[k]--;
+                // printf("moving %d from %d to %d\n", vertex, k, j);
             }
         }
     }
 }
 
-void variable_Neighborhood_Search(){
-    printf("VNS\n");
+void _melhorarRotas(int **routes, int size, int *sizeRoutes, void *graph_adj){
+    for(int i = 0; i < size; i++)
+        opt2_algorithm(routes[i], sizeRoutes[i], graph_adj);
+}
+
+
+void printsd(int **routes, int size, int *sizeR, int *demandR){
+    for(int i = 0; i < size; i++){
+        printf("\nRoute %d (%d): ", i, demandR[i]);
+        for(int j = 0; j < sizeR[i]; j++)
+        {
+            printf("%d ", routes[i][j]);
+        }
+    }
+    printf("\n");
+}
+
+void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes){
+
+    int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),
+        noImp = 0, k,
+        **bestSolution = _copy_route_matrix(NULL, routes, num_trucks, sizeRoutes), // Salva rota inicial
+        *best_sizeRoutes =   malloc(sizeof(int) * num_trucks),
+        *best_demandRoutes = malloc(sizeof(int) * num_trucks),
+        *idx_InRoutes =      malloc(sizeof(int) * num_vertex);
+
+
+    memcpy(best_sizeRoutes, sizeRoutes, sizeof(int) * num_trucks);      // Salva tamanhos da rota inicial
+    memcpy(best_demandRoutes, demandRoutes, sizeof(int) * num_trucks);  // Salva demandas da rota inicial
+
+
+    for(int i = 0; i < num_trucks; i++)
+        for(int j = 1; j < sizeRoutes[i] - 1; j++)
+            idx_InRoutes[routes[i][j]] = i;
+
+
+    float currentCost = _return_total_cost_route(routes, sizeRoutes, num_trucks, graph_return_adjacencies(g)), newCost = 0;
+
+    printf("\nSolução Inicial(%.3f):\n", currentCost);
+    printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
+
+    while( noImp < 3 )
+    {
+        k = 0;
+        while( k < num_trucks ){
+
+            int *test_sizeR       = malloc(sizeof(int) * num_trucks),
+                *test_demandR     = malloc(sizeof(int) * num_trucks),
+                *test_idxInroutes = malloc(sizeof(int) * num_vertex);
+
+            memcpy(test_sizeR,       best_sizeRoutes,   sizeof(int) * num_trucks);  // Copia tamanhos da melhor rota atual para modificação
+            memcpy(test_demandR,     best_demandRoutes, sizeof(int) * num_trucks);  // Copia demandas da melhor rota atual para modificação
+            memcpy(test_idxInroutes, idx_InRoutes,      sizeof(int) * num_vertex);  // Copia vetor idx_InRoute para modificação
+
+            int **solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR);    // Copia melhor solução para fazer mudanças
+
+            random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes); // Gera vizinhança aleatoria
+            // printf("\nRandom Pertubation:\n");
+            // printsd(solutionTest, num_trucks, test_sizeR, test_demandR);
+
+            _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g)); // Move itens nas rotas
+
+            // printf("\nRelocate Operator:\n");
+            
+            _melhorarRotas(solutionTest, num_trucks, test_sizeR, graph_return_adjacencies(g)); // Melhora custo intra-rotas
+            
+            // printsd(solutionTest, num_trucks, test_sizeR, test_demandR);
+            
+            newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
+
+            if( newCost < currentCost ){
+                k++;
+                bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR);
+
+                free(best_sizeRoutes);
+                free(best_demandRoutes);
+                free(idx_InRoutes);
+
+                idx_InRoutes      = malloc(sizeof(int) * num_vertex);
+                best_sizeRoutes   = malloc(sizeof(int) * num_trucks);
+                best_demandRoutes = malloc(sizeof(int) * num_trucks);
+
+                memcpy(best_sizeRoutes,   test_sizeR,       sizeof(int) * num_trucks);
+                memcpy(best_demandRoutes, test_demandR,     sizeof(int) * num_trucks);
+                memcpy(idx_InRoutes,      test_idxInroutes, sizeof(int) * num_vertex);   // Copia vetor idx_InRoute para modificação
+                
+                printf("\nMelhor encontrado(%.3f):\n", newCost);
+                printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
+
+            } else {
+                noImp++;
+            }
+            
+            free(test_sizeR);
+            free(test_demandR);
+            free(test_idxInroutes);
+        }
+    }
 
     // Salva solução inicial
 
