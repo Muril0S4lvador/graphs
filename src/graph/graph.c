@@ -404,6 +404,10 @@ void graph_Variable_Neighborhood_Search(Graph *g){
     }
     
     variable_Neighborhood_Search(g, routes, sizeR, graph_return_demands(g), demandsR);
+
+    free(routes);
+    free(sizeR);
+    free(demandsR);
 }
 
 void graph_2opt(Graph *g){
