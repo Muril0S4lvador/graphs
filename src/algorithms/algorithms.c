@@ -320,28 +320,6 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj){
 }
 
 /*
-    PRECISO
- * Diminuir demanda de rotas fora do limite
- * Reajustar as rotas de modo a menor distância
-*/ 
-
-/* ----- ALGORITMOS ----- */
-
-/*
-     * ILS:
-    S0 <- Gera solução inicial
-    S* <- Local Search(S0)
-    Enquanto (_CRITERIO_)
-        s <- Perturba (Troca com elemento de outra rota)
-        s' <- LocalSearch(s)
-        S* <- AcceptanceCriterion(S*, s', history)
-
-    Condição de Perturbação: adicionar/trocar itens entre rotas com demanda <= capacidade
-    Condição de Aceitação: Custo total de TODAS as rotas tenha diminuido
-    Caso tenha acontecido um número alto de iterações(definir) pare o algoritmo
-*/
-
-/*
     variable_Neighborhood_Descent (VND):
     S0: Solução inicial;
     r : Número de estruturas de vizinhança.
@@ -360,51 +338,6 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj){
                 PARE <- 1
     } while ( PARE )
     return s'
-*/
-/*
-int *_route_add_vertex(int *route, int size, int v){
-    int *new_route = malloc( sizeof(int) * (size + 1) );
-    for(int idx_r = 0, idx_n = 0; idx_r < size; idx_r++, idx_n++)
-    {
-        if( idx_n == 1 )
-        {
-            new_route[idx_n] = v;
-            idx_r--;
-        }
-        else
-            new_route[idx_n] = route[idx_r];
-    }
-    free(route);
-    return new_route;
-}
-*/
-/*
-int *_route_delete_vertex(int *route, int size, int v){
-    int *new_route = malloc(sizeof(int) * (size - 1) );
-    // printf("Desejado: %d\n", v);
-    for(int idx_r = 0, idx_n = 0; idx_r < size; idx_r++, idx_n++)
-    {
-        if(route[idx_r] == v)
-            idx_n--;
-        else
-            new_route[idx_n] = route[idx_r];
-    }
-    
-    if(route) free(route);
-
-    // printf("\nOld ROUTE\n");
-    // for(int i = 0; i < size; i++){
-    //     printf("%d ", route[i]);
-    // }
-    // printf("\nnew ROUTE\n");
-    // for(int i = 0; i < (size - 1); i++){
-    //     printf("%d ", new_route[i]);
-    // }
-    // printf("\n");
-    // exit(0);
-    
-    return new_route;
-}
 */
 
 char _route_delete_vertex(int *route, int *size, int v) {
@@ -444,11 +377,9 @@ int **_copy_route_matrix(int **dest, int **src, int size, int *sizeRoute, int nu
     int **result = malloc(sizeof(int*) * size);
     for(int i = 0; i < size; i++)
     {
-        if( dest != NULL ) free(dest[i]);
-        result[i] = malloc(sizeof(int) * num_vertex);
+        result[i] = malloc(sizeof(int) * num_vertex + 1);
         memcpy(result[i], src[i], sizeof(int) * sizeRoute[i]);
     }
-    if( dest ) free(dest);
     return result;
 }
 
@@ -529,7 +460,7 @@ char _checkCapacity(int *demands, int size, int capacity){
     for(int i = 0; i < size; i++)
         if( demands[i] > capacity )
             return 0;
-    
+    return 1;
 }
 
 void printsd(int **routes, int size, int *sizeR, int *demandR){
@@ -548,7 +479,6 @@ void _destroyRoutesMatrix(int **routes, int size){
         free(routes[i]);
     free(routes);
 }
-
 
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes){
 
@@ -569,11 +499,12 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
 
 
     float currentCost = _return_total_cost_route(routes, sizeRoutes, num_trucks, graph_return_adjacencies(g)), newCost = 0;
+    char possible = _checkCapacity(best_demandRoutes, num_trucks, graph_return_capacity(g));
 
     printf("\nSolução Inicial(%.3f):\n", currentCost);
     printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
 
-    while( noImp < 2000000 )
+    while( noImp < 20000000 )
     {
         k = 0;
         while( k < num_trucks ){
@@ -588,7 +519,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
 
             int **solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
-            random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes); // Gera vizinhança aleatoria
+            // random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes); // Gera vizinhança aleatoria
 
             _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g)); // Move itens nas rotas
 
@@ -596,11 +527,18 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
             
             newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
 
-            if( newCost < currentCost && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)) ){
+                // printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
+                // printsd(solutionTest, num_trucks, test_sizeR, test_demandR);
+
+            if( newCost < currentCost && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)) || 
+                ( !possible && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)))               ){
                 k = 0;
+                noImp = 0;
+                possible = 1;
 
                 _destroyRoutesMatrix(bestSolution, num_trucks);
                 bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR, num_vertex);
+                currentCost = newCost;
 
                 free(best_sizeRoutes);
                 free(best_demandRoutes);
@@ -629,41 +567,17 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
         }
     }
 
+    graph_route_destroy(g);
+    for(int i = 0; i < num_trucks; i++){
+        graph_set_route(g, i, bestSolution[i], best_sizeRoutes[i], best_demandRoutes[i]);
+    }
+
     free(best_sizeRoutes);
     free(best_demandRoutes);
     free(idx_InRoutes);
     free(demands);
     _destroyRoutesMatrix(bestSolution, num_trucks);
-
-    // Salva solução inicial
-
-    // Enquanto !criterio
-        // Inicializa vizinhança inicial
-        // Enquanto houver vizinhanças
-            // perturba aleatorio
-            // faz um move
-            // ajeita as rotas
-            // if diminuiu custo?
-                // pega ela e reinicia vizinhança
-                // avança vizinhança
 }
-
-/*
-    AltereVizinhanças: testar
-
-    Neighborhood_Change_Pipe( S, S", k ){
-        se Custo(S") < Custo(S)
-            S <- S"
-        else
-            k++
-    }
-    
-    Neighborhood_Change_Cyclic( S, S", k ){
-        k++
-        se Custo(S") < Custo(S)
-            S <- S"
-    }
-*/
 
 /*
     variable_Neighborhood_Search (VNS):

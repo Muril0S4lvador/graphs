@@ -393,7 +393,12 @@ void route_print(Graph *g){
 }
 
 void graph_Variable_Neighborhood_Search(Graph *g){
-// void variable_Neighborhood_Descent(Graph *g, int **route, int *size, float *demand){
+    
+    if( !graph_has_route(g) ){
+        printf("Necessário a construção de uma solução inicial.\n");
+        return;
+    }
+    
     int **routes = malloc(sizeof(int*) * g->trucks),
         *sizeR = malloc(sizeof(int) * g->trucks),
         *demandsR = malloc(sizeof(int) * g->trucks);
@@ -419,6 +424,13 @@ void graph_2opt(Graph *g){
     }
 }
 
+void graph_route_destroy(Graph *g){
+    if ( !graph_has_route(g) ) return;
+    for(int i = 0; i < g->trucks; i++)
+            free(g->route[i].route);
+    free(g->route);
+}
+
 void graph_destroy(Graph *g){
 
     matrix_destroy(g->adj, g->num_vertex);
@@ -427,14 +439,9 @@ void graph_destroy(Graph *g){
         Data *d = vector_pop_back(g->vertices);
         data_destroy(d);
     }
+    graph_route_destroy(g);
     vector_destroy(g->vertices);
-
-    if( graph_has_route(g) )
-        for(int i = 0; i < g->trucks; i++)
-            free(g->route[i].route);
-
     free(g->name);
     free(g->comment);
-    free(g->route);
     free(g);
 }

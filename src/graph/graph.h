@@ -77,6 +77,8 @@ void graph_2opt(Graph *g);
 
 void graph_Variable_Neighborhood_Search(Graph *g);
 
+void graph_route_destroy(Graph *g);
+
 void graph_destroy(Graph *g);
 
 #endif
