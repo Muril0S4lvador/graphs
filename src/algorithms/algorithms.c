@@ -391,7 +391,7 @@ float _return_total_cost_route(int **routes, int *sizeRoute, int num_trucks, voi
     return sum;
 }
 
-void random_Pertubation(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute){
+void _random_Pertubation(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute){
     srand(time(NULL));
 
     for(int i = 0; i < size; i++){
@@ -448,6 +448,79 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands
                 }
             }
         }
+    }
+}
+
+float _calculate_New_Cost(float currentCost, int v2, void *graph_adj, int *route, int idx_v1){
+    float newCost = currentCost;
+    int v1 = route[idx_v1];
+    newCost -= (matrix_return_edge_weight(graph_adj, v1, route[idx_v1 - 1], UNDIRECTED) +
+                matrix_return_edge_weight(graph_adj, v1, route[idx_v1 + 1], UNDIRECTED));
+    newCost += (matrix_return_edge_weight(graph_adj, v2, route[idx_v1 - 1], UNDIRECTED) +
+                matrix_return_edge_weight(graph_adj, v2, route[idx_v1 + 1], UNDIRECTED));
+    return newCost;
+}
+
+char _checkDemand(int routeDemand, int v1, int v2, float *demands, int capacity){
+    return ( (routeDemand - demands[v1] + demands[v2]) <= capacity ) ? 1 : 0;
+}
+
+void _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, float *cost){
+    float BestCost = cost[k];
+    int route_Bv2, idx_Bestv1, idx_Bv2;
+    char control = 0;
+
+// Swap Operator:
+    // Para cada vértice vK de uma rota k:
+        // Para cada vértice v' que não está na rota:
+            // IF se a demanda da rota K aceita um swap(vK, v'):
+                // calcula custo da rota houvesse swap:
+                // IF custoNovo < custoAtual:
+                    // Salva solução, e parte pra próxima combinação
+
+    // Faz swap(vk, v') no melhor vk e v' achados
+
+// Percorre a rota e, para cada elemento da rota, verifica
+// se substituí-lo melhorará no custo da rota, se sim, pegamos ele
+
+    
+    // Para cada elemento da rota k
+    for(int i = 1; i < sizeRoutes[k] - 1; i++)
+    {
+        int vertex = routes[k][i];
+        for(int j = 0; j < size; j++)
+        {
+            // Para cada elemento de uma rota j
+            for(int l = 1; l < sizeRoutes[j]; l++)
+            {
+                // Se j e k forem a mesma rota, ignorar
+                if( !(j - k) ) continue;
+                // Confere se swap(v1, v2) não fere restrição de demanda
+                if( !_checkDemand(demandRoutes[k], vertex, routes[j][l], demands, capacity) ) continue;
+
+                // Calcula novo custo da rota K
+                float newCostK = _calculate_New_Cost(cost[j], routes[j][l], graph_return_adjacencies(g), routes[k], i);
+
+                // Se for o melhor achado, salva os vertces v1 e v2
+                if( newCostK < BestCost ){
+                    BestCost = newCostK;
+                    idx_Bestv1 = i;
+                    idx_Bv2 = l;
+                    route_Bv2 = j;
+                    control = 1;
+                }
+            }
+        }
+    }
+
+    // Se foi encontrado um melhor vértice para um swap, então faça
+    if( control )
+    {
+        demandRoutes[route_Bv2] += ( demands[routes[k][idx_Bestv1]] - demands[routes[route_Bv2][idx_Bv2]] );
+        demandRoutes[k]         += ( demands[routes[route_Bv2][idx_Bv2]] - demands[routes[k][idx_Bestv1]] );
+        int v1 = routes[k][idx_Bestv1], v2 = routes[route_Bv2][idx_Bv2];
+        routes[k][idx_Bestv1] = v2;
+        routes[route_Bv2][idx_Bv2] = v1;
     }
 }
 
@@ -519,7 +592,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
 
             int **solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
-            // random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes); // Gera vizinhança aleatoria
+            // _random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes); // Gera vizinhança aleatoria
 
             _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g)); // Move itens nas rotas
 
