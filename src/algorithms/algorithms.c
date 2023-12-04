@@ -465,7 +465,7 @@ char _checkDemand(int routeDemand, int v1, int v2, float *demands, int capacity)
     return ( (routeDemand - demands[v1] + demands[v2]) <= capacity ) ? 1 : 0;
 }
 
-void _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, float *cost){
+char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, float *cost, Graph *g){
     float BestCost = cost[k];
     int route_Bv2, idx_Bestv1, idx_Bv2;
     char control = 0;
@@ -491,7 +491,7 @@ void _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
         for(int j = 0; j < size; j++)
         {
             // Para cada elemento de uma rota j
-            for(int l = 1; l < sizeRoutes[j]; l++)
+            for(int l = 1; l < sizeRoutes[j] - 1; l++)
             {
                 // Se j e k forem a mesma rota, ignorar
                 if( !(j - k) ) continue;
@@ -508,6 +508,7 @@ void _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
                     idx_Bv2 = l;
                     route_Bv2 = j;
                     control = 1;
+                    cost[k] = BestCost;
                 }
             }
         }
@@ -521,7 +522,55 @@ void _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
         int v1 = routes[k][idx_Bestv1], v2 = routes[route_Bv2][idx_Bv2];
         routes[k][idx_Bestv1] = v2;
         routes[route_Bv2][idx_Bv2] = v1;
+        return 1;
     }
+    return 0;
+}
+
+void Test(Graph *g){
+
+    int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),
+        capacity = graph_return_capacity(g),
+        *sizeRoutes = malloc(sizeof(int) * num_trucks),
+        *demandRoutes = malloc(sizeof(int) * num_trucks),
+        *idx_InRoutes = malloc(sizeof(int) * num_vertex),
+        **routes = malloc(sizeof(int*) * num_trucks);
+    
+    float *demands = graph_return_demands(g),
+          *costRoutes = malloc(sizeof(float) * num_trucks);
+
+    for(int i = 0; i < num_trucks; i++)
+    {
+        sizeRoutes[i] = route_return_size(g, i);
+        demandRoutes[i] = route_return_demand(g, i);
+        routes[i] = malloc(sizeof(int) * sizeRoutes[i]);
+        routes[i] = route_return_route(g, i);
+        costRoutes[i] = route_return_cost(g, i);
+    }
+
+    for(int i = 0; i < num_trucks; i++)
+        for(int j = 1; j < sizeRoutes[i] - 1; j++)
+            idx_InRoutes[routes[i][j]] = i;
+
+    printf("\nAntes do while:\n");
+    printsd(routes, num_trucks, sizeRoutes, demandRoutes, costRoutes);
+    
+    int k = 0;
+    while( k < num_trucks )
+    {
+        if( _swap_Operator(routes, num_trucks, sizeRoutes, demands, demandRoutes, idx_InRoutes, k, capacity, costRoutes, g) ){
+            // k = 0;
+            k++;
+
+        } else {
+            k++;
+
+        }
+
+        break;
+    }
+    printf("\nDepois do while:\n");
+    printsd(routes, num_trucks, sizeRoutes, demandRoutes, costRoutes);
 }
 
 void _melhorarRotas(int **routes, int size, int *sizeRoutes, void *graph_adj){
@@ -536,9 +585,9 @@ char _checkCapacity(int *demands, int size, int capacity){
     return 1;
 }
 
-void printsd(int **routes, int size, int *sizeR, int *demandR){
+void printsd(int **routes, int size, int *sizeR, int *demandR, float *cost){
     for(int i = 0; i < size; i++){
-        printf("\nRoute %d (%d): ", i, demandR[i]);
+        printf("\nRoute %d (%d|%.3f): ", i, demandR[i], cost[i]);
         for(int j = 0; j < sizeR[i]; j++)
         {
             printf("%d ", routes[i][j]);
@@ -575,7 +624,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
     char possible = _checkCapacity(best_demandRoutes, num_trucks, graph_return_capacity(g));
 
     printf("\nSolução Inicial(%.3f):\n", currentCost);
-    printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
+    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
 
     while( noImp < 20000000 )
     {
@@ -600,7 +649,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
             
             newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
 
-                // printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
+                printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
                 // printsd(solutionTest, num_trucks, test_sizeR, test_demandR);
 
             if( newCost < currentCost && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)) || 
@@ -626,7 +675,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
                 memcpy(idx_InRoutes,      test_idxInroutes, sizeof(int) * num_vertex);   // Copia vetor idx_InRoute para modificação
                 
                 printf("\nMelhor encontrado(%.3f):\n", newCost);
-                printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
+                // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
 
             } else {
                 noImp++;

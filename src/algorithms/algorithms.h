@@ -26,4 +26,16 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj);
 
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes);
 
+
+
+
+
+
+void Test(Graph *g);
+
+
+
+void printsd(int **routes, int size, int *sizeR, int *demandR, float *cost);
+// void printsd(int **routes, int size, int *sizeR, int *demandR);
+
 #endif
