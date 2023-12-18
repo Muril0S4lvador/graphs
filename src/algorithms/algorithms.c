@@ -439,42 +439,60 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands
             {
                 if( _route_delete_vertex(routes[k], &sizeRoutes[k], vertex) )
                 {
-                demandRoutes[j] += demands[vertex];
-                demandRoutes[k] -= demands[vertex];
-                idx_InRoute[vertex] = j;
-                
-                _route_add_vertex(routes[j], &sizeRoutes[j], vertex);
-
+                    demandRoutes[j] += demands[vertex];
+                    demandRoutes[k] -= demands[vertex];
+                    idx_InRoute[vertex] = j;
+                    
+                    _route_add_vertex(routes[j], &sizeRoutes[j], vertex);
                 }
             }
         }
     }
 }
 
-float _calculate_New_Cost(float currentCost, int v2, void *graph_adj, int *route, int idx_v1, int size){
+float _calculate_New_Cost(int *route, float currentCost, int new_v, int idx_old_v, int size, void *graph_adj){
     float newCost = currentCost;
-    int v1 = route[idx_v1];
-    float DIM = (matrix_return_edge_weight(graph_adj, v1, route[idx_v1 - 1], UNDIRECTED) +
-                matrix_return_edge_weight(graph_adj, v1, route[idx_v1 + 1], UNDIRECTED));
+    int v1 = route[idx_old_v];
+    float DIM = (matrix_return_edge_weight(graph_adj, v1, route[idx_old_v - 1], UNDIRECTED) +
+                matrix_return_edge_weight(graph_adj, v1, route[idx_old_v + 1], UNDIRECTED));
 
-    float ADD = (matrix_return_edge_weight(graph_adj, v2, route[idx_v1 - 1], UNDIRECTED) +
-                matrix_return_edge_weight(graph_adj, v2, route[idx_v1 + 1], UNDIRECTED));
+    float ADD = (matrix_return_edge_weight(graph_adj, new_v, route[idx_old_v - 1], UNDIRECTED) +
+                matrix_return_edge_weight(graph_adj, new_v, route[idx_old_v + 1], UNDIRECTED));
             
-            printf("\n%.3f || %.3f || %.3f\n", newCost, DIM, ADD);
+    
+            // printf("\n%d -> %d\n", v1, new_v);
+            // printf("%.3f || %.3f || %.3f\n", newCost, DIM, ADD);
+            
+            // for(int i = 0; i < size; i++){
+            //     printf("%d ", route[i]);
+            //     if( i < size - 1 ){
+            //         printf("(%.3f) ", (matrix_return_edge_weight(graph_adj, route[i], route[i + 1], UNDIRECTED)));
+            //     }
+            // }
+            // int *ha = malloc(sizeof(int) * size);
+            // memcpy(ha, route, sizeof(int) * size);
+            // printf("\n");
+            // ha[idx_old_v] = new_v;
+            // for(int i = 0; i < size; i++){
+            //     printf("%d ", ha[i]);
+            //     if( i < size - 1 ){
+            //         printf("(%.3f) ", (matrix_return_edge_weight(graph_adj, ha[i], ha[i + 1], UNDIRECTED)));
+            //     }
+            // }
     
     newCost = newCost - DIM + ADD;
 
-    float sum = 0;
-    for(int i = 0; i < size - 1; i++){
-        sum += matrix_return_edge_weight(graph_adj, route[i], route[i + 1], UNDIRECTED);
-    }
-    printf("\nSUM: %.3f || COST : %.3f\n", sum, newCost);
+            // float sum = 0;
+            // for(int i = 0; i < size - 1; i++){
+            //     sum += matrix_return_edge_weight(graph_adj, route[i], route[i + 1], UNDIRECTED);
+            // }
+            // printf("\nSUM: %.3f || COST : %.3f\n", sum, newCost);
     
     return newCost;
 }
 
-char _checkDemand(int routeDemand, int v1, int v2, float *demands, int capacity){
-    return ( (routeDemand - demands[v1] + demands[v2]) <= capacity ) ? 1 : 0;
+char _checkDemand(int routeDemand, int old_v, int new_v, float *demands, int capacity){
+    return ( (routeDemand - demands[old_v] + demands[new_v]) <= capacity ) ? 1 : 0;
 }
 
 char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, float *cost, Graph *g){
@@ -508,20 +526,21 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
                 // Se j e k forem a mesma rota, ignorar
                 if( !(j - k) ) continue;
                 // Confere se swap(v1, v2) não fere restrição de demanda
-                if( !_checkDemand(demandRoutes[k], vertex, routes[j][l], demands, capacity) ) continue;
+                if( !_checkDemand(demandRoutes[k], vertex, routes[j][l], demands, capacity) 
+                    || !_checkDemand(demandRoutes[j], routes[j][l], vertex, demands, capacity) ) continue;
 
                 // Calcula novo custo da rota K
-                float newCostK = _calculate_New_Cost(cost[j], routes[j][l], graph_return_adjacencies(g), routes[k], i, sizeRoutes[k]);
+                float newCostK = _calculate_New_Cost(routes[k], cost[k], routes[j][l], i, sizeRoutes[k], graph_return_adjacencies(g));
 
                 // Se for o melhor achado, salva os vertces v1 e v2
+                // printf("%.3f < %.3f ?\n", newCostK, BestCost);
                 if( newCostK < BestCost ){
+                    // printf("Melhor!\n");
                     BestCost = newCostK;
                     idx_Bestv1 = i;
                     idx_Bv2 = l;
                     route_Bv2 = j;
                     control = 1;
-                    cost[k] = BestCost;
-
                 }
             }
         }
@@ -530,11 +549,14 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
     // Se foi encontrado um melhor vértice para um swap, então faça
     if( control )
     {
-                    printf("OLD: %d -> %d -> %d\n", routes[k][idx_Bestv1 - 1], routes[k][idx_Bestv1], routes[k][idx_Bestv1 + 1]);
-                    printf("NEW: %d -> %d -> %d\n", routes[k][idx_Bestv1 - 1], routes[route_Bv2][idx_Bv2], routes[k][idx_Bestv1 + 1]);
+                    if(BestCost < 1) exit(0);
+                    // printf("OLD: %d -> %d -> %d\n", routes[k][idx_Bestv1 - 1], routes[k][idx_Bestv1], routes[k][idx_Bestv1 + 1]);
+                    // printf("NEW: %d -> %d -> %d\n", routes[k][idx_Bestv1 - 1], routes[route_Bv2][idx_Bv2], routes[k][idx_Bestv1 + 1]);
         demandRoutes[route_Bv2] += ( demands[routes[k][idx_Bestv1]] - demands[routes[route_Bv2][idx_Bv2]] );
         demandRoutes[k]         += ( demands[routes[route_Bv2][idx_Bv2]] - demands[routes[k][idx_Bestv1]] );
         int v1 = routes[k][idx_Bestv1], v2 = routes[route_Bv2][idx_Bv2];
+        cost[k] = _calculate_New_Cost(routes[k], cost[k], v2, idx_Bestv1, sizeRoutes[k], graph_return_adjacencies(g));
+        cost[route_Bv2] = _calculate_New_Cost(routes[route_Bv2], cost[route_Bv2], v1, idx_Bv2, sizeRoutes[route_Bv2], graph_return_adjacencies(g));
         routes[k][idx_Bestv1] = v2;
         routes[route_Bv2][idx_Bv2] = v1;
         return 1;
@@ -580,14 +602,10 @@ void Test(Graph *g){
             float newCostK = costRoutes[k];
             printf("It %d: New cost[%d] -> %.3f => %.3f\n", x, k, custoK, newCostK);
             // if(x > 5) break;
-            k = 0;
-            // k++;
-
-        } else {
-            k++;
+            // k = 0;
 
         }
-
+        k++;
         x++;
     }
     printf("\nDepois do while:\n");
