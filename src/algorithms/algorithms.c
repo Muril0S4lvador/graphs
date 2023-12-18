@@ -495,6 +495,7 @@ char _checkDemand(int routeDemand, int old_v, int new_v, float *demands, int cap
     return ( (routeDemand - demands[old_v] + demands[new_v]) <= capacity ) ? 1 : 0;
 }
 
+// Pega a melhor troca de operadores entre uma rota k e outra qualquer
 char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, float *cost, Graph *g){
     float BestCost = cost[k];
     int route_Bv2, idx_Bestv1, idx_Bv2;
@@ -513,7 +514,6 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
 // Percorre a rota e, para cada elemento da rota, verifica
 // se substituí-lo melhorará no custo da rota, se sim, pegamos ele
 
-    
     // Para cada elemento da rota k
     for(int i = 1; i < sizeRoutes[k] - 1; i++)
     {
@@ -564,6 +564,17 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
     return 0;
 }
 
+void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, float *costRoutes, Graph *g){
+    int num_trucks = graph_return_trucks(g), capacity = graph_return_capacity(g);
+    float *demands = graph_return_demands(g);
+
+    int k = 0;
+    while( k < num_trucks ){
+        (void)_swap_Operator(routes, num_trucks, sizeRoutes, demands, demandRoutes, idx_InRoutes, k, capacity, costRoutes, g);
+        k++;
+    }
+}
+
 void Test(Graph *g){
 
     int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),
@@ -594,6 +605,7 @@ void Test(Graph *g){
     
     int k = 0;
     int x = 0;
+    // Independente se melhorar ou não, passa para a próxima rota
     while( k < num_trucks )
     {
         float custoK = costRoutes[k];
@@ -665,7 +677,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
     }
 
 
-    printf("\nSolução Inicial(%.3f):\n", currentCost);
+    // printf("\nSolução Inicial(%.3f):\n", currentCost);
     // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
 
     while( noImp < 20000000 )
@@ -676,22 +688,24 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
             int *test_sizeR       = malloc(sizeof(int) * num_trucks),
                 *test_demandR     = malloc(sizeof(int) * num_trucks),
                 *test_idxInroutes = malloc(sizeof(int) * num_vertex);
+            float *test_costR     = malloc(sizeof(float) * num_trucks);
 
             memcpy(test_sizeR,       best_sizeRoutes,   sizeof(int) * num_trucks);  // Copia tamanhos da melhor rota atual para modificação
             memcpy(test_demandR,     best_demandRoutes, sizeof(int) * num_trucks);  // Copia demandas da melhor rota atual para modificação
             memcpy(test_idxInroutes, idx_InRoutes,      sizeof(int) * num_vertex);  // Copia vetor idx_InRoute para modificação
+            memcpy(test_costR      , costRoutes,        sizeof(float) * num_vertex);// Copia vetor costRoutes para modificação
 
             int **solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
-
-
             _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g)); // Move itens nas rotas
+
+            variable_Neighborhood_Descent(solutionTest, test_sizeR, test_idxInroutes, test_demandR, test_costR, g);
 
             _melhorarRotas(solutionTest, num_trucks, test_sizeR, graph_return_adjacencies(g)); // Melhora custo intra-rotas
             
             newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
 
-                printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
+                // printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
                 // printsd(solutionTest, num_trucks, test_sizeR, test_demandR);
 
             if( newCost < currentCost && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)) || 
@@ -707,16 +721,19 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
                 free(best_sizeRoutes);
                 free(best_demandRoutes);
                 free(idx_InRoutes);
+                free(costRoutes);
 
-                idx_InRoutes      = malloc(sizeof(int) * num_vertex);
-                best_sizeRoutes   = malloc(sizeof(int) * num_trucks);
-                best_demandRoutes = malloc(sizeof(int) * num_trucks);
+                best_sizeRoutes   = test_sizeR;
+                best_demandRoutes = test_demandR;
+                idx_InRoutes      = test_idxInroutes;
+                costRoutes        = test_costR;
 
-                memcpy(best_sizeRoutes,   test_sizeR,       sizeof(int) * num_trucks);
-                memcpy(best_demandRoutes, test_demandR,     sizeof(int) * num_trucks);
-                memcpy(idx_InRoutes,      test_idxInroutes, sizeof(int) * num_vertex);   // Copia vetor idx_InRoute para modificação
-                
-                printf("\nMelhor encontrado(%.3f):\n", newCost);
+                memcpy(best_sizeRoutes,   test_sizeR,       sizeof(int)   * num_trucks);
+                memcpy(best_demandRoutes, test_demandR,     sizeof(int)   * num_trucks);
+                memcpy(idx_InRoutes,      test_idxInroutes, sizeof(int)   * num_trucks);
+                memcpy(costRoutes,        test_costR,       sizeof(float) * num_trucks);
+
+                // printf("\nMelhor encontrado(%.3f):\n", newCost);
                 // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes);
 
             } else {

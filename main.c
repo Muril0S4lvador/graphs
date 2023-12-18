@@ -11,7 +11,8 @@ int main( int argc, char* argv[] ){
 
     graph_Clarke_Wright_parallel_route(g);
 
-    Test(g);
+    // Test(g);
+    graph_Variable_Neighborhood_Search(g);
 
     graph_destroy(g);
 
