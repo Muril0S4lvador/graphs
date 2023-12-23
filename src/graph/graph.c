@@ -23,6 +23,71 @@ struct Graph{
     Route *route;
 };
 
+/* =============================================== FUNÇÕES INTERNAS ================================================================== */
+
+// Trata a string para ser comparável a outra string
+void _trataString(char *string){
+    int tam = strlen(string);
+    for(int i = 0; i < tam; i++){
+        if(string[i] == ' ')
+            string[i] = 0;
+    }
+}
+
+// Lê as arestas de uma instância pela forma EUC_2D (euclidiana)
+void _read_EUC_2D(Graph *g, FILE *arq){
+
+    int dimension = g->num_vertex;
+    float m[dimension][3];
+
+    for(int i = 0; i < dimension; i++)
+        fscanf(arq, " %*d %f %f%*c", &m[i][0], &m[i][1]);
+
+    fscanf(arq, "%*[^\n]\n"); // DEMAND_COORD_SECTION
+
+    for(int i = 0; i < dimension; i++){
+        
+        fscanf(arq, "%*c %f %*c", &m[i][2]);
+        int x1 = m[i][0], y1 = m[i][1];
+        Data *d = data_construct(x1, y1, m[i][2]);
+        vector_push_back(g->vertices, d);
+
+        for(int j = i - 1; j >= 0; j--){
+            int x2 = m[j][0], y2 = m[j][1];
+
+            weight w = (weight)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
+
+            graph_add_edge(g, i, j, w);
+        }
+    }
+
+}
+
+// Lê as arestas de uma instância pela forma EXPLICIT LOWER_ROW (Triângulo inferior de uma matriz)
+void _read_LOWER_ROW(Graph *g, FILE *arq){
+    int dimension = g->num_vertex;
+    float demand;
+    weight weight;
+
+    // Le EDGE_WEIGHT_SECTION
+    for(int i = 0; i < dimension-1; i++){
+        for(int j = i + 1; j < dimension; j++){
+            fscanf(arq, "%f", &weight);
+            graph_add_edge(g, i, j, weight);
+        }
+    }
+
+    fscanf(arq, "%*c%*[^\n]\n"); // DEMAND_COORD_SECTION
+
+    for(int i = 0; i < dimension; i++){
+        fscanf(arq, "%*c %f %*c", &demand);
+        Data *d = data_construct(i, i, demand);
+        vector_push_back(g->vertices, d);
+    }
+}
+
+/* =================================================================================================================================== */
+
 Graph *graph_construct(int v, bool direction){
     Graph *g = malloc(sizeof(Graph));
 
@@ -55,10 +120,6 @@ int graph_return_capacity(Graph *g){
 
 int graph_return_trucks(Graph *g){
     return (g) ? g->trucks : -1;
-}
-
-void graph_set_trucks(Graph *g, int numTrucks){
-    g->trucks = numTrucks;
 }
 
 bool graph_return_direction(Graph *g){
@@ -127,7 +188,7 @@ void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     // Se for não direcionado, o menor aponta para o maior
     if( g->direction == UNDIRECTED ) if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
 
-    if( matrix_add_edge(g->adj, v1, v2, peso) == 0) return; 
+    if( matrix_add_edge(g->adj, v1, v2, peso) == 0 ) return; 
 
     g->num_edge += ( g->direction == UNDIRECTED ) ? 2 : 1;
 }
@@ -141,64 +202,6 @@ void graph_remove_edge(Graph *g, int v1, int v2){
 
 bool graph_edge_exists(Graph *g, int v1, int v2){
     return matrix_edge_exists(g->adj, v1, v2);
-}
-
-void _trataString(char *string){
-    int tam = strlen(string);
-    for(int i = 0; i < tam; i++){
-        if(string[i] == ' ')
-            string[i] = 0;
-    }
-}
-
-void _read_EUC_2D(Graph *g, FILE *arq){
-
-    int dimension = g->num_vertex;
-    float m[dimension][3];
-
-    for(int i = 0; i < dimension; i++)
-        fscanf(arq, " %*d %f %f%*c", &m[i][0], &m[i][1]);
-
-    fscanf(arq, "%*[^\n]\n"); // DEMAND_COORD_SECTION
-
-    for(int i = 0; i < dimension; i++){
-        
-        fscanf(arq, "%*c %f %*c", &m[i][2]);
-        int x1 = m[i][0], y1 = m[i][1];
-        Data *d = data_construct(x1, y1, m[i][2]);
-        vector_push_back(g->vertices, d);
-
-        for(int j = i - 1; j >= 0; j--){
-            int x2 = m[j][0], y2 = m[j][1];
-
-            weight w = (weight)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
-
-            graph_add_edge(g, i, j, w);
-        }
-    }
-
-}
-
-void _read_LOWER_ROW(Graph *g, FILE *arq){
-    int dimension = g->num_vertex;
-    float demand;
-    weight weight;
-
-    // Le EDGE_WEIGHT_SECTION
-    for(int i = 0; i < dimension-1; i++){
-        for(int j = i + 1; j < dimension; j++){
-            fscanf(arq, "%f", &weight);
-            graph_add_edge(g, i, j, weight);
-        }
-    }
-
-    fscanf(arq, "%*c%*[^\n]\n"); // DEMAND_COORD_SECTION
-
-    for(int i = 0; i < dimension; i++){
-        fscanf(arq, "%*c %f %*c", &demand);
-        Data *d = data_construct(i, i, demand);
-        vector_push_back(g->vertices, d);
-    }
 }
 
 Graph *graph_read_file_CVRPLIB(char *fileName){

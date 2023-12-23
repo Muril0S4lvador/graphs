@@ -17,12 +17,16 @@ enum Color {
     GRAY
 };
 
+/* =============================================== FUNÇÕES INTERNAS ================================================================== */
+
+// Cria a imagem <filename>.png de acordo com os comandos neato do graphviz
 void _system_call_graphviz(char *file_name){
     char call[ 24 + strlen(file_name) ];
     sprintf(call, "neato -T%s %s -O &", TYPE, file_name);
     system(call);
 }
 
+// Escreve os vértices do grafo no arquivo
 void _vertex_file_write(void *vertices, int size, FILE *arq){
     Vector *v = vertices;
     char asp = '"';
@@ -47,12 +51,14 @@ void _vertex_file_write(void *vertices, int size, FILE *arq){
     }
 }
 
+// Imprime as arestas do grafo no arquivo
 void _graph_file_write(Graph *g, int size, FILE *arq, int direction){
     char edge[3] = "-";
     (direction == DIRECTED) ? strcat(edge, ">") : strcat(edge, "-");
     matrix_file_write(graph_return_adjacencies(g), size, arq, edge);
 }
 
+// Retorna a i-ésima cor, de acordo com o enum Color
 char *_color_return(int i){
     switch( i ){
         case BLACK: return "black";
@@ -69,6 +75,7 @@ char *_color_return(int i){
     }
 }
 
+// Escreve as rotas no arquivo arq
 void _route_file_write(Graph *g, int size, FILE *arq){
     char asp = '"', ini_color[16], end_color[5];
 
@@ -94,6 +101,8 @@ void _route_file_write(Graph *g, int size, FILE *arq){
     }
     
 }
+
+/* =================================================================================================================================== */
 
 void img_print_vertex(Graph *g, char *file_name){
 
