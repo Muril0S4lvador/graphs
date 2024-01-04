@@ -138,7 +138,7 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands
                     idx_InRoute[vertex] = j;
                     
                     _route_add_vertex(routes[j], &sizeRoutes[j], vertex);
-                    printf("%d\n", i);
+                    // printf("%d\n", i);
                     break;
                 }
             }
@@ -225,7 +225,6 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
     // Se foi encontrado um melhor vértice para um swap, então faça
     if( control )
     {
-        if(BestCost < 1) exit(0);
         demandRoutes[route_Bv2] += ( demands[routes[k][idx_Bestv1]] - demands[routes[route_Bv2][idx_Bv2]] );
         demandRoutes[k]         += ( demands[routes[route_Bv2][idx_Bv2]] - demands[routes[k][idx_Bestv1]] );
         int v1 = routes[k][idx_Bestv1], v2 = routes[route_Bv2][idx_Bv2];
@@ -594,11 +593,10 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj){
     return s'
 */
 
-void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, float *costRoutes, Graph *g){
+void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, float *costRoutes, float *demands, Graph *g){
     int num_trucks = graph_return_trucks(g),  // Número de rotas/caminhões
         capacity = graph_return_capacity(g),  // Capacidade da rota/caminhão
         k = 0;                                // Rota a ser olhada
-    float *demands = graph_return_demands(g); // Vetor com as demandas dos vértices
 
     while( k < num_trucks ){
         // Se houver melhora retorna 1    
@@ -638,10 +636,10 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
     }
 
 
-    printf("\nSolução Inicial(%.3f):\n", currentCost);
-    printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
+    // printf("\nSolução Inicial(%.3f):\n", currentCost);
+    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
 
-    while( noImp < 20000000 )
+    while( noImp < 2000 )
     {
         k = 0;
         while( k < num_trucks ){
@@ -659,25 +657,24 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
             int **solutionTest; // Matriz de rotas com a melhor solução para manipulação 
             solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
-                    printf("\nREALOCATE\n");
+            //         printf("\nREALOCATE\n");
             _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g)); // Move itens nas rotas
 
-                    printf("\nVND\n");
-            variable_Neighborhood_Descent(solutionTest, test_sizeR, test_idxInroutes, test_demandR, test_costR, g);
+            //         printf("\nVND\n");
+            variable_Neighborhood_Descent(solutionTest, test_sizeR, test_idxInroutes, test_demandR, test_costR, demands, g);
 
-                    printf("\n2OPT\n");
+            //         printf("\n2OPT\n");
             _melhorarRotas(solutionTest, num_trucks, test_sizeR, graph_return_adjacencies(g)); // Melhora custo intra-rotas
             
             newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
 
-                printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
-                printsd(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR);
+                // printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
+                // printsd(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR);
 
             // Se melhorou o custo ou tornou as rotas possíveis(caso não fossem antes), pegamos a solução
             if( newCost < currentCost && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)) || 
                 ( !possible && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)))               ){
                 k = 0;
-                noImp = 0;
                 possible = 1;
 
                 _destroyRoutesMatrix(bestSolution, num_trucks);
@@ -694,13 +691,13 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
                 idx_InRoutes      = test_idxInroutes;
                 costRoutes        = test_costR;
 
-                memcpy(best_sizeRoutes,   test_sizeR,       sizeof(int)   * num_trucks);
-                memcpy(best_demandRoutes, test_demandR,     sizeof(int)   * num_trucks);
-                memcpy(idx_InRoutes,      test_idxInroutes, sizeof(int)   * num_trucks);
-                memcpy(costRoutes,        test_costR,       sizeof(float) * num_trucks);
+                test_sizeR = NULL;
+                test_demandR = NULL;
+                test_idxInroutes = NULL;
+                test_costR = NULL;
 
-                printf("\nMelhor encontrado(%.3f):\n", newCost);
-                printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
+                // printf("\nMelhor encontrado(%.3f):\n", newCost);
+                // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
 
             } else {
                 noImp++;
@@ -711,6 +708,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
             free(test_sizeR);
             free(test_demandR);
             free(test_idxInroutes);
+            free(test_costR);
         }
     }
 
@@ -723,6 +721,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
     free(best_demandRoutes);
     free(idx_InRoutes);
     free(demands);
+    free(costRoutes);
     _destroyRoutesMatrix(bestSolution, num_trucks);
 }
 

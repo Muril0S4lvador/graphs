@@ -18,3 +18,7 @@ int main( int argc, char* argv[] ){
 
     return 0;
 }
+
+/*
+valgrind ./main com entradas/a/A-n46-k7.vrp
+*/

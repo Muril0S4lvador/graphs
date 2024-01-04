@@ -210,11 +210,11 @@ Graph *graph_read_file_CVRPLIB(char *fileName){
     FILE *arq = fopen(fileName, "r");
     if( !arq ) exit(printf("ERRO: Falha ao abrir %s\n", fileName));
 
-    char nameprev[64], commentprev[256];
+    char nameprev[1000], commentprev[256];
     int dimension = 0, capacity = 0;
 
     fscanf(arq, "%*[^:]: %s%*c", nameprev); // NAME
-    char *name = malloc(sizeof(char) * strlen(nameprev) + 1);
+    char *name = malloc(sizeof(char) * strlen(nameprev) + 2);
     memcpy(name, nameprev, strlen(nameprev) + 1);
 
     fscanf(arq, "%*[^:]: "); // COMMENT

@@ -34,7 +34,7 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj);
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes);
 
 // Melhora uma rota já criada de acordo com o algoritmo de descida em vizinhanças
-void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, float *costRoutes, Graph *g);
+void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, float *costRoutes, float *demands, Graph *g);
 
 /* =============================================== APAGAR DEPOIS ================================================================== */
 
