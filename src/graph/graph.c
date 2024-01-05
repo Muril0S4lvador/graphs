@@ -60,7 +60,6 @@ void _read_EUC_2D(Graph *g, FILE *arq){
             graph_add_edge(g, i, j, w);
         }
     }
-
 }
 
 // Lê as arestas de uma instância pela forma EXPLICIT LOWER_ROW (Triângulo inferior de uma matriz)

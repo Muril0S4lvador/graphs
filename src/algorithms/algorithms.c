@@ -159,6 +159,17 @@ float _calculate_New_Cost(int *route, float currentCost, int new_v, int idx_old_
                 matrix_return_edge_weight(graph_adj, new_v, route[idx_old_v + 1], UNDIRECTED));
     
     newCost = newCost - DIM + ADD;
+    printf("%.3f ::", newCost);
+
+    newCost = 0;
+    for(int i = 0; i < size - 1; i++){
+        int v1 = route[i], v2 = route[i + 1];
+        if( i == idx_old_v ) v1 = new_v;
+        if( i + 1 == idx_old_v ) v2 = new_v;
+        float cost= matrix_return_edge_weight(graph_adj, v1, v2, UNDIRECTED);
+        newCost += cost;
+    }
+    printf(" %.3f\n", newCost);
 
     return newCost;
 }
@@ -232,6 +243,30 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
         cost[route_Bv2] = _calculate_New_Cost(routes[route_Bv2], cost[route_Bv2], v1, idx_Bv2, sizeRoutes[route_Bv2], graph_return_adjacencies(g));
         routes[k][idx_Bestv1] = v2;
         routes[route_Bv2][idx_Bv2] = v1;
+
+        // printf("\nROUTE %d\n", k);
+        // for(int i = 0; i < sizeRoutes[k]; i++){
+        //     printf("%d ", routes[k][i]);
+        //     if(i < sizeRoutes[k] - 1){
+        //         printf("-(%.3f)> ", matrix_return_edge_weight(graph_return_adjacencies(g), routes[k][i], routes[k][i+1], UNDIRECTED));
+        //     }
+        // }
+        // printf("\nROUTE %d\n", route_Bv2);
+        // for(int i = 0; i < sizeRoutes[route_Bv2]; i++){
+        //     printf("%d ", routes[route_Bv2][i]);
+        //     if(i < sizeRoutes[route_Bv2] - 1){
+        //         printf("-(%.3f)> ", matrix_return_edge_weight(graph_return_adjacencies(g), routes[route_Bv2][i], routes[route_Bv2][i+1], UNDIRECTED));
+        //     }
+        // }
+        // printf("\n");
+
+        float cc = matrix_return_route_cost(graph_return_adjacencies(g), routes[k], sizeRoutes[k]);
+        float c2 = matrix_return_route_cost(graph_return_adjacencies(g), routes[route_Bv2], sizeRoutes[route_Bv2]);
+
+        if( cc != cost[k] || c2 != cost[route_Bv2] ){
+            printf("%.3f || %.3f xXx %.3f || %.3f\n", cc, cost[k], c2, cost[route_Bv2]);
+        }
+        
         return 1;
     }
     return 0;
@@ -636,8 +671,8 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
     }
 
 
-    // printf("\nSolução Inicial(%.3f):\n", currentCost);
-    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
+            // printf("\nSolução Inicial(%.3f):\n", currentCost);
+            // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
 
     while( noImp < 2000 )
     {
@@ -696,8 +731,8 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
                 test_idxInroutes = NULL;
                 test_costR = NULL;
 
-                // printf("\nMelhor encontrado(%.3f):\n", newCost);
-                // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
+                        // printf("\nMelhor encontrado(%.3f):\n", newCost);
+                        // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
 
             } else {
                 noImp++;

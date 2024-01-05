@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "src/graph/graph.h"
-#include "src/graphviz_print/graphviz_print.h"
+#include "../../src/graph/graph.h"
+#include "../../src/graphviz_print/graphviz_print.h"
 
 void name(Graph *g){
     int numTrucks;
