@@ -418,12 +418,17 @@ void graph_Variable_Neighborhood_Search(Graph *g){
 }
 
 void graph_2opt(Graph *g){
+    float *cost = malloc(sizeof(float) * graph_return_trucks(g));
+    for(int i = 0; i < g->trucks; i++)
+        cost[i] = route_return_cost(g, i);
+
     for(int i = 0; i < g->trucks; i++){
         int *route = route_return_route(g, i),
             size = route_return_size(g, i);
-        opt2_algorithm(route, size, g->adj);
-        g->route[i].cost = matrix_return_route_cost(g->adj, route, size);
+        opt2_algorithm(route, size, g->adj, &cost[i]);
+        g->route[i].cost = cost[i];
     }
+    free(cost);
 }
 
 void graph_route_destroy(Graph *g){

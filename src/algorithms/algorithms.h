@@ -28,7 +28,7 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
 void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges);
 
 // Melhora uma rota já criada de acordo com o algoritmo de 2OPT
-void opt2_algorithm(int *route, int sizeRoute, void *graph_adj);
+void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, float *cost);
 
 // Melhora uma rota já criada de acordo com o algoritmo de busca de vizinho variável
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes);

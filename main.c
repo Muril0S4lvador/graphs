@@ -12,7 +12,6 @@ int main( int argc, char* argv[] ){
 
     graph_Clarke_Wright_parallel_route(g);
 
-    // Test(g);
     graph_Variable_Neighborhood_Search(g);
 
     int size = graph_return_trucks(g);
@@ -31,8 +30,6 @@ int main( int argc, char* argv[] ){
     }
     // printf("%.3f\n", sum);
     
-    img_print_route(g, "zgraph");
-
     graph_destroy(g);
 
     return 0;
