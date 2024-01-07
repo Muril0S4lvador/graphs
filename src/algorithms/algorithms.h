@@ -28,20 +28,20 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
 void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges);
 
 // Melhora uma rota já criada de acordo com o algoritmo de 2OPT
-void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, float *cost);
+void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost);
 
 // Melhora uma rota já criada de acordo com o algoritmo de busca de vizinho variável
-void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes);
+void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *demands, int *demandRoutes);
 
 // Melhora uma rota já criada de acordo com o algoritmo de descida em vizinhanças
-void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, float *costRoutes, float *demands, Graph *g);
+void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g);
 
 /* =============================================== APAGAR DEPOIS ================================================================== */
 
 void Test(Graph *g);
 
 // Printa todas as rotas
-void printsd(int **routes, int size, int *sizeR, int *demandR, float *cost);
+void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost);
 // void printsd(int **routes, int size, int *sizeR, int *demandR);
 
 #endif

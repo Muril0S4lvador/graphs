@@ -2,10 +2,10 @@
 #include "../algorithms/algorithms.h"
 
 Matrix matrix_construct(int v){
-    Matrix m = malloc(v * sizeof(int*));
+    Matrix m = malloc(v * sizeof(double*));
 
     for(int i = 0; i < v; i++)
-        m[i] = calloc(v, sizeof(int));
+        m[i] = calloc(v, sizeof(double));
 
     return m;
 }
@@ -28,7 +28,7 @@ char matrix_edge_exists(void *vm, int v1, int v2){
     return m[v1][v2] != 0;
 }
 
-float matrix_return_edge_weight(void *vm, int v1, int v2, int direction){
+double matrix_return_edge_weight(void *vm, int v1, int v2, int direction){
     if( direction == UNDIRECTED )if( v2 < v1 ) { int aux = v1; v1 = v2; v2 = aux; }
     Matrix m = vm;
     return m[v1][v2];
@@ -102,9 +102,9 @@ void matrix_return_edges_savings(void *vm, int sizeVertex, void *vk, void *vn){
     }
 }
 
-float matrix_return_route_cost(void *vm, int *route, int size_route){
+double matrix_return_route_cost(void *vm, int *route, int size_route){
     Matrix m = vm;
-    float cost = 0;
+    double cost = 0;
 
     for(int i = 0; i < size_route - 1; i++){
         cost += matrix_return_edge_weight(vm, route[i], route[i+1], UNDIRECTED);

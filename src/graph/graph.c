@@ -6,8 +6,8 @@
 struct Route{
     int size;
     void *route;
-    float cost;
-    float demand;
+    double cost;
+    int demand;
 };
 
 struct Graph{
@@ -38,16 +38,16 @@ void _trataString(char *string){
 void _read_EUC_2D(Graph *g, FILE *arq){
 
     int dimension = g->num_vertex;
-    float m[dimension][3];
+    double m[dimension][3];
 
     for(int i = 0; i < dimension; i++)
-        fscanf(arq, " %*d %f %f%*c", &m[i][0], &m[i][1]);
+        fscanf(arq, " %*d %lf %lf%*c", &m[i][0], &m[i][1]);
 
     fscanf(arq, "%*[^\n]\n"); // DEMAND_COORD_SECTION
 
     for(int i = 0; i < dimension; i++){
         
-        fscanf(arq, "%*c %f %*c", &m[i][2]);
+        fscanf(arq, "%*c %lf %*c", &m[i][2]);
         int x1 = m[i][0], y1 = m[i][1];
         Data *d = data_construct(x1, y1, m[i][2]);
         vector_push_back(g->vertices, d);
@@ -65,13 +65,13 @@ void _read_EUC_2D(Graph *g, FILE *arq){
 // Lê as arestas de uma instância pela forma EXPLICIT LOWER_ROW (Triângulo inferior de uma matriz)
 void _read_LOWER_ROW(Graph *g, FILE *arq){
     int dimension = g->num_vertex;
-    float demand;
+    int demand;
     weight weight;
 
     // Le EDGE_WEIGHT_SECTION
     for(int i = 0; i < dimension-1; i++){
         for(int j = i + 1; j < dimension; j++){
-            fscanf(arq, "%f", &weight);
+            fscanf(arq, "%lf", &weight);
             graph_add_edge(g, i, j, weight);
         }
     }
@@ -79,7 +79,7 @@ void _read_LOWER_ROW(Graph *g, FILE *arq){
     fscanf(arq, "%*c%*[^\n]\n"); // DEMAND_COORD_SECTION
 
     for(int i = 0; i < dimension; i++){
-        fscanf(arq, "%*c %f %*c", &demand);
+        fscanf(arq, "%*c %d %*c", &demand);
         Data *d = data_construct(i, i, demand);
         vector_push_back(g->vertices, d);
     }
@@ -149,21 +149,21 @@ int route_return_demand(Graph *g, int i){
     return (g) ? g->route[i].demand : -1;
 }
 
-float route_return_cost(Graph *g, int i){
+double route_return_cost(Graph *g, int i){
     return (g) ? g->route[i].cost : -1;
 }
 
-float route_return_total_cost(Graph *g){
+double route_return_total_cost(Graph *g){
     if(!g) return -1;
-    float cost = 0;
+    double cost = 0;
     for(int i = 0; i < g->trucks; i++)
         cost += g->route[i].cost;
     return cost;
 }
 
-float route_return_optimal_cost(Graph *g){
+double route_return_optimal_cost(Graph *g){
     if(!g) return -1;
-    float cost = -1;
+    double cost = -1;
     char value[7] = "value:", comment[strlen(g->comment) + 1], *token = NULL;
     memcpy(comment, g->comment, strlen(g->comment) + 1);
 
@@ -171,7 +171,7 @@ float route_return_optimal_cost(Graph *g){
     while( token ){
         if( !strcmp(token, value) ){
             token = strtok(NULL, " ");
-            sscanf(token, "%f", &cost);
+            sscanf(token, "%lf", &cost);
         }
         token = strtok(NULL, " ");
     }
@@ -268,15 +268,15 @@ Graph *graph_read_file(){
     for(int i = 0; i < vx; i++){
         for(int j = i + 1; j < vx; j++){
 
-            scanf("%f", &weight);
+            scanf("%lf", &weight);
             graph_add_edge(g2, i, j, weight);
         }
     }
     scanf("\nDEMAND\n");
-    float demand;
+    int demand;
     vector_push_back(g2->vertices, data_construct(0,0,0));
     for(int i = 1; i < vx; i++){
-        scanf("%f", &demand);
+        scanf("%d", &demand);
         Data *d = data_construct(i, i, demand);
         vector_push_back(g2->vertices, d);
     }
@@ -363,7 +363,7 @@ void graph_Clarke_Wright_serial_route(Graph *g){
     graph_Clarke_Wright_route(g, 0);
 }
 
-void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
+void graph_set_route(Graph *g, int idx, void *route, int size, int demand){
     if( !idx )
         g->route = malloc(sizeof(Route) * g->trucks);
     g->route[idx].route = malloc(sizeof(int) * size);
@@ -373,8 +373,8 @@ void graph_set_route(Graph *g, int idx, void *route, int size, float demand){
     g->route[idx].cost = matrix_return_route_cost(g->adj, route, size);
 }
 
-float *graph_return_demands(Graph *g){
-    float *demands = malloc(sizeof(float) * g->num_vertex);
+int *graph_return_demands(Graph *g){
+    int *demands = malloc(sizeof(int) * g->num_vertex);
     for(int i = 0; i < g->num_vertex; i++){
         Data *d = vector_get(g->vertices, i);
         demands[i] = data_return_demand(d);
@@ -418,7 +418,7 @@ void graph_Variable_Neighborhood_Search(Graph *g){
 }
 
 void graph_2opt(Graph *g){
-    float *cost = malloc(sizeof(float) * graph_return_trucks(g));
+    double *cost = malloc(sizeof(double) * graph_return_trucks(g));
     for(int i = 0; i < g->trucks; i++)
         cost[i] = route_return_cost(g, i);
 

@@ -23,18 +23,20 @@ void _reverse_route(int lo, int hi, int *route){
 }
 
 // Deleta vértice v de uma rota
-char _route_delete_vertex(int *route, int *size, int v, float *cost, void *graph_adj) {
+char _route_delete_vertex(int *route, int *size, int v, double *cost, void *graph_adj) {
     // Se encontrar vértice v na rota joga pro final e decrementa tamanho
 
     int i = 0;
     char control = 0;
-    float dim = 0;
     for( i; i < (*size - 1); i++ ){
         if( route[i] == v ){
             control = 1;
-            dim = matrix_return_edge_weight(graph_adj, v, route[i - 1], UNDIRECTED) +
-                  matrix_return_edge_weight(graph_adj, v, route[i + 1], UNDIRECTED);
-            (*cost) -= dim;
+            double dim = matrix_return_edge_weight(graph_adj, v, route[i - 1], UNDIRECTED) +
+                        matrix_return_edge_weight(graph_adj, v, route[i + 1], UNDIRECTED);
+
+            double add = matrix_return_edge_weight(graph_adj, route[i - 1], route[i + 1], UNDIRECTED);
+
+            (*cost) += add - dim;
             break;
         }
     }
@@ -50,14 +52,14 @@ char _route_delete_vertex(int *route, int *size, int v, float *cost, void *graph
 }
 
 // Adiciona vértice v no início de uma rota
-void _route_add_vertex(int *route, int *size, int v, float *cost, void *graph_adj) {
+void _route_add_vertex(int *route, int *size, int v, double *cost, void *graph_adj) {
     // Switch dos elementos para direita
     for(int i = (*size); i > 1; i--){
         route[i] = route[i - 1];
     }
     route[0] = 0;
     route[1] = v;  // Adiciona o novo elemento no índice 1
-    float add = matrix_return_edge_weight(graph_adj, v, route[0], UNDIRECTED) +
+    double add = matrix_return_edge_weight(graph_adj, v, route[0], UNDIRECTED) +
                 matrix_return_edge_weight(graph_adj, v, route[2], UNDIRECTED);
     (*cost) += add;
 
@@ -77,8 +79,8 @@ int **_copy_route_matrix(int **dest, int **src, int size, int *sizeRoute, int nu
 }
 
 // Retorna custo total de uma rota
-float _return_total_cost_route(int **routes, int *sizeRoute, int num_trucks, void *graph_adj){
-    float sum =0;
+double _return_total_cost_route(int **routes, int *sizeRoute, int num_trucks, void *graph_adj){
+    double sum =0;
     for(int i = 0; i < num_trucks; i++){
         sum += matrix_return_route_cost(graph_adj, routes[i], sizeRoute[i]);
     }
@@ -86,7 +88,7 @@ float _return_total_cost_route(int **routes, int *sizeRoute, int num_trucks, voi
 }
 
 // Tira um elemento de cada rota e coloca em outra aleatória (Não garante validez)
-void _random_Pertubation(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, float *cost, void *graph_adj){
+void _random_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, double *cost, void *graph_adj){
     srand(time(NULL));
 
     for(int i = 0; i < size; i++){
@@ -124,7 +126,7 @@ void _random_Pertubation(int **routes, int size, int *sizeRoutes, float *demands
 }
 
 // Retira um vértice de uma rota e coloca em outra que seja válida (não busca melhora)
-void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, float *cost, void *graph_adj){
+void _realocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, void *graph_adj){
 
     for(int i = 1; i < sizeRoutes[k] - 1; i++)
     {
@@ -140,11 +142,18 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands
             {
                 if( _route_delete_vertex(routes[k], &sizeRoutes[k], vertex, &cost[k], graph_adj) )
                 {
+
                     demandRoutes[j] += demands[vertex];
                     demandRoutes[k] -= demands[vertex];
                     idx_InRoute[vertex] = j;
                     
                     _route_add_vertex(routes[j], &sizeRoutes[j], vertex, &cost[j], graph_adj);
+                    double cCost = matrix_return_route_cost(graph_adj, routes[k], sizeRoutes[k]);
+                    if( cCost != cost[k] ){
+                        printf("ADD\n");
+                        printf("REAL : %f || STORED : %f\n", cCost, cost[k]);
+                        exit(-20);
+                    }
                     // printf("%d\n", i);
                     break;
                 }
@@ -154,15 +163,15 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, float *demands
 }
 
 // Calcula novo custo de rotas trocando dois vértices de lugar
-float _calculate_New_Cost(int *route, float currentCost, int new_v, int idx_old_v, int size, void *graph_adj){
+double _calculate_New_Cost(int *route, double currentCost, int new_v, int idx_old_v, int size, void *graph_adj){
     // Retira arestas ((v-1), v) e (v, (v+1)) e adiciona ((v-1, v')) e (v', v+1) no custo da rota
     
-    float newCost = currentCost;
+    double newCost = currentCost;
     int v1 = route[idx_old_v];
-    float DIM = (matrix_return_edge_weight(graph_adj, v1, route[idx_old_v - 1], UNDIRECTED) +
+    double DIM = (matrix_return_edge_weight(graph_adj, v1, route[idx_old_v - 1], UNDIRECTED) +
                 matrix_return_edge_weight(graph_adj, v1, route[idx_old_v + 1], UNDIRECTED));
 
-    float ADD = (matrix_return_edge_weight(graph_adj, new_v, route[idx_old_v - 1], UNDIRECTED) +
+    double ADD = (matrix_return_edge_weight(graph_adj, new_v, route[idx_old_v - 1], UNDIRECTED) +
                 matrix_return_edge_weight(graph_adj, new_v, route[idx_old_v + 1], UNDIRECTED));
     
     newCost = newCost - DIM + ADD;
@@ -175,7 +184,7 @@ float _calculate_New_Cost(int *route, float currentCost, int new_v, int idx_old_
         int v1 = route[i], v2 = route[i + 1];
         if( i == idx_old_v ) v1 = new_v;
         if( i + 1 == idx_old_v ) v2 = new_v;
-        float cost= matrix_return_edge_weight(graph_adj, v1, v2, UNDIRECTED);
+        double cost= matrix_return_edge_weight(graph_adj, v1, v2, UNDIRECTED);
         newCost += cost;
     }
     // printf(" %.3f\n", newCost);
@@ -184,13 +193,13 @@ float _calculate_New_Cost(int *route, float currentCost, int new_v, int idx_old_
 }
 
 // Retorna se a demanda trocando dois vértices é válida ou não
-char _checkDemand(int routeDemand, int old_v, int new_v, float *demands, int capacity){
+char _checkDemand(int routeDemand, int old_v, int new_v, int *demands, int capacity){
     return ( (routeDemand - demands[old_v] + demands[new_v]) <= capacity ) ? 1 : 0;
 }
 
 // Pega a melhor troca entre operadores de uma rota k e outra qualquer
-char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, float *cost, Graph *g){
-    float BestCost = cost[k]; // Melhor custo atual
+char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, Graph *g){
+    double BestCost = cost[k]; // Melhor custo atual
     int route_Bv2,  // Índice da rota do melhor vértice de troca achado 
         idx_Bestv1, // Índice do vértice de troca da rota k
         idx_Bv2;    // Índice do vértice de troca de outra rota
@@ -225,7 +234,7 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
                     || !_checkDemand(demandRoutes[j], routes[j][l], vertex, demands, capacity) ) continue;
 
                 // Calcula novo custo da rota K
-                float newCostK = _calculate_New_Cost(routes[k], cost[k], routes[j][l], i, sizeRoutes[k], graph_return_adjacencies(g));
+                double newCostK = _calculate_New_Cost(routes[k], cost[k], routes[j][l], i, sizeRoutes[k], graph_return_adjacencies(g));
 
                 // Se for o melhor achado, salva os vertces v1 e v2
                 if( newCostK < BestCost ){
@@ -269,8 +278,8 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
         // }
         // printf("\n");
 
-        float cc = matrix_return_route_cost(graph_return_adjacencies(g), routes[k], sizeRoutes[k]);
-        float c2 = matrix_return_route_cost(graph_return_adjacencies(g), routes[route_Bv2], sizeRoutes[route_Bv2]);
+        double cc = matrix_return_route_cost(graph_return_adjacencies(g), routes[k], sizeRoutes[k]);
+        double c2 = matrix_return_route_cost(graph_return_adjacencies(g), routes[route_Bv2], sizeRoutes[route_Bv2]);
 
         if( cc != cost[k] || c2 != cost[route_Bv2] ){
             printf("%.3f || %.3f xXx %.3f || %.3f\n", cc, cost[k], c2, cost[route_Bv2]);
@@ -282,7 +291,7 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, float *demands, int
 }
 
 // Aplica algoritmo 2OPT em todas as rotas
-void _melhorarRotas(int **routes, int size, int *sizeRoutes, float *cost,void *graph_adj){
+void _melhorarRotas(int **routes, int size, int *sizeRoutes, double *cost,void *graph_adj){
     for(int i = 0; i < size; i++)
         opt2_algorithm(routes[i], sizeRoutes[i], graph_adj, &cost[i]);
 }
@@ -358,10 +367,9 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
         size_act_route = 0,                                 // Tamanho da rota local
         capacity = graph_return_capacity(g),                // Capacidade do caminhão
         *act_route = malloc( sizeof(int) * num_vertex ),    // Vetor contendo rota atual
-        *gl_visited = calloc( num_vertex,  sizeof(int) );   // Vetor bool de vértices ja inseridos em alguma rota
-
-    float *demands = graph_return_demands(g),   // Vetor de demanda dos vértices
-           demand_act_route = 0;               // Demanda da rota atual
+        *gl_visited = calloc( num_vertex,  sizeof(int) ),   // Vetor bool de vértices ja inseridos em alguma rota
+        *demands = graph_return_demands(g),                 // Vetor de demanda dos vértices
+        demand_act_route = 0;                               // Demanda da rota atual
 
     char control = 0;   // Controle se a rota foi criada ou nao
 
@@ -461,16 +469,15 @@ void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int siz
 
     qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);   // Ordena o vetor de economias decrescente
 
-   int  num_vertex = graph_return_num_vertex(g),       // Número de vértices no grafo
-        num_trucks = graph_return_trucks(g),           // Número de caminhões no grafo
-        **route = malloc(sizeof(int*) * num_trucks),   // Matriz de rotas
-        *visited = calloc( num_vertex, sizeof(int) ),  // Vetor bool se vértice foi visitado ou não
-        noVisiteds = num_vertex - 1,                   // Número de vértices não visitados
-        *size = malloc(sizeof(int) * num_trucks),      // Tamanho de cada rota
-        capacity = graph_return_capacity(g);           // Capacidade dos caminhões
-
-    float *demands = graph_return_demands(g),                         // Vetor de demanda de todos os vertices
-          *demand_route = malloc(sizeof(float) * num_trucks);         // vetor de demanda das rotas
+   int  num_vertex = graph_return_num_vertex(g),                // Número de vértices no grafo
+        num_trucks = graph_return_trucks(g),                    // Número de caminhões no grafo
+        **route = malloc(sizeof(int*) * num_trucks),            // Matriz de rotas
+        *visited = calloc( num_vertex, sizeof(int) ),           // Vetor bool se vértice foi visitado ou não
+        noVisiteds = num_vertex - 1,                            // Número de vértices não visitados
+        *size = malloc(sizeof(int) * num_trucks),               // Tamanho de cada rota
+        capacity = graph_return_capacity(g),                   // Capacidade dos caminhões
+        *demands = graph_return_demands(g),                    // Vetor de demanda de todos os vertices
+        *demand_route = malloc(sizeof(int) * num_trucks);   // vetor de demanda das rotas
 
     char imp;   // Variável para controle de adição nas rotas
 
@@ -591,7 +598,7 @@ void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int siz
     free(route);
 }
 
-void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, float *cost){
+void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
     char improved = 1;
 
     while( improved ){
@@ -638,7 +645,7 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, float *cost){
     return s'
 */
 
-void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, float *costRoutes, float *demands, Graph *g){
+void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g){
     int num_trucks = graph_return_trucks(g),  // Número de rotas/caminhões
         capacity = graph_return_capacity(g),  // Capacidade da rota/caminhão
         k = 0;                                // Rota a ser olhada
@@ -651,7 +658,7 @@ void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRou
     }
 }
 
-void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float *demands, int *demandRoutes){
+void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *demands, int *demandRoutes){
 
     int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),          // Número de rotas/caminhões
         noImp = 0,                                                                             // Quantidade de vezes que não houve melhora da solução
@@ -661,9 +668,9 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
         *best_demandRoutes = malloc(sizeof(int) * num_trucks),                                 // Demanda das rotas na melhor solução achada
         *idx_InRoutes =      malloc(sizeof(int) * num_vertex);                                 // Vetor que salva o índice da rota dos vértices
 
-    float currentCost = _return_total_cost_route(routes, sizeRoutes, num_trucks, graph_return_adjacencies(g)),  // Variável com o custo da solução atual
-          newCost = 0,                                                                                          // Variável com o custo da nova solução encontrada
-          *costRoutes = malloc(sizeof(float) * num_trucks);                                                     // Vetor com custo de todas as rotas
+    double currentCost = _return_total_cost_route(routes, sizeRoutes, num_trucks, graph_return_adjacencies(g)),  // Variável com o custo da solução atual
+           newCost = 0,                                                                                          // Variável com o custo da nova solução encontrada
+          *costRoutes = malloc(sizeof(double) * num_trucks);                                                     // Vetor com custo de todas as rotas
 
     char possible;  // Variável de controle se as rotas são possíveis ou não
 
@@ -692,24 +699,54 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, float
             int *test_sizeR       = malloc(sizeof(int) * num_trucks),   // Tamanho das rotas da nova solução encontrada
                 *test_demandR     = malloc(sizeof(int) * num_trucks),   // Demanda das rotas da nova solução encontrada
                 *test_idxInroutes = malloc(sizeof(int) * num_vertex);   // Vetor que salva o índice da rota dos vértices da nova solução encontrada
-            float *test_costR     = malloc(sizeof(float) * num_trucks); // Vetor com custo de todas as rotas da nova solução encontrada
+            double *test_costR     = malloc(sizeof(double) * num_trucks); // Vetor com custo de todas as rotas da nova solução encontrada
 
             memcpy(test_sizeR,       best_sizeRoutes,   sizeof(int) * num_trucks);  // Copia tamanhos da melhor rota atual para modificação
             memcpy(test_demandR,     best_demandRoutes, sizeof(int) * num_trucks);  // Copia demandas da melhor rota atual para modificação
             memcpy(test_idxInroutes, idx_InRoutes,      sizeof(int) * num_vertex);  // Copia vetor idx_InRoute para modificação
-            memcpy(test_costR      , costRoutes,        sizeof(float) * num_trucks);// Copia vetor costRoutes para modificação
+            memcpy(test_costR      , costRoutes,        sizeof(double) * num_trucks);// Copia vetor costRoutes para modificação
 
             int **solutionTest; // Matriz de rotas com a melhor solução para manipulação 
             solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
             //         printf("\nREALOCATE\n");
             _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g), test_costR, graph_return_adjacencies(g)); // Move itens nas rotas
+            
+            double cost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
+            double sum_cost = 0;
+            for (int i = 0; i < num_trucks; i++)
+                sum_cost += test_costR[i];
+            if( cost !=  sum_cost){
+                printf("REALOCATE OPERATOR\n");
+                printf("%f || %f\n", cost, sum_cost);
+                exit(-19);
+            }
 
             //         printf("\nVND\n");
             variable_Neighborhood_Descent(solutionTest, test_sizeR, test_idxInroutes, test_demandR, test_costR, demands, g);
 
+            cost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
+            sum_cost = 0;
+            for (int i = 0; i < num_trucks; i++)
+                sum_cost += test_costR[i];
+            if( cost !=  sum_cost){
+                printf("VNS\n");
+                printf("%.3f || %.3f\n", cost, sum_cost);
+                exit(-19);
+            }
+
             //         printf("\n2OPT\n");
             _melhorarRotas(solutionTest, num_trucks, test_sizeR, test_costR, graph_return_adjacencies(g)); // Melhora custo intra-rotas
+
+            cost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
+            sum_cost = 0;
+            for (int i = 0; i < num_trucks; i++)
+                sum_cost += test_costR[i];
+            if( (int)(cost -  sum_cost)){
+                printf("MELHORA ROTAS\n");
+                printf("%f || %f\n", cost, sum_cost);
+                exit(-19);
+            }
             
             newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
 
@@ -794,10 +831,10 @@ void Test(Graph *g){
         *sizeRoutes = malloc(sizeof(int) * num_trucks),
         *demandRoutes = malloc(sizeof(int) * num_trucks),
         *idx_InRoutes = malloc(sizeof(int) * num_vertex),
-        **routes = malloc(sizeof(int*) * num_trucks);
-    
-    float *demands = graph_return_demands(g),
-          *costRoutes = malloc(sizeof(float) * num_trucks);
+        **routes = malloc(sizeof(int*) * num_trucks),
+        *demands = graph_return_demands(g);
+
+    double *costRoutes = malloc(sizeof(double) * num_trucks);
 
     for(int i = 0; i < num_trucks; i++)
     {
@@ -820,10 +857,10 @@ void Test(Graph *g){
     // Independente se melhorar ou não, passa para a próxima rota
     while( k < num_trucks )
     {
-        float custoK = costRoutes[k];
+        double custoK = costRoutes[k];
         
         if( _swap_Operator(routes, num_trucks, sizeRoutes, demands, demandRoutes, idx_InRoutes, k, capacity, costRoutes, g) ){
-            float newCostK = costRoutes[k];
+            double newCostK = costRoutes[k];
             printf("It %d: New cost[%d] -> %.3f => %.3f\n", x, k, custoK, newCostK);
             // if(x > 5) break;
             // k = 0;
@@ -836,7 +873,7 @@ void Test(Graph *g){
     printsd(routes, num_trucks, sizeRoutes, demandRoutes, costRoutes);
 }
 
-void printsd(int **routes, int size, int *sizeR, int *demandR, float *cost){
+void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost){
     for(int i = 0; i < size; i++){
         printf("\nRoute %d (%d|%.3f): ", i, demandR[i], cost[i]);
         for(int j = 0; j < sizeR[i]; j++)

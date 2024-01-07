@@ -18,6 +18,7 @@ int main( int argc, char* argv[] ){
     float sum = 0;
     for(int i = 0; i < size; i++){
         // int *ha = malloc(sizeof(int) * route_return_size(g, i));
+        break;
         int *ha;
         ha = route_return_route(g, i);
         float cost = 0;

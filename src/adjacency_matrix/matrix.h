@@ -10,8 +10,8 @@
 #define DIRECTED 0
 #define WEIGHT_DEFAULT 1
 
-typedef float weight;
-typedef float** Matrix;
+typedef double weight;
+typedef double** Matrix;
 
 // Constrói uma matriz VxV
 Matrix matrix_construct(int v);
@@ -26,7 +26,7 @@ void matrix_remove_edge(void *vm, int v1, int v2);
 char matrix_edge_exists(void *vm, int v1, int v2);
 
 // Retorna peso da aresta (v1, v2)
-float matrix_return_edge_weight(void *vm, int v1, int v2, int direction);
+double matrix_return_edge_weight(void *vm, int v1, int v2, int direction);
 
 // Imprime a matriz de adjacências no terminal
 void matrix_print(void *vm, int size);
@@ -41,7 +41,7 @@ void matrix_return_edges(void *vm, int sizeVertex, void *vk, int direction);
 void matrix_return_edges_savings(void *vm, int sizeVertex, void *vk, void *vn);
 
 // Retorna o custo de uma rota
-float matrix_return_route_cost(void *vm, int *route, int size_route);
+double matrix_return_route_cost(void *vm, int *route, int size_route);
 
 // Desaloca a matriz de adjacências da memória
 void matrix_destroy(void *vm, int size);
