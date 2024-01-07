@@ -190,26 +190,9 @@ char _checkDemand(int routeDemand, int old_v, int new_v, int *demands, int capac
     return ( (routeDemand - demands[old_v] + demands[new_v]) <= capacity ) ? 1 : 0;
 }
 
-// Pega a melhor troca entre operadores de uma rota k e outra qualquer
+// Pega a primeira melhoria de troca entre operadores de uma rota k e outra qualquer
 char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, Graph *g){
-    double BestCost = cost[k]; // Melhor custo atual
-    int route_Bv2,  // Índice da rota do melhor vértice de troca achado 
-        idx_Bestv1, // Índice do vértice de troca da rota k
-        idx_Bv2;    // Índice do vértice de troca de outra rota
-    char control = 0; // Variável de controle se achou ou não uma solução melhor do que a atual
-
-// Swap Operator:
-    // Para cada vértice vK de uma rota k:
-        // Para cada vértice v' que não está na rota:
-            // IF se a demanda da rota K aceita um swap(vK, v'):
-                // calcula custo da rota houvesse swap:
-                // IF custoNovo < custoAtual:
-                    // Salva solução, e parte pra próxima combinação
-
-    // Faz swap(vk, v') no melhor vk e v' achados
-
-// Percorre a rota e, para cada elemento da rota, verifica
-// se substituí-lo melhorará no custo da rota, se sim, pegamos ele
+    double BestCost = _return_total_cost_route(routes, sizeRoutes, size, graph_return_adjacencies(g)); // Melhor custo atual
 
     // Para cada elemento da rota k
     for(int i = 1; i < sizeRoutes[k] - 1; i++)
@@ -228,57 +211,21 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *
 
                 // Calcula novo custo da rota K
                 double newCostK = _calculate_New_Cost(routes[k], cost[k], routes[j][l], i, sizeRoutes[k], graph_return_adjacencies(g));
+                newCostK += BestCost - cost[k];
 
-                // Se for o melhor achado, salva os vertces v1 e v2
+                // Se for o primeiro achado, salva os vertces v1 e v2
                 if( newCostK < BestCost ){
-                    BestCost = newCostK;
-                    idx_Bestv1 = i;
-                    idx_Bv2 = l;
-                    route_Bv2 = j;
-                    control = 1;
-                    j = size + 1;
-                    i = sizeRoutes[k] + 1;
-                    break;
+                    demandRoutes[j] += ( demands[routes[k][i]] - demands[routes[j][l]] );
+                    demandRoutes[k]         += ( demands[routes[j][l]] - demands[routes[k][i]] );
+                    int v1 = routes[k][i], v2 = routes[j][l];
+                    cost[k] = _calculate_New_Cost(routes[k], cost[k], v2, i, sizeRoutes[k], graph_return_adjacencies(g));
+                    cost[j] = _calculate_New_Cost(routes[j], cost[j], v1, l, sizeRoutes[j], graph_return_adjacencies(g));
+                    routes[k][i] = v2;
+                    routes[j][l] = v1;
+                    return 1;
                 }
             }
         }
-    }
-
-    // Se foi encontrado um melhor vértice para um swap, então faça
-    if( control )
-    {
-        demandRoutes[route_Bv2] += ( demands[routes[k][idx_Bestv1]] - demands[routes[route_Bv2][idx_Bv2]] );
-        demandRoutes[k]         += ( demands[routes[route_Bv2][idx_Bv2]] - demands[routes[k][idx_Bestv1]] );
-        int v1 = routes[k][idx_Bestv1], v2 = routes[route_Bv2][idx_Bv2];
-        cost[k] = _calculate_New_Cost(routes[k], cost[k], v2, idx_Bestv1, sizeRoutes[k], graph_return_adjacencies(g));
-        cost[route_Bv2] = _calculate_New_Cost(routes[route_Bv2], cost[route_Bv2], v1, idx_Bv2, sizeRoutes[route_Bv2], graph_return_adjacencies(g));
-        routes[k][idx_Bestv1] = v2;
-        routes[route_Bv2][idx_Bv2] = v1;
-
-        // printf("\nROUTE %d\n", k);
-        // for(int i = 0; i < sizeRoutes[k]; i++){
-        //     printf("%d ", routes[k][i]);
-        //     if(i < sizeRoutes[k] - 1){
-        //         printf("-(%.3f)> ", matrix_return_edge_weight(graph_return_adjacencies(g), routes[k][i], routes[k][i+1], UNDIRECTED));
-        //     }
-        // }
-        // printf("\nROUTE %d\n", route_Bv2);
-        // for(int i = 0; i < sizeRoutes[route_Bv2]; i++){
-        //     printf("%d ", routes[route_Bv2][i]);
-        //     if(i < sizeRoutes[route_Bv2] - 1){
-        //         printf("-(%.3f)> ", matrix_return_edge_weight(graph_return_adjacencies(g), routes[route_Bv2][i], routes[route_Bv2][i+1], UNDIRECTED));
-        //     }
-        // }
-        // printf("\n");
-
-        double cc = matrix_return_route_cost(graph_return_adjacencies(g), routes[k], sizeRoutes[k]);
-        double c2 = matrix_return_route_cost(graph_return_adjacencies(g), routes[route_Bv2], sizeRoutes[route_Bv2]);
-
-        if( cc != cost[k] || c2 != cost[route_Bv2] ){
-            printf("%.3f || %.3f xXx %.3f || %.3f\n", cc, cost[k], c2, cost[route_Bv2]);
-        }
-        
-        return 1;
     }
     return 0;
 }
@@ -684,7 +631,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             // printf("\nSolução Inicial(%.3f):\n", currentCost);
             // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
 
-    while( noImp < 2000000 )
+    while( noImp < 2000 )
     {
         k = 0;
         while( k < num_trucks ){
