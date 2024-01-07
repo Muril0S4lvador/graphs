@@ -6,7 +6,7 @@ root_folder="entradas"
 # Nome do programa a ser executado
 program="./main"
 
-output_file="Results_a.csv"
+output_file="Results.csv"
 
 # Cria um arquivo vazio para as saídas consolidadas
 > "$output_file"
@@ -18,7 +18,7 @@ echo "Diretório atual: $(pwd)"
 
 
 # Loop para percorrer as pastas "a," "b," e "e"
-for folder in "$root_folder"/a; do
+for folder in "$root_folder"/{a,b,e,f}; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
         echo "Achado $folder/"

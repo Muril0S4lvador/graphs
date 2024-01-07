@@ -61,7 +61,9 @@ void _route_add_vertex(int *route, int *size, int v, double *cost, void *graph_a
     route[1] = v;  // Adiciona o novo elemento no índice 1
     double add = matrix_return_edge_weight(graph_adj, v, route[0], UNDIRECTED) +
                 matrix_return_edge_weight(graph_adj, v, route[2], UNDIRECTED);
-    (*cost) += add;
+
+    double dim = matrix_return_edge_weight(graph_adj, route[0], route[2], UNDIRECTED);
+    (*cost) += add - dim;
 
     (*size)++;
 }
@@ -142,20 +144,11 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, 
             {
                 if( _route_delete_vertex(routes[k], &sizeRoutes[k], vertex, &cost[k], graph_adj) )
                 {
-
                     demandRoutes[j] += demands[vertex];
                     demandRoutes[k] -= demands[vertex];
                     idx_InRoute[vertex] = j;
                     
                     _route_add_vertex(routes[j], &sizeRoutes[j], vertex, &cost[j], graph_adj);
-                    double cCost = matrix_return_route_cost(graph_adj, routes[k], sizeRoutes[k]);
-                    if( cCost != cost[k] ){
-                        printf("ADD\n");
-                        printf("REAL : %f || STORED : %f\n", cCost, cost[k]);
-                        exit(-20);
-                    }
-                    // printf("%d\n", i);
-                    break;
                 }
             }
         }
@@ -299,7 +292,7 @@ void _melhorarRotas(int **routes, int size, int *sizeRoutes, double *cost,void *
 // Retorna se as rotas possuem demandas válidas ou não
 char _checkCapacity(int *routeDemands, int size, int capacity){
     for(int i = 0; i < size; i++)
-        if( routeDemands[i] > capacity )
+        if( routeDemands[i] > capacity || routeDemands[i] < 1 )
             return 0;
     return 1;
 }
@@ -691,7 +684,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             // printf("\nSolução Inicial(%.3f):\n", currentCost);
             // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
 
-    while( noImp < 2000 )
+    while( noImp < 2000000 )
     {
         k = 0;
         while( k < num_trucks ){
@@ -712,42 +705,12 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             //         printf("\nREALOCATE\n");
             _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g), test_costR, graph_return_adjacencies(g)); // Move itens nas rotas
             
-            double cost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
-            double sum_cost = 0;
-            for (int i = 0; i < num_trucks; i++)
-                sum_cost += test_costR[i];
-            if( cost !=  sum_cost){
-                printf("REALOCATE OPERATOR\n");
-                printf("%f || %f\n", cost, sum_cost);
-                exit(-19);
-            }
-
             //         printf("\nVND\n");
             variable_Neighborhood_Descent(solutionTest, test_sizeR, test_idxInroutes, test_demandR, test_costR, demands, g);
-
-            cost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
-            sum_cost = 0;
-            for (int i = 0; i < num_trucks; i++)
-                sum_cost += test_costR[i];
-            if( cost !=  sum_cost){
-                printf("VNS\n");
-                printf("%.3f || %.3f\n", cost, sum_cost);
-                exit(-19);
-            }
 
             //         printf("\n2OPT\n");
             _melhorarRotas(solutionTest, num_trucks, test_sizeR, test_costR, graph_return_adjacencies(g)); // Melhora custo intra-rotas
 
-            cost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
-            sum_cost = 0;
-            for (int i = 0; i < num_trucks; i++)
-                sum_cost += test_costR[i];
-            if( (int)(cost -  sum_cost)){
-                printf("MELHORA ROTAS\n");
-                printf("%f || %f\n", cost, sum_cost);
-                exit(-19);
-            }
-            
             newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
 
                 // printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
