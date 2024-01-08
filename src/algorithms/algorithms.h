@@ -41,7 +41,7 @@ void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRou
 void Test(Graph *g);
 
 // Printa todas as rotas
-void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost);
+void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands);
 // void printsd(int **routes, int size, int *sizeR, int *demandR);
 
 #endif

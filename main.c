@@ -45,10 +45,10 @@ int main( int argc, char* argv[] ){
         printf("%d : %.3f || %d\n", i, cost, d);
 
     }
-    printf("%.3f\n", sum);
+    printf("%.3f\n\n", sum);
 
     for(int i = 0; i < graph_return_num_vertex(g); i++){
-        // printf("%02d : %01d\n", i, v[i]);
+        // printf("%02d : %01d\n", i, demands[i]);
         // printf("%d : %f\n", i, matrix_return_edge_weight(graph_return_adjacencies(g), 0, i, UNDIRECTED));
     }
     

@@ -628,8 +628,8 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     }
 
 
-            // printf("\nSolução Inicial(%.3f):\n", currentCost);
-            // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes);
+            printf("\nSolução Inicial(%.3f):\n", currentCost);
+            printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
 
     while( noImp < 2000 )
     {
@@ -760,7 +760,7 @@ void Test(Graph *g){
             idx_InRoutes[routes[i][j]] = i;
 
     printf("\nAntes do while:\n");
-    printsd(routes, num_trucks, sizeRoutes, demandRoutes, costRoutes);
+    printsd(routes, num_trucks, sizeRoutes, demandRoutes, costRoutes, demands);
     
     int k = 0;
     int x = 0;
@@ -780,15 +780,16 @@ void Test(Graph *g){
         x++;
     }
     printf("\nDepois do while:\n");
-    printsd(routes, num_trucks, sizeRoutes, demandRoutes, costRoutes);
+    printsd(routes, num_trucks, sizeRoutes, demandRoutes, costRoutes, demands);
 }
 
-void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost){
+void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands){
     for(int i = 0; i < size; i++){
         printf("\nRoute %d (%d|%.3f): ", i, demandR[i], cost[i]);
         for(int j = 0; j < sizeR[i]; j++)
         {
             printf("%d ", routes[i][j]);
+            // printf("%d ", demands[routes[i][j]]);
         }
     }
     printf("\n");
