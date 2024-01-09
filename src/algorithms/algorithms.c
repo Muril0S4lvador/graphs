@@ -135,8 +135,7 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, 
         int vertex = routes[k][i];
         for(int j = 0; j < size; j++)
         {
-            if( j == k ) j++;      // Garante que j não seja a vizinhança que estamos olhando
-            if( j >= size ) break; // Garante que j seja válido
+            if( j == k ) continue;      // Garante que j não seja a vizinhança que estamos olhando
         
             // Se a rota admitir o novo vértice respeitando a capacidade, adicionamos ele nela
             // e eliminamos da outra, independente se há piora da solução
@@ -658,7 +657,10 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             //         printf("\n2OPT\n");
             _melhorarRotas(solutionTest, num_trucks, test_sizeR, test_costR, graph_return_adjacencies(g)); // Melhora custo intra-rotas
 
-            newCost = _return_total_cost_route(solutionTest, test_sizeR, num_trucks, graph_return_adjacencies(g));
+            newCost = 0;
+            for(int i = 0; i < num_trucks; i++){
+                newCost += test_costR[i];
+            }
 
                 // printf("\nTest encontrado(%.3f | %.3f):\n", newCost, currentCost);
                 // printsd(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR);
