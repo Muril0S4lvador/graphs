@@ -166,7 +166,7 @@ double _calculate_New_Cost(int *route, double currentCost, int new_v, int idx_ol
                 matrix_return_edge_weight(graph_adj, new_v, route[idx_old_v + 1], UNDIRECTED));
     
     newCost = newCost - DIM + ADD;
-    // printf("%.3f ::", newCost);
+    printf("%.3f ::", newCost);
 
     // return newCost;
 
@@ -178,7 +178,7 @@ double _calculate_New_Cost(int *route, double currentCost, int new_v, int idx_ol
         double cost= matrix_return_edge_weight(graph_adj, v1, v2, UNDIRECTED);
         newCost += cost;
     }
-    // printf(" %.3f\n", newCost);
+    printf(" %.3f\n", newCost);
 
     return newCost;
 }
@@ -192,7 +192,7 @@ char _checkDemand(int routeDemand, int old_v, int new_v, int *demands, int capac
 
 // Pega a primeira melhoria de troca entre operadores de uma rota k e outra qualquer
 char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, Graph *g){
-    double BestCost = _return_total_cost_route(routes, sizeRoutes, size, graph_return_adjacencies(g)); // Melhor custo atual
+    double BestCost = cost[k]; // Melhor custo atual
     char control = 0;
     int idx_route, idx_k, idx_Inroute;
 
@@ -217,8 +217,6 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *
 
                 // Calcula novo custo da rota K
                 double newCostK = _calculate_New_Cost(routes[k], cost[k], routes[j][l], i, sizeRoutes[k], graph_return_adjacencies(g));
-                newCostK += _calculate_New_Cost(routes[j], cost[j], routes[k][i], l, sizeRoutes[j], graph_return_adjacencies(g));
-                newCostK += BestCost - (cost[k] + cost[j]);
 
                 // printf("%d %d %d : %lf < %lf\n", i, j, l, newCostK, BestCost);
                 // if( i == 1 && j == 0 && l == 1 && noimp == 7 ) sleep(10);
@@ -239,6 +237,7 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *
                     // printf("Best: %d\n", j);
                     
                     control = 1;
+                    // printf("Best: %lf | New: %lf\n", BestCost, newCostK);
                     BestCost = newCostK;
                     // return 1;
                 }
@@ -247,7 +246,7 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *
     }
 
     if( control ){
-
+        // exit(-9);
         // double custo = 0;
         // for(int i = 0; i < size; i++) custo += cost[i];
 
@@ -631,18 +630,80 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
 */
 
 void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g){
-    int num_trucks = graph_return_trucks(g),  // Número de rotas/caminhões
-        capacity = graph_return_capacity(g),  // Capacidade da rota/caminhão
-        k = 0;                                // Rota a ser olhada
 
-        // printf("ENTROU\n");
-        // sleep(1);
-    while( k < num_trucks ){
-        // Se houver melhora retorna 1    
-        if(_swap_Operator(routes, num_trucks, sizeRoutes, demands, demandRoutes, idx_InRoutes, k, capacity, costRoutes, g)) k++;
-        else k++;
+        int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),      // Número de rotas/caminhões
+        capacity = graph_return_capacity(g),                                                   // Capacidade da rota/caminhão
+        k = 0,                                                                                 // Rota atual a ser manipulada
+        **bestSolution = _copy_route_matrix(NULL, routes, num_trucks, sizeRoutes, num_vertex), // Melhor solução achada
+        *best_sizeRoutes =   malloc(sizeof(int) * num_trucks),                                 // Tamanho das rotas na melhor solução achada
+        *best_demandRoutes = malloc(sizeof(int) * num_trucks);                                 // Demanda das rotas na melhor solução achada
+
+    double currentCost = _return_total_cost_route(routes, sizeRoutes, num_trucks, graph_return_adjacencies(g)),  // Variável com o custo da solução atual
+           newCost = 0;                                                                                          // Variável com o custo da nova solução encontrada
+
+    // Inicializa variáveis
+    memcpy(best_sizeRoutes, sizeRoutes, sizeof(int) * num_trucks);      // Salva tamanhos da rota inicial (Melhor solução encontrada)
+    memcpy(best_demandRoutes, demandRoutes, sizeof(int) * num_trucks);  // Salva demandas da rota inicial (Melhor solução encontrada)
+
+    while( k < num_trucks )
+    {
+        int *test_sizeR       = malloc(sizeof(int) * num_trucks),   // Tamanho das rotas da nova solução encontrada
+            *test_demandR     = malloc(sizeof(int) * num_trucks);   // Demanda das rotas da nova solução encontrada
+        double *test_costR     = malloc(sizeof(double) * num_trucks); // Vetor com custo de todas as rotas da nova solução encontrada
+
+        memcpy(test_sizeR,       best_sizeRoutes,   sizeof(int) * num_trucks);  // Copia tamanhos da melhor rota atual para modificação
+        memcpy(test_demandR,     best_demandRoutes, sizeof(int) * num_trucks);  // Copia demandas da melhor rota atual para modificação
+        memcpy(test_costR      , costRoutes,        sizeof(double) * num_trucks);// Copia vetor costRoutes para modificação
+
+        int **solutionTest; // Matriz de rotas com a melhor solução para manipulação 
+        solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
+
+        (void)_swap_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, NULL, k, capacity, test_costR, g);
+        
+        newCost = 0;
+        for(int i = 0; i < num_trucks; i++){
+            newCost += test_costR[i];
+        }
+
+        if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
+            k = 0;
+
+            _destroyRoutesMatrix(bestSolution, num_trucks);
+            bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR, num_vertex);
+            currentCost = newCost;
+
+            free(best_sizeRoutes);
+            free(best_demandRoutes);
+            free(costRoutes);
+
+            best_sizeRoutes   = test_sizeR;
+            best_demandRoutes = test_demandR;
+            costRoutes        = test_costR;
+
+            test_sizeR = NULL;
+            test_demandR = NULL;
+            test_costR = NULL;
+
+        } else {
+            k++;
+        }
+        
+        // Se houver melhora retorna 1 
+        // if(_swap_Operator(routes, num_trucks, sizeRoutes, demands, demandRoutes, idx_InRoutes, k, capacity, costRoutes, g)) k++;
+        // else k++;
     }
-        // printf("SAIU\n");
+
+    graph_route_destroy(g);
+    for(int i = 0; i < num_trucks; i++){
+        graph_set_route(g, i, bestSolution[i], best_sizeRoutes[i], best_demandRoutes[i]);
+    }
+
+    free(best_sizeRoutes);
+    free(best_demandRoutes);
+    free(demands);
+    free(costRoutes);
+    _destroyRoutesMatrix(bestSolution, num_trucks);
+
 }
 
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *demands, int *demandRoutes){
@@ -707,7 +768,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
                 // printsd(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR);
 
             // Se melhorou o custo, pegamos a solução
-            if( newCost < currentCost && _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g)) ){
+            if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
                 k = 0;
 
                 _destroyRoutesMatrix(bestSolution, num_trucks);
