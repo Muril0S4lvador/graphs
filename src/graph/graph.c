@@ -153,7 +153,7 @@ double route_return_cost(Graph *g, int i){
     return (g) ? g->route[i].cost : -1;
 }
 
-double route_return_total_cost(Graph *g){
+double graph_return_total_cost(Graph *g){
     if(!g) return -1;
     double cost = 0;
     for(int i = 0; i < g->trucks; i++)
@@ -161,7 +161,7 @@ double route_return_total_cost(Graph *g){
     return cost;
 }
 
-double route_return_optimal_cost(Graph *g){
+double graph_return_optimal_cost(Graph *g){
     if(!g) return -1;
     double cost = -1;
     char value[7] = "value:", comment[strlen(g->comment) + 1], *token = NULL;
@@ -373,6 +373,14 @@ void graph_set_route(Graph *g, int idx, void *route, int size, int demand){
     g->route[idx].cost = matrix_return_route_cost(g->adj, route, size);
 }
 
+void route_set_demand(Graph *g, int idx, int demand){
+    g->route[idx].demand = demand;
+}
+
+void route_set_cost(Graph *g, int idx, double cost){
+    g->route[idx].cost = cost;
+}
+
 int *graph_return_demands(Graph *g){
     int *demands = malloc(sizeof(int) * g->num_vertex);
     for(int i = 0; i < g->num_vertex; i++){
@@ -451,4 +459,99 @@ void graph_destroy(Graph *g){
     free(g->name);
     free(g->comment);
     free(g);
+}
+
+
+
+
+
+
+
+
+// void graphPossibilita(Graph *g){
+//     // int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g
+
+//     if( !graph_has_route(g) ){
+//         printf("Necessário a construção de uma solução inicial.\n");
+//         return;
+//     }
+    
+//     int **routes = malloc(sizeof(int*) * g->trucks),
+//         *sizeR = malloc(sizeof(int) * g->trucks),
+//         *demandsR = malloc(sizeof(int) * g->trucks),
+//         *demands = graph_return_demands(g);
+//     double *cost = malloc(sizeof(double) * g->trucks);
+//     for(int i = 0; i < g->trucks; i++){
+//         routes[i] = route_return_route(g, i);
+//         sizeR[i] = route_return_size(g, i);
+//         demandsR[i] = route_return_demand(g, i);
+//         cost[i] = route_return_cost(g, i);
+//     }
+    
+//     possibilitaRotas(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
+
+//     free(routes);
+//     free(sizeR);
+//     free(demandsR);
+//     free(cost);
+//     free(demands);
+// }
+
+// void graphPossibilitaRealoc(Graph *g){
+//     // int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g
+
+//     if( !graph_has_route(g) ){
+//         printf("Necessário a construção de uma solução inicial.\n");
+//         return;
+//     }
+    
+//     int **routes = malloc(sizeof(int*) * g->trucks),
+//         *sizeR = malloc(sizeof(int) * g->trucks),
+//         *demandsR = malloc(sizeof(int) * g->trucks),
+//         *demands = graph_return_demands(g);
+//     double *cost = malloc(sizeof(double) * g->trucks);
+//     for(int i = 0; i < g->trucks; i++){
+//         routes[i] = route_return_route(g, i);
+//         sizeR[i] = route_return_size(g, i);
+//         demandsR[i] = route_return_demand(g, i);
+//         cost[i] = route_return_cost(g, i);
+//     }
+    
+//     possibilitaRotasRealoc(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
+
+//     free(routes);
+//     free(sizeR);
+//     free(demandsR);
+//     free(cost);
+//     free(demands);
+// }
+
+void graph_enables_routes(Graph *g){
+
+    if( !graph_has_route(g) ){
+        printf("Necessário a construção de uma solução inicial.\n");
+        return;
+    }
+    
+    int **routes = malloc(sizeof(int*) * g->trucks),
+        *sizeR = malloc(sizeof(int) * g->trucks),
+        *demandsR = malloc(sizeof(int) * g->trucks),
+        *demands = graph_return_demands(g);
+    double *cost = malloc(sizeof(double) * g->trucks);
+    for(int i = 0; i < g->trucks; i++){
+        routes[i] = route_return_route(g, i);
+        sizeR[i] = route_return_size(g, i);
+        demandsR[i] = route_return_demand(g, i);
+        cost[i] = route_return_cost(g, i);
+    }
+    
+    enables_route_swap(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
+    enables_route_reallocate(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
+
+    free(routes);
+    free(sizeR);
+    free(demandsR);
+    free(cost);
+    free(demands);
+
 }

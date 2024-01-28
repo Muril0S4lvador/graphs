@@ -55,10 +55,10 @@ int route_return_demand(Graph *g, int i);
 double route_return_cost(Graph *g, int i);
 
 // Retorna o custo total das rotas de um grafo
-double route_return_total_cost(Graph *g);
+double graph_return_total_cost(Graph *g);
 
 // Retorna o custo ótimo da instância lida
-double route_return_optimal_cost(Graph *g);
+double graph_return_optimal_cost(Graph *g);
 
 // Retorna o nome da instância lida
 char *graph_return_name(Graph *g);
@@ -93,6 +93,12 @@ void graph_Clarke_Wright_serial_route(Graph *g);
 // Atribui a rota ao grafo
 void graph_set_route(Graph *g, int idx, void *route, int size, int demand);
 
+// Atribui uma demanda a i-ésima rota de um grafo
+void route_set_demand(Graph *g, int idx, int demand);
+
+// Atribui um custo a i-ésima rota de um grafo
+void route_set_cost(Graph *g, int idx, double cost);
+
 // Retorna um vetor int com as demandas dos vértices do grafo
 int *graph_return_demands(Graph *g);
 
@@ -110,5 +116,9 @@ void graph_route_destroy(Graph *g);
 
 // Desaloca um grafo da memória
 void graph_destroy(Graph *g);
+
+
+void graph_enables_routes(Graph *g);
+
 
 #endif

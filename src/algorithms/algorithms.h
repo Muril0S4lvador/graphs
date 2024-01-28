@@ -36,6 +36,15 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
 // Melhora uma rota já criada de acordo com o algoritmo de descida em vizinhanças
 void variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g);
 
+
+
+
+
+void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g);
+void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g);
+
+
+
 /* =============================================== APAGAR DEPOIS ================================================================== */
 
 void Test(Graph *g);
