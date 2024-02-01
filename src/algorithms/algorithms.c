@@ -89,8 +89,11 @@ double _return_total_cost_route(int **routes, int *sizeRoute, int num_trucks, vo
 }
 
 // Tira um elemento de cada rota e coloca em outra aleatória (Não garante validez)
-void _random_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, double *cost, void *graph_adj){
+void _random_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, double *cost, void *graph_adj, int capacity){
     srand(time(NULL));
+
+    printf("\nANTES\n");
+    printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
 
     for(int i = 0; i < size; i++){
         char control = 0; // Variável de controlde se i < size
@@ -124,19 +127,50 @@ void _random_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, 
             _route_add_vertex(routes[random_route], &sizeRoutes[random_route], vertex, &cost[random_route], graph_adj);
         }
     }
+    printf("\nDEPOIS\n");
+    printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
+}
+
+char _checkVetor(int *vet, int size){
+    for(int i = 0; i < size; i++)
+        if( vet[i] == 0 ) return 0;
+    return 1;
 }
 
 // Retira um vértice de uma rota e coloca em outra que seja válida (não busca melhora)
-void _realocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, void *graph_adj){
+void _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, void *graph_adj){
+    srand(time(NULL));
 
-// for(int l = k; l < size; l++){
+    int old = k;
+    k = rand() % size;
 
+    printf("\n====================REALLOCATE============================");
+    printf("\nAntes (k = %d || %d)", old, k);
+    printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
+
+
+    int vetor[size];
+    
     for(int i = 1; i < sizeRoutes[k] - 1; i++)
     {
-        int vertex = routes[k][i];
-        for(int j = 0; j < size; j++)
-        {
-            if( j == k ) continue;      // Garante que j não seja a vizinhança que estamos olhando
+        int vertex = routes[k][i], r;
+
+        for(int h = 0; h < size; h++)
+            vetor[h] = 0;
+        
+        vetor[k] = 1;
+
+        while(!_checkVetor(vetor, size)){
+
+            r = k;
+            while( r == k )
+                r = rand() % size;
+
+            vetor[r] = 1;
+            int j = r;
+        // for(int j = 0; j < size; j++)
+        // {
+            // if( j == k ) continue;      // Garante que j não seja a vizinhança que estamos olhando
         
             // Se a rota admitir o novo vértice respeitando a capacidade, adicionamos ele nela
             // e eliminamos da outra, independente se há piora da solução
@@ -149,13 +183,17 @@ void _realocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, 
                     idx_InRoute[vertex] = j;
                     
                     _route_add_vertex(routes[j], &sizeRoutes[j], vertex, &cost[j], graph_adj);
-                    j = size + 1;
-                    i = sizeRoutes[k] + 1;
+                    // j = size + 1;
+                    // i = sizeRoutes[k] + 1;
                 }
             }
         }
+        // }
     }
-// }
+
+
+    printf("\nDepois");
+    printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
 }
 
 // Calcula novo custo de rotas trocando dois vértices de lugar
@@ -252,7 +290,6 @@ void _destroyRoutesMatrix(int **routes, int size){
 }
 
 /* =================================================================================================================================== */
-
 
 Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
 
@@ -688,7 +725,8 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     
     double c1, c2, c3;
 
-    printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demandRoutes);
+    printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~ INITIAL ~~~~~~~~~~~~~~\n");
+    printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
 
     
 
@@ -711,9 +749,13 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
             // Transformar a vizinhança que terá a realocação mais aleatória
-            _realocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g), test_costR, graph_return_adjacencies(g)); // Move itens nas rotas
+            _reallocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g), test_costR, graph_return_adjacencies(g)); // Move itens nas rotas
+            // _random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, test_costR, graph_return_adjacencies(g), graph_return_capacity(g));
 
             solutionTest = variable_Neighborhood_Descent(solutionTest, test_sizeR, test_idxInroutes, test_demandR, test_costR, demands, g);
+
+    printf("\n********** FIND ****************\n");
+    printsd(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, demands);
 
             newCost = 0;
             for(int i = 0; i < num_trucks; i++){
@@ -743,6 +785,8 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
                 test_idxInroutes = NULL;
                 test_costR = NULL;
 
+                printf("\nSAVED\n");
+
                         // printf("\nMelhor encontrado(%.3f):\n", newCost);
                         // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demandRoutes);
 
@@ -759,7 +803,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
         }
     }
 
-    printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demandRoutes);
+    printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
 
     graph_route_destroy(g);
     for(int i = 0; i < num_trucks; i++){
@@ -870,8 +914,8 @@ void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int
         printf("\nRoute %d (%d|%.3f): ", i, demandR[i], cost[i]);
         for(int j = 0; j < sizeR[i]; j++)
         {
-            printf("%d ", routes[i][j]);
-            // printf("%d ", demands[routes[i][j]]);
+            printf("%d", routes[i][j]);
+            printf("[%d] ", demands[routes[i][j]]);
         }
     }
     printf("\n");
