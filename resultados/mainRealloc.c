@@ -14,7 +14,11 @@ void name(Graph *g){
 void distanceToOptimal(float cost, float optimal){
     double difference;
     difference = (double)((cost - optimal) / optimal);
-    printf("%.6lf;", difference);
+    char num[15];
+    sprintf(num, "%.6f", difference);
+    int tam = strlen(num);
+    for(int i = 0; i < tam; i++) if(num[i] == '.') num[i] = ',';
+    printf("%s;", num);
 }
 
 void checkRestriction(Graph *g){
@@ -37,27 +41,18 @@ void checkRestriction(Graph *g){
 int main( int argc, char* argv[] ){
 
     float befCost = 0, AftCost = 0;
-    clock_t start, end;
-    double time;
     
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
     graph_Clarke_Wright_parallel_route(g);
-    graph_2opt(g);
 
     befCost = graph_return_total_cost(g);
 
     name(g);
     printf("%.2f;", befCost);
-    checkRestriction(g);
-
-    start = clock();
 
     graph_enables_routes(g);
-
-    end = clock();
-    time = (double)(end-start);
-    
     graph_2opt(g);
+
     AftCost = graph_return_total_cost(g);
     printf("%.2f;", AftCost);
     checkRestriction(g);
@@ -66,7 +61,6 @@ int main( int argc, char* argv[] ){
     
     distanceToOptimal(befCost, graph_return_optimal_cost(g));
     distanceToOptimal(AftCost, graph_return_optimal_cost(g));
-    printf("%lf", time);
     printf("\n");
 
     graph_destroy(g);
