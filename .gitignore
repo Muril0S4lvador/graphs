@@ -1,6 +1,5 @@
 main
 output/
-imgs/*.dot*
+imgs/
 *dot*
-imgs/arq_dots/*
 *.csv

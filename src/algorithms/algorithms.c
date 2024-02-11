@@ -137,39 +137,50 @@ char _checkVetor(int *vet, int size){
     return 1;
 }
 
-// Retira um vértice de uma rota e coloca em outra que seja válida (não busca melhora)
-void _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, void *graph_adj){
+void _printfvet(int *vet, int size){
+    for(int i = 0; i < size; i++){
+        printf("%d", vet[i]);
+        if(i < size - 1) printf(", ");
+    }
+    printf("]\n");
+}
 
-    // int old = k;
+void _fillvet(int *vet, int size){
+    for(int i = 0; i < size; i++)
+        vet[i] = 1;
+}
+
+// Retira um vértice de uma rota e coloca em outra que seja válida (não busca melhora)
+void _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int *idx_InRoute, int k, int capacity, double *cost, void *graph_adj, Graph *g){
 
     // printf("\n====================REALLOCATE============================");
-    // printf("\nAntes (k = %d || %d)", old, k);
+    // printf("\nAntes");
     // printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
+    // printf("\n\n");
 
     int vezes[size];
     for(int i = 0; i < size; i++) vezes[i] = 0;
 
-while(!_checkVetor(vezes, size)){
-    srand(time(NULL));
+    srand(time(NULL) + clock());
 
-    while(vezes[k])
-        k = rand() % size;  //rota aletoria
-    vezes[k] = 1;
+    k = rand() % size;  //rota aletoria
 
     char change = 0;
 
     int route_src[size], route_dest[size];
-    for(int i = 0; i < size; i++){
-        route_src[i] = 0;
-        route_dest[i] = 0;
-    } 
+    for(int i = 0; i < size; i++) route_src[i] = 0;
 
     int routeOrigem = k;
 
-    while(!_checkVetor(route_src, size)){ // Enquanto todas as rotas nao serem testadas como origem
-
-        while(route_src[routeOrigem]) // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
+    while(!_checkVetor(route_src, size)) // Enquanto todas as rotas nao serem testadas como origem
+    { 
+        // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
+        while(route_src[routeOrigem]){
             routeOrigem = rand() % size; // Rota aleatoria
+
+            // printf("Route src: %d(%d) - [", routeOrigem, route_src[routeOrigem]);
+            // _printfvet(route_src, size);
+        }
         route_src[routeOrigem] = 1;
 
         int vertexRSRC[sizeRoutes[routeOrigem]]; // Vetor controlando quais vértices eu testei da rota aleatoria
@@ -177,37 +188,60 @@ while(!_checkVetor(vezes, size)){
         vertexRSRC[0] = 1;
         vertexRSRC[sizeRoutes[routeOrigem] - 1] = 1;
 
-        while(!_checkVetor(vertexRSRC, sizeRoutes[routeOrigem])){ // Enquanto todos os vértices da rota origem nao forem testados
+        srand(time(NULL) + clock());  
+        while(!_checkVetor(vertexRSRC, sizeRoutes[routeOrigem])) // Enquanto todos os vértices da rota origem nao forem testados
+        { 
 
             int vertex = 0;
-            while(vertexRSRC[vertex]) // Garante que nao repetira vertices
+            // Garante que nao repetira vertices
+            while(vertexRSRC[vertex]){
                 vertex = rand() % (sizeRoutes[routeOrigem] - 2) + 1; // Selecionando um vértice aleatório dessa rota
+
+                // printf("Vertex: %d - [", routes[routeOrigem][vertex]);
+                // _printfvet(vertexRSRC, sizeRoutes[routeOrigem]);
+            }
+
             vertexRSRC[vertex] = 1;
+            vertex = routes[routeOrigem][vertex];
 
             for(int i = 0; i < size; i++) route_dest[i] = 0;
 
-            while(!_checkVetor(route_dest, size)){ // Enquanto todas as rotas nao serem testadas como destino
+            while(!_checkVetor(route_dest, size)) // Enquanto todas as rotas nao serem testadas como destino
+            { 
 
                 int routeDestino = routeOrigem;
+                routeDestino = rand() % size; // Seleciona rota aleatoria, que nao a mesma da anterior
                 route_dest[routeOrigem] = 1;
-                while(route_dest[routeDestino])
-                    routeDestino = rand() % size; // Seleciona rota aleatoria, que nao a mesma da anterior
+                while(route_dest[routeDestino] || routeDestino == routeOrigem){
+
+                    routeDestino = (routeDestino + 1) % size;
+
+                    // printf("Route dest: %d(%d) - [", routeDestino, route_dest[routeDestino]);
+                    // _printfvet(route_dest, size);
+
+                }
                 route_dest[routeDestino] = 1;
 
                 // tenta adicionar
-                if( demandRoutes[routeDestino]  + demands[vertex] <= capacity && !change )
+                // printf("Testing vertex %d from %d to %d\n", vertex, routeOrigem, routeDestino);
+                if( demandRoutes[routeDestino]  + demands[vertex] <= capacity )
                 {
-                    if( _route_delete_vertex(routes[k], &sizeRoutes[k], vertex, &cost[k], graph_adj) )
+                    if( _route_delete_vertex(routes[routeOrigem], &sizeRoutes[routeOrigem], vertex, &cost[routeOrigem], graph_adj) )
                     {
                         demandRoutes[routeDestino] += demands[vertex];
                         demandRoutes[routeOrigem] -= demands[vertex];
                         
                         _route_add_vertex(routes[routeDestino], &sizeRoutes[routeDestino], vertex, &cost[routeDestino], graph_adj);
 
-                        opt2_algorithm(routes[routeOrigem], sizeRoutes[routeOrigem], graph_adj, cost); // Ajeita os vértices na melhor posição possível
-                        // change = 1;
+                        // enables_route_swap(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, g);
+                        // enables_route_reallocate(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, g);
 
-                        // printf("\nDepois");
+                        opt2_algorithm(routes[routeOrigem], sizeRoutes[routeOrigem], graph_adj, cost); // Ajeita os vértices na melhor posição possível
+
+                        // _fillvet(route_dest, size);
+                        // _fillvet(vertexRSRC, sizeRoutes[routeOrigem]);
+
+                        // printf("\nAccepted (%d em %d -> %d)", vertex, routeOrigem, routeDestino);
                         // printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
 
                         return;
@@ -216,90 +250,12 @@ while(!_checkVetor(vezes, size)){
             }
         }
     }
-}
 
     // printf("\nDepois");
     // printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
 
     // Sem mais alterações possíveis
     return;
-        
-    // } while( !change );
-
-
-    int vetor[size];
-    int vec[size];
-
-    for(int h = 0; h < size; h++)
-        vec[h] = 0;
-    
-    while(_checkVetor(vec, size)) // uma mudança por rota
-    {
-
-        while(vec[k])
-            k = rand() % size;
-
-        char melhora = 1;
-
-        int tam = 50;
-        char vertices[tam];
-        for(int t = 0; t < tam; t++) vertices[t] = 0;
-        vertices[0] = 1;
-
-        while(melhora)
-        {
-
-            int i = 0;
-            while(vertices[i])
-                i = rand() % (sizeRoutes[i] - 2) + 1;  //vértice aleatório
-            
-            int vertex = routes[k][i], r;
-
-            for(int h = 0; h < size; h++)
-                vetor[h] = 0;
-            
-            vetor[k] = 1; // Vetor de tentativas
-
-            while(!_checkVetor(vetor, size)){  //enquanto houver elementos a serem selecionados ele vai
-
-                r = k;
-                // Garante que so tentaremos tirar ele da rota se for uma rota diferente da que ele veio e que não foi usada ainda
-                while( vetor[r] )
-                    r = rand() % size;  // Escolhe rota destino
-
-                vetor[r] = 1;
-                int j = r;
-            // for(int j = 0; j < size; j++)
-            // {
-                // if( j == k ) continue;      // Garante que j não seja a vizinhança que estamos olhando
-            
-                // Se a rota admitir o novo vértice respeitando a capacidade, adicionamos ele nela
-                // e eliminamos da outra, independente se há piora da solução
-                if( demandRoutes[j]  + demands[vertex] <= capacity )
-                {
-                    if( _route_delete_vertex(routes[k], &sizeRoutes[k], vertex, &cost[k], graph_adj) )
-                    {
-                        demandRoutes[j] += demands[vertex];
-                        demandRoutes[k] -= demands[vertex];
-                        idx_InRoute[vertex] = j;
-                        
-                        _route_add_vertex(routes[j], &sizeRoutes[j], vertex, &cost[j], graph_adj);
-                        // j = size + 1;
-                        // i = sizeRoutes[k] + 1;
-
-                        opt2_algorithm(routes[k], sizeRoutes[k], graph_adj, cost); // Ajeita os vértices na melhor posição possível
-                        melhora = 0;
-                        break;
-                    }
-                }
-            }
-        }
-        // }
-    }
-
-
-    printf("\nDepois");
-    printsd(routes, size, sizeRoutes, demandRoutes, cost, demands);
 }
 
 // Calcula novo custo de rotas trocando dois vértices de lugar
@@ -369,6 +325,9 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *
         cost[j] = _calculate_New_Cost(routes[j], cost[j], v1, l, sizeRoutes[j], graph_return_adjacencies(g));
         routes[k][i] = v2;
         routes[j][l] = v1;
+
+        // printf("\n------\nBEST SWAP: %d from %d -> %d from %d\n------\n", v1, k, v2, j);
+        
         return 1;
     }
     return 0;
@@ -835,8 +794,9 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
 
     
+    int x = 10000;
 
-    while( noImp < 20000 )
+    while( noImp < x )
     {
         k = 0;
         while( k < num_trucks ){
@@ -855,7 +815,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
             // Transformar a vizinhança que terá a realocação mais aleatória
-            _reallocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g), test_costR, graph_return_adjacencies(g)); // Move itens nas rotas
+            _reallocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, k, graph_return_capacity(g), test_costR, graph_return_adjacencies(g), g); // Move itens nas rotas
             // _random_Pertubation(solutionTest, num_trucks, test_sizeR, demands, test_demandR, test_idxInroutes, test_costR, graph_return_adjacencies(g), graph_return_capacity(g));
 
             solutionTest = variable_Neighborhood_Descent(solutionTest, test_sizeR, test_idxInroutes, test_demandR, test_costR, demands, g);
@@ -871,6 +831,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             // Se melhorou o custo, pegamos a solução
             if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
                 k = 0;
+                noImp = 0;
 
                 _destroyRoutesMatrix(bestSolution, num_trucks);
                 bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR, num_vertex);
@@ -909,6 +870,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
         }
     }
 
+    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, NULL);
     printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
 
     graph_route_destroy(g);
@@ -957,6 +919,11 @@ void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, i
                         routes[i][k] = routes[i][k] ^ routes[j][l];
                         routes[j][l] = routes[i][k] ^ routes[j][l];
                         routes[i][k] = routes[i][k] ^ routes[j][l];
+
+                        if( demandRoutes[i] <= capacity ){
+                            k = sizeI;
+                            break;
+                        }
                     }
                 }
             }
@@ -1021,7 +988,8 @@ void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int
         for(int j = 0; j < sizeR[i]; j++)
         {
             printf("%d", routes[i][j]);
-            printf("[%d] ", demands[routes[i][j]]);
+            if(demands) printf("[%d] ", demands[routes[i][j]]);
+            else printf(" ");
         }
     }
     printf("\n");

@@ -28,6 +28,10 @@ int main( int argc, char* argv[] ){
     double constCost, optCost, vnsCost, bestCost;
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
+
+    // graph_print(g);
+    // exit(0);
+    
     graph_Clarke_Wright_parallel_route(g);
     
     printf("\nCapacity: %d\n",graph_return_capacity(g));
@@ -43,6 +47,8 @@ int main( int argc, char* argv[] ){
     graph_Variable_Neighborhood_Search(g);
 
     vnsCost = graph_return_total_cost(g);
+
+    img_print_route(g, "imgs/route");
 
     graph_destroy(g);
 

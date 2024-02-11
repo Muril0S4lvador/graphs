@@ -36,16 +36,19 @@ double matrix_return_edge_weight(void *vm, int v1, int v2, int direction){
 
 void matrix_print(void *vm, int size){
     Matrix m = vm;
-    printf("-- ");
+    printf("---: ");
     for(int i = 0; i < size; i++)
-        printf("v%d ", i);
+        printf("%03d ", i);
 
     for(int i = 0; i < size; i++){
         printf("\n");
-        printf("v%d:", i);
+        printf("%03d:", i);
 
         for(int j = 0; j < size; j++)
-            printf(" %2.0f", m[i][j]);
+            if(m[i][j])
+            printf(" %03.0f", m[i][j]);
+            else 
+            printf(" ---");
 
     }
     printf("\n");
