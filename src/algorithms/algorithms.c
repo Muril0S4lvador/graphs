@@ -968,6 +968,10 @@ void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *dema
                     _route_delete_vertex(solution[i], &sizeRoutes[i], vertex, &cost[i], graph_return_adjacencies(g));
                     _route_add_vertex(solution[j], &sizeRoutes[j], vertex, &cost[j], graph_return_adjacencies(g));
 
+                    if( demandRoutes[i] <= capacity ){
+                        k = sizeI;
+                        break;
+                    }
                 }
             }
         }
