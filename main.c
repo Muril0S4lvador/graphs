@@ -29,10 +29,14 @@ int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
+    img_print_graph(g, "imgs/Grafo");
+
     // graph_print(g);
     // exit(0);
     
     graph_Clarke_Wright_parallel_route(g);
+
+    img_print_route(g, "imgs/RotaInicial");
     
     printf("\nCapacity: %d\n",graph_return_capacity(g));
 
@@ -42,13 +46,15 @@ int main( int argc, char* argv[] ){
     graph_enables_routes(g);
     graph_2opt(g);
 
+
     optCost = graph_return_total_cost(g);
 
     graph_Variable_Neighborhood_Search(g);
 
     vnsCost = graph_return_total_cost(g);
 
-    img_print_route(g, "imgs/route");
+    img_print_route(g, "imgs/RotaFinal");
+    // img_print_route(g, "imgs/route");
 
     graph_destroy(g);
 
