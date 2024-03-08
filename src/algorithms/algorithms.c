@@ -321,7 +321,7 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
 
             int idx_vertex = 0;
             // Garante que nao repetira vertices
-            while(vertexRSRC[vertex]){
+            while(vertexRSRC[idx_vertex]){
                 idx_vertex = rand() % (sizeRoutes[routeOrigem] - 2) + 1; // Selecionando um vértice aleatório dessa rota
 
                 // printf("Vertex: %d - [", routes[routeOrigem][idx_vertex]);
@@ -371,13 +371,13 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
                                     routes[routeDestino][j] = routes[routeDestino][j - 1];
                                 
                                 routes[routeDestino][i] = vertex;
-                                size[routeDestino]++;
+                                sizeRoutes[routeDestino]++;
                                 cost[routeDestino] += new_cost;
                                 // RouteOrigem já tem isso acertado em _route_delete_vertex()
 
                                 // Se encontrou vizinhança melhor, aceita e sai
                                 // Caso não, busca outro destino|vértice|origem (nessa ordem)
-                                return;
+                                return 1;
                             }
                         }
                     }
@@ -386,7 +386,7 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
         }
     }
     // Retorna sem fazer alterações
-    return;
+    return 0;
 }
 
 // Pega a primeira melhoria de troca entre operadores de uma rota k e outra qualquer
@@ -1101,4 +1101,141 @@ void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int
         }
     }
     printf("\n");
+}
+
+int printa_rota(int *r, int size, int *demands, int capacity, Graph *g){
+    int d = 0;
+    for(int i = 0; i < size; i++) d += demands[r[i]];
+    double cost = matrix_return_route_cost(graph_return_adjacencies(g), r, size);
+    printf("%.3lf | %d/%d: ", cost, d, capacity);
+    for(int i = 0; i < size; i++) printf("%d ", r[i]);
+    printf("\n");
+    return d;
+}
+
+void teste(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g){
+
+    int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),          // Número de rotas/caminhões
+        noImp = 0,                                                                             // Quantidade de vezes que não houve melhora da solução
+        k,                                                                                     // Rota atual a ser manipulada
+        **bestSolution = _copy_route_matrix(NULL, routes, num_trucks, sizeR, num_vertex), // Melhor solução achada
+        *best_sizeR =   malloc(sizeof(int) * num_trucks),                                 // Tamanho das rotas na melhor solução achada
+        *best_demandRoutes = malloc(sizeof(int) * num_trucks),                                 // Demanda das rotas na melhor solução achada
+        *idx_InRoutes =      malloc(sizeof(int) * num_vertex);                                 // Vetor que salva o índice da rota dos vértices
+
+    double currentCost = _return_total_cost_route(routes, sizeR, num_trucks, graph_return_adjacencies(g)),  // Variável com o custo da solução atual
+           newCost = 0,                                                                                          // Variável com o custo da nova solução encontrada
+          *costRoutes = malloc(sizeof(double) * num_trucks);                                                     // Vetor com custo de todas as rotas
+
+    // Inicializa variáveis
+    memcpy(best_sizeR, sizeR, sizeof(int) * num_trucks);      // Salva tamanhos da rota inicial (Melhor solução encontrada)
+    memcpy(best_demandRoutes, demandR, sizeof(int) * num_trucks);
+
+    int vezes[size];
+    for(int i = 0; i < size; i++) vezes[i] = 0;
+
+    srand(time(NULL) + clock());
+
+    char change = 0;
+
+    int route_src[size], route_dest[size];
+    for(int i = 0; i < size; i++) route_src[i] = 0;
+
+    int routeOrigem = rand() % size;
+
+    while(!_checkVetor(route_src, size)) // Enquanto todas as rotas nao serem testadas como origem
+    { 
+        // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
+        while(route_src[routeOrigem]){
+            routeOrigem = rand() % size; // Rota aleatoria
+
+            // printf("Route src: %d(%d) - [", routeOrigem, route_src[routeOrigem]);
+            // _printfvet(route_src, size);
+        }
+        route_src[routeOrigem] = 1;
+
+        for(int i = 0; i < size; i++) route_dest[i] = 0;
+
+        printf("%d\n", routeOrigem);
+        srand(time(NULL) + clock());
+        while(!_checkVetor(route_dest, size)) // Enquanto todas as rotas nao serem testadas como destino
+        { 
+
+            int routeDestino = routeOrigem;
+            routeDestino = rand() % size; // Seleciona rota aleatoria, que nao a mesma da anterior
+            route_dest[routeOrigem] = 1;
+            while(route_dest[routeDestino]){
+
+                routeDestino = (routeDestino + 1) % size;
+
+                // printf("Route dest: %d(%d) - [", routeDestino, route_dest[routeDestino]);
+                // _printfvet(route_dest, size);
+
+            }
+            route_dest[routeDestino] = 1;
+
+            // Nesse ponto, já temos dest e origem aleatoria            
+            // Vamos achar as arestas
+
+            for(int i = 0; i < sizeR[routeOrigem] - 2; i++) // Vértices em Origem
+            {
+                for(int j = 0; j < sizeR[routeDestino] - 2; j++) // Vértices em Destino
+                {
+                    if( i + j == 0 ) j++;
+
+                    int vi1 = bestSolution[routeOrigem][i],  vi2 = bestSolution[routeOrigem][i+1],
+                        vj1 = bestSolution[routeDestino][j], vj2 = bestSolution[routeDestino][(j+1) % (sizeR[routeDestino] - 1)];
+                    // Selecionei 2 vértices em cada rota
+
+                    double custo_atual = matrix_return_edge_weight(graph_return_adjacencies(g), vi1, vi2, graph_return_direction(g))
+                                       + matrix_return_edge_weight(graph_return_adjacencies(g), vj1, vj2, graph_return_direction(g));
+                    
+                    double custo_novo  = matrix_return_edge_weight(graph_return_adjacencies(g), vi1, vj1, graph_return_direction(g))
+                                       + matrix_return_edge_weight(graph_return_adjacencies(g), vi2, vj2, graph_return_direction(g));
+                    
+                    if(custo_novo < custo_atual)
+                    {
+                        int *rota1 = malloc(sizeof(int) * (sizeR[routeOrigem] + sizeR[routeDestino] + 1));
+                        int *rota2 = malloc(sizeof(int) * (sizeR[routeOrigem] + sizeR[routeDestino] + 1));
+
+                        // Escreve rota1 em um vetor
+                        int k1 = 0;
+                        for(int k = 0; k < (i + 1); k++, k1++){
+                            if( k == (i + 1) ) break;
+                            rota1[k1] = bestSolution[routeOrigem][k];
+                        }
+                        for(int k = j; k >= 0; k--, k1++){
+                            rota1[k1] = bestSolution[routeDestino][k];
+                        }
+
+                        // Escreve rota2 em um vetor
+                        int k2 = 0;
+                        for(int k = sizeR[routeOrigem] - 1; k > i; k--, k2++){
+                            rota2[k2] = bestSolution[routeOrigem][k];
+                        }
+                        for(int k = j+1; k < sizeR[routeDestino]; k++, k2++){
+                            rota2[k2] = bestSolution[routeDestino][k];
+                        }
+
+                        (void)printa_rota(bestSolution[routeOrigem], sizeR[routeOrigem], demands, graph_return_capacity(g), g);
+                        (void)printa_rota(bestSolution[routeDestino], sizeR[routeDestino], demands, graph_return_capacity(g), g);
+
+                        int demand1 = printa_rota(rota1, k1, demands, graph_return_capacity(g), g);
+                        int demand2 = printa_rota(rota2, k2, demands, graph_return_capacity(g), g);
+
+                        int capacity = graph_return_capacity(g);
+                        if(demand1 <= capacity && demand2 <= capacity) exit(-1);
+
+                        free(rota1);                        
+                        free(rota2);                        
+
+                    }
+                }
+            }
+        }
+    }
+
+    // Sem mais alterações possíveis
+    printf("Todas as possibilidades achadas!\n");
+    return;
 }

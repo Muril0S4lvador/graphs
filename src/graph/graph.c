@@ -555,3 +555,32 @@ void graph_enables_routes(Graph *g){
     free(demands);
 
 }
+
+void graph_teste(Graph *g){
+
+    if( !graph_has_route(g) ){
+        printf("Necessário a construção de uma solução inicial.\n");
+        return;
+    }
+    
+    int **routes = malloc(sizeof(int*) * g->trucks),
+        *sizeR = malloc(sizeof(int) * g->trucks),
+        *demandsR = malloc(sizeof(int) * g->trucks),
+        *demands = graph_return_demands(g);
+    double *cost = malloc(sizeof(double) * g->trucks);
+    for(int i = 0; i < g->trucks; i++){
+        routes[i] = route_return_route(g, i);
+        sizeR[i] = route_return_size(g, i);
+        demandsR[i] = route_return_demand(g, i);
+        cost[i] = route_return_cost(g, i);
+    }
+    
+    teste(routes, g->trucks, sizeR, demandsR, cost, demands, g);
+
+    free(routes);
+    free(sizeR);
+    free(demandsR);
+    free(cost);
+    free(demands);
+
+}

@@ -121,4 +121,9 @@ void graph_destroy(Graph *g);
 void graph_enables_routes(Graph *g);
 
 
+
+void graph_teste(Graph *g);
+
+
+
 #endif

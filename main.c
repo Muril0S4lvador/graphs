@@ -25,40 +25,20 @@ void checkRestriction(Graph *g){
 
 int main( int argc, char* argv[] ){
 
-    double constCost, optCost, vnsCost, bestCost;
-
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-
-    img_print_graph(g, "imgs/Grafo");
-
-    // graph_print(g);
-    // exit(0);
-    
-    graph_Clarke_Wright_parallel_route(g);
-
-    img_print_route(g, "imgs/RotaInicial");
-    
     printf("\nCapacity: %d\n",graph_return_capacity(g));
 
-    constCost = graph_return_total_cost(g);
-    bestCost = graph_return_optimal_cost(g);
-
+    graph_Clarke_Wright_parallel_route(g);
     graph_enables_routes(g);
-    graph_2opt(g);
+
+    route_print(g);
+    printf("\nTeste:\n\n");
+
+    graph_teste(g);
 
 
-    optCost = graph_return_total_cost(g);
-
-    graph_Variable_Neighborhood_Search(g);
-
-    vnsCost = graph_return_total_cost(g);
-
-    img_print_route(g, "imgs/RotaFinal");
-    // img_print_route(g, "imgs/route");
 
     graph_destroy(g);
-
-    printf("\n---------------------------\nConclusion:\n\nConstructive: %lf\n2Opt:         %lf\nVNS:          %lf\nBest:         %.0lf\n", constCost, optCost, vnsCost, bestCost);
 
     return 0;
 }
