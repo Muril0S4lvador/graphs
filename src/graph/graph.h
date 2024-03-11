@@ -13,6 +13,10 @@ typedef unsigned char bool;
 #define UNDIRECTED 1
 #define DIRECTED 0
 
+#define NEIGHBORHOOD_STRUCTURES 3
+
+#define NUM_IT 10000
+
 typedef struct Graph Graph;
 typedef struct Route Route;
 

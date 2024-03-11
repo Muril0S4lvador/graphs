@@ -575,7 +575,7 @@ void graph_teste(Graph *g){
         cost[i] = route_return_cost(g, i);
     }
     
-    teste(routes, g->trucks, sizeR, demandsR, cost, demands, g);
+    opt2_inter_routes(routes, g->trucks, sizeR, demandsR, cost, demands, g);
 
     free(routes);
     free(sizeR);

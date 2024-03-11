@@ -32,11 +32,10 @@ int main( int argc, char* argv[] ){
     graph_enables_routes(g);
 
     route_print(g);
-    printf("\nTeste:\n\n");
 
-    graph_teste(g);
+    graph_Variable_Neighborhood_Search(g);
 
-
+    route_print(g);
 
     graph_destroy(g);
 

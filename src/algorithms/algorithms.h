@@ -46,7 +46,7 @@ void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *dema
 
 /* =============================================== APAGAR DEPOIS ================================================================== */
 
-void teste(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g);
+void opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g);
 
 // Printa todas as rotas
 void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands);
