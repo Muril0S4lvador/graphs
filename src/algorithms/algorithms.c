@@ -300,7 +300,7 @@ void _move_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, in
                         // enables_route_swap(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, g);
                         // enables_route_reallocate(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, g);
 
-                        opt2_algorithm(routes[routeOrigem], sizeRoutes[routeOrigem], graph_adj, cost); // Ajeita os vértices na melhor posição possível
+                        // opt2_algorithm(routes[routeOrigem], sizeRoutes[routeOrigem], graph_adj, cost); // Ajeita os vértices na melhor posição possível
 
                         printf("\nMoving %d from %d to %d\n", vertex, routeOrigem, routeDestino);
 
@@ -332,6 +332,10 @@ void _shake(int **routes, int size, int *sizeRoutes, int *demands, int *demandRo
     } else {
         _random_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, NULL, k, capacity, cost, graph_return_adjacencies(g), g);
     }
+
+    printf("\n");
+    printsd(routes, size, sizeRoutes, demandRoutes, cost, NULL);
+    printf("\n");
 }
 
 // Calcula novo custo de rotas trocando dois vértices de lugar
@@ -431,20 +435,22 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
                                     + matrix_return_edge_weight(graph_adj, vertex, routes[routeOrigem][idx_vertex + 1], graph_return_direction(g));
 
                     for(int i = 1; i < sizeRoutes[routeDestino] - 1; i++){
-                        double costAIB = matrix_return_edge_weight(graph_adj, vertex, routes[routeDestino][i - 1], graph_return_direction(g)) // Salva custo a->i->b
+                        double costAIB = matrix_return_edge_weight(graph_adj, vertex, routes[routeDestino][i - 1], graph_return_direction(g)) // Custo a->i->b
                                         + matrix_return_edge_weight(graph_adj, vertex, routes[routeDestino][i + 1], graph_return_direction(g)),
-                        new_cost = costAIB + matrix_return_edge_weight(graph_adj, routes[routeOrigem][idx_vertex - 1], routes[routeOrigem][idx_vertex + 1], graph_return_direction(g)), // Salva custo a->i->b + x->y
-                        old_cost = costXIY + matrix_return_edge_weight(graph_adj, routes[routeDestino][i - 1], routes[routeDestino][i + 1], graph_return_direction(g)); // Salva custo x->i->y + a->b
+                        new_cost = costAIB + matrix_return_edge_weight(graph_adj, routes[routeOrigem][idx_vertex - 1], routes[routeOrigem][idx_vertex + 1], graph_return_direction(g)), // Custo a->i->b + x->y
+                        old_cost = costXIY + matrix_return_edge_weight(graph_adj, routes[routeDestino][i - 1], routes[routeDestino][i + 1], graph_return_direction(g)); // Custo x->i->y + a->b
 
                         // Se custo a->i->y + x->y < a->b + x->y->i
                         if( new_cost < old_cost ){
+
+                            printf("%0.lf < %0.lf\n", new_cost, old_cost);
 
                             if(_route_delete_vertex(routes[routeOrigem], &sizeRoutes[routeOrigem], vertex, &cost[routeOrigem], graph_adj)){
 
                                 demandRoutes[routeDestino] += demands[vertex];
                                 demandRoutes[routeOrigem]  -= demands[vertex];
 
-                                for(int j = sizeRoutes[routeDestino]; j < i; j--)
+                                for(int j = sizeRoutes[routeDestino]; j > i; j--)
                                     routes[routeDestino][j] = routes[routeDestino][j - 1];
                                 
                                 routes[routeDestino][i] = vertex;
@@ -969,6 +975,10 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRo
                 opt2_inter_routes(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, demands, g);
                 break;
         }
+
+        printf("\n");
+        printsd(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, NULL);
+        printf("\n");
         
         newCost = 0;
         for(int i = 0; i < num_trucks; i++){
