@@ -28,7 +28,7 @@ int main( int argc, char* argv[] ){
     double initial, final, best;
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    printf("\nCapacity: %d\n",graph_return_capacity(g));
+    // printf("\nCapacity: %d\n",graph_return_capacity(g));
 
     graph_Clarke_Wright_parallel_route(g);
     graph_enables_routes(g);
@@ -36,8 +36,8 @@ int main( int argc, char* argv[] ){
     initial = graph_return_total_cost(g);
     best = graph_return_optimal_cost(g);
 
-    route_print(g);
-    printf("\n");
+    // route_print(g);
+    // printf("\n");
 
     graph_Variable_Neighborhood_Search(g);
 
@@ -45,7 +45,7 @@ int main( int argc, char* argv[] ){
 
     final = graph_return_total_cost(g);
 
-    route_print(g);
+    // route_print(g);
 
     graph_destroy(g);
 
