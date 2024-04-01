@@ -644,15 +644,12 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
         *demands = graph_return_demands(g),                 // Vetor de demanda dos vértices
         demand_act_route = 0;                               // Demanda da rota atual
 
-    char control = 0;   // Controle se a rota foi criada ou nao
-
     *(act_route) = 0;
 
     for(int i = 0; i < num_trucks; i++){
 
         demand_act_route = 0;
         size_act_route = 0;
-        control = 0;
 
         for(int j = 0; j < sizeEdges; j++){
 
@@ -664,13 +661,12 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
                         act_route[size_act_route++] = near_0[k].dest;
                         demand_act_route = demands[near_0[k].dest];
                         gl_visited[near_0[k].dest] = 1;
-                        control = 1;
                         j = -1;
                         break;
                     }
                 }
             
-            } else if( act_route[0] == e[j].dest || act_route[0] == e[j].src ) {
+            } else if( act_route[0] == e[j].src || act_route[0] == e[j].dest ) {
             // SE O DEST ESTIVER NO INICIO, ADICIONA O SRC NO INICIO DA ROTA //
 
                 int search = ( act_route[0] == e[j].dest ) ? e[j].src : e[j].dest;
@@ -687,10 +683,9 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
                     size_act_route++;
                     free(act_route);
                     act_route = r;
-                    control = 1;
                 }
 
-            } else if( act_route[size_act_route - 1] == e[j].src && act_route[size_act_route - 1] == e[j].dest ){
+            } else if( act_route[size_act_route - 1] == e[j].src || act_route[size_act_route - 1] == e[j].dest ){
             // SE ESTIVER NO FINAL, ADICIONA NO FINAL DA ROTA //
 
                 int search = ( act_route[size_act_route - 1] == e[j].dest ) ? e[j].src : e[j].dest;
@@ -700,7 +695,6 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
                     gl_visited[search] = 1;
 
                     act_route[size_act_route++] = search;
-                    control = 1;
                 }
             }
 
@@ -716,20 +710,16 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
             }
         } // Fim for edges e
 
-        // Se control = 1, quer dizer que encontramos uma rota possível
-        // Então adicionamos 0 no início e no final para ajudar na impressão depois
-        if(control){
-            int *r = malloc(sizeof(int) * num_vertex);
-            r[0] = 0;
-            for(int c = 1; c <= size_act_route; c++){
-                r[c] = act_route[c-1];
-            }
-            size_act_route++;
-            free(act_route);
-            act_route = r;
-            act_route[size_act_route++] = 0;
-            graph_set_route(g, i, act_route, size_act_route, demand_act_route);
+        int *r = malloc(sizeof(int) * num_vertex);
+        r[0] = 0;
+        for(int c = 1; c <= size_act_route; c++){
+            r[c] = act_route[c-1];
         }
+        size_act_route++;
+        free(act_route);
+        act_route = r;
+        act_route[size_act_route++] = 0;
+        graph_set_route(g, i, act_route, size_act_route, demand_act_route);
 
     } // Fim for trucks
 

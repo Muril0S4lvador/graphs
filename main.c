@@ -25,39 +25,32 @@ void checkRestriction(Graph *g){
 
 int main( int argc, char* argv[] ){
 
-    double initial, final, best;
-
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    // printf("\nCapacity: %d\n",graph_return_capacity(g));
 
-    graph_Clarke_Wright_parallel_route(g);
-    graph_enables_routes(g);
-
-    initial = graph_return_total_cost(g);
-    best = graph_return_optimal_cost(g);
-
+    // graph_Clarke_Wright_parallel_route(g);
+    
     // route_print(g);
-    // printf("\n");
 
-    // graph_Variable_Neighborhood_Search(g);
 
+    // graph_enables_routes(g);
+
+
+    // graph_destroy(g);
+
+    // g = graph_read_file_CVRPLIB(argv[1]);
+
+    graph_Clarke_Wright_serial_route(g);
     graph_2opt(g);
 
-    // img_print_route(g, "imgs/RouteFinal");
-    // img_print_graph(g, "imgs/graph");
-    // img_print_vertex(g, "imgs/vertex");
+    img_print_route(g, "imgs/rota");
 
-    // route_print(g);
+    printf("%0.lf;\n", graph_return_total_cost(g));
 
-    // graph_print(g);
+    // graph_enables_routes(g);
 
-    final = graph_return_total_cost(g);
-
-    route_print(g);
+    // graph_2opt(g);
 
     graph_destroy(g);
-
-    printf("\n========================\nInitial: %lf\nFinal: %lf\nBest: %lf\n", initial, final, best);
 
     return 0;
 }

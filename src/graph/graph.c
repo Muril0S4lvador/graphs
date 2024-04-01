@@ -48,12 +48,12 @@ void _read_EUC_2D(Graph *g, FILE *arq){
     for(int i = 0; i < dimension; i++){
         
         fscanf(arq, "%*c %lf %*c", &m[i][2]);
-        int x1 = m[i][0], y1 = m[i][1];
+        float x1 = m[i][0], y1 = m[i][1];
         Data *d = data_construct(x1, y1, m[i][2]);
         vector_push_back(g->vertices, d);
 
         for(int j = i - 1; j >= 0; j--){
-            int x2 = m[j][0], y2 = m[j][1];
+            float x2 = m[j][0], y2 = m[j][1];
 
             weight w = (weight)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
 
@@ -364,8 +364,8 @@ void graph_Clarke_Wright_serial_route(Graph *g){
 }
 
 void graph_set_route(Graph *g, int idx, void *route, int size, int demand){
-    if( !idx )
-        g->route = malloc(sizeof(Route) * g->trucks);
+    if( !idx ) g->route = malloc(sizeof(Route) * g->trucks);
+
     g->route[idx].route = malloc(sizeof(int) * size);
     g->route[idx].route = memcpy(g->route[idx].route, route, sizeof(int) * size);
     g->route[idx].size = size;
@@ -391,9 +391,10 @@ int *graph_return_demands(Graph *g){
 }
 
 void route_print(Graph *g){
+    printf("Capacity %d\n", graph_return_capacity(g));
     for(int i = 0; i < g->trucks; i++){
         // printf("Rota %d \n", i, route_return_demand(g, i), g->route[i].cost);
-        // printf("Rota %d Demanda %d Custo %.2f\n", i, route_return_demand(g, i), g->route[i].cost);
+        printf("Rota %d Demanda %d Custo %.2f\n", i, route_return_demand(g, i), g->route[i].cost);
         int size = route_return_size(g, i);
         for(int j = 0; j < size; j++){
             int *v = g->route[i].route;
@@ -442,8 +443,9 @@ void graph_2opt(Graph *g){
 
 void graph_route_destroy(Graph *g){
     if ( !graph_has_route(g) ) return;
-    for(int i = 0; i < g->trucks; i++)
+    for(int i = 0; i < g->trucks; i++){
             free(g->route[i].route);
+    }
     free(g->route);
 }
 
