@@ -36,19 +36,19 @@ double matrix_return_edge_weight(void *vm, int v1, int v2, int direction){
 
 void matrix_print(void *vm, int size){
     Matrix m = vm;
-    printf("---: ");
+    printf("--: ");
     for(int i = 0; i < size; i++)
-        printf("%03d ", i);
+        printf("%02d ", i);
 
     for(int i = 0; i < size; i++){
         printf("\n");
-        printf("%03d:", i);
+        printf("%02d:", i);
 
         for(int j = 0; j < size; j++)
             if(m[i][j])
-            printf(" %03.0f", m[i][j]);
+            printf(" %02.0f", m[i][j]);
             else 
-            printf(" ---");
+            printf(" --");
 
     }
     printf("\n");
@@ -70,7 +70,7 @@ void matrix_return_edges(void *vm, int sizeVertex, void *vk, int direction){
     for(int i = 0, k_size = 0; i < sizeVertex; i++){
 
         int j = ( direction == UNDIRECTED ) ? i + 1 : 0;
-        for( j; j < sizeVertex; j++){
+        for(; j < sizeVertex; j++){
 
             k[k_size].src = i;
             k[k_size].dest = j;
@@ -106,7 +106,6 @@ void matrix_return_edges_savings(void *vm, int sizeVertex, void *vk, void *vn){
 }
 
 double matrix_return_route_cost(void *vm, int *route, int size_route){
-    Matrix m = vm;
     double cost = 0;
 
     for(int i = 0; i < size_route - 1; i++){

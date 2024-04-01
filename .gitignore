@@ -3,3 +3,5 @@ output/
 imgs/
 *dot*
 *.csv
+*.txt
+objects

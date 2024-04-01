@@ -392,7 +392,8 @@ int *graph_return_demands(Graph *g){
 
 void route_print(Graph *g){
     for(int i = 0; i < g->trucks; i++){
-        printf("Rota %d Demanda %d Custo %.2f\n", i, route_return_demand(g, i), g->route[i].cost);
+        // printf("Rota %d \n", i, route_return_demand(g, i), g->route[i].cost);
+        // printf("Rota %d Demanda %d Custo %.2f\n", i, route_return_demand(g, i), g->route[i].cost);
         int size = route_return_size(g, i);
         for(int j = 0; j < size; j++){
             int *v = g->route[i].route;

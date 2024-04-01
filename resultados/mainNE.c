@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "src/graph/graph.h"
-#include "src/graphviz_print/graphviz_print.h"
+#include "../src/graph/graph.h"
+#include "../src/graphviz_print/graphviz_print.h"
 #include <time.h>
 
 void name(Graph *g){
@@ -13,7 +13,7 @@ void name(Graph *g){
 
 void distanceToOptimal(double cost, double optimal){
     double difference;
-    difference = (double)((cost - optimal) / optimal);
+    difference = (double)((cost - optimal) / optimal) * 100;
     char number[20];
     sprintf(number, "%lf", difference);
     for(int i = 0; i < strlen(number); i++)
@@ -33,7 +33,7 @@ int main( int argc, char* argv[] ){
     initial = graph_return_total_cost(g);
     best = graph_return_optimal_cost(g);
 
-    graph_Variable_Neighborhood_Search(g);
+    // graph_Variable_Neighborhood_Search(g);
 
     graph_2opt(g);
 

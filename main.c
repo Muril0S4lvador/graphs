@@ -39,13 +39,21 @@ int main( int argc, char* argv[] ){
     // route_print(g);
     // printf("\n");
 
-    graph_Variable_Neighborhood_Search(g);
+    // graph_Variable_Neighborhood_Search(g);
 
     graph_2opt(g);
 
-    final = graph_return_total_cost(g);
+    // img_print_route(g, "imgs/RouteFinal");
+    // img_print_graph(g, "imgs/graph");
+    // img_print_vertex(g, "imgs/vertex");
 
     // route_print(g);
+
+    // graph_print(g);
+
+    final = graph_return_total_cost(g);
+
+    route_print(g);
 
     graph_destroy(g);
 
