@@ -36,4 +36,4 @@ imgs_clean:
 	rm -r imgs/*.dot* imgs/arq_dots/*
 
 clean:
-	rm -rf *.o *~ main
+	rm -rf */*.o *~ main

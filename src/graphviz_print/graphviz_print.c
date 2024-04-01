@@ -107,7 +107,6 @@ void _route_file_write(Graph *g, int size, FILE *arq){
 void img_print_vertex(Graph *g, char *file_name){
 
     FILE *arq_vertex = fopen(file_name, "w");
-    char asp = '"';
 
     if( !arq_vertex ){
         printf("Não foi possivel abrir o arquivo %s\n", file_name);
@@ -127,7 +126,6 @@ void img_print_vertex(Graph *g, char *file_name){
 void img_print_graph(Graph *g, char *file_name){
 
     FILE *arq_graph = fopen(file_name, "w");
-    char asp = '"';
     char open_arq[11] = "di", suf[9] = "graph {\n";
     int direction = graph_return_direction(g);
 
@@ -157,7 +155,6 @@ void img_print_graph(Graph *g, char *file_name){
 void img_print_route(Graph *g, char *file_name){
 
     FILE *arq_graph = fopen(file_name, "w");
-    char asp = '"';
     char open_arq[11] = "di", suf[9] = "graph {\n";
     int direction = graph_return_direction(g);
 
@@ -190,7 +187,6 @@ void img_print_graph_per_edge(Graph *g1, Graph *g2, int it, char *file_name){
     sprintf(real_filename, "%s%d.dot",file_name, it);
 
     FILE *arq_graph = fopen(real_filename, "w");
-    char asp = '"';
     char open_arq[9] = "graph {\n";
 
     if( !arq_graph ){
