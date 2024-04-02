@@ -6,55 +6,37 @@
 #include "src/algorithms/algorithms.h"
 #include "src/adjacency_matrix/matrix.h"
 
-void checkRestriction(Graph *g){
-    char possible[20] = "POSSIBLE;";
+#include <time.h>
 
-    int size = graph_return_trucks(g),
-        capacity = graph_return_capacity(g);
-
-    for(int i = 0; i < size; i++){
-        if( route_return_demand(g, i) > capacity ){
-            // printf("%d ", route_return_demand(g, i));
-            strcpy(possible, "IMPOSSIBLE;");
-            break;
-        }
-    }
-
-    printf("%s", possible);
+void distanceToOptimal(double cost, double optimal){
+    double difference;
+    difference = (double)((cost - optimal) / optimal) * 100;
+    printf("%.0lf %.0lf (%.2lf)\n", cost, optimal, difference);
 }
 
 int main( int argc, char* argv[] ){
 
+    clock_t end, start = clock();
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    // graph_Clarke_Wright_parallel_route(g);
-    
-    // route_print(g);
+    // graph_print(g);
 
-
-    // graph_enables_routes(g);
-
-
-    // graph_destroy(g);
-
-    // g = graph_read_file_CVRPLIB(argv[1]);
-
-    graph_Clarke_Wright_serial_route(g);
+    // Prepara solução inicial para ser otimizada
+    graph_Clarke_Wright_parallel_route(g);
+    graph_enables_routes(g);
     graph_2opt(g);
 
-    img_print_route(g, "imgs/rota");
+    graph_Variable_Neighborhood_Search(g);
 
-    printf("%0.lf;\n", graph_return_total_cost(g));
+    end = clock();
 
-    // graph_enables_routes(g);
+    distanceToOptimal(graph_return_total_cost(g), graph_return_optimal_cost(g));
 
-    // graph_2opt(g);
+    printf("Time: %.0lf ms\n", ((double)(end - start) / CLOCKS_PER_SEC) * 1000);
+
+    route_print(g);
 
     graph_destroy(g);
 
     return 0;
 }
-
-/*
-valgrind ./main com entradas/a/A-n46-k7.vrp
-*/

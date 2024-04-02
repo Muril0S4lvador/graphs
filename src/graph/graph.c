@@ -57,6 +57,8 @@ void _read_EUC_2D(Graph *g, FILE *arq){
 
             weight w = (weight)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
 
+            w = round(w);
+
             graph_add_edge(g, i, j, w);
         }
     }

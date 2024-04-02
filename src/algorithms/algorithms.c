@@ -369,12 +369,14 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
     for(int i = 0; i < size; i++) route_src[i] = 0;
 
     int routeOrigem = k;
+    if( sizeRoutes[routeOrigem] <= 2 ) route_src[routeOrigem] = 1;
 
     while(!_checkVetor(route_src, size)) // Enquanto todas as rotas nao serem testadas como origem
     { 
         // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
         while(route_src[routeOrigem]){
             routeOrigem = rand() % size; // Rota aleatoria
+            if( sizeRoutes[routeOrigem] <= 2 ) route_src[routeOrigem] = 1;
 
             // printf("Route src: %d(%d) - [", routeOrigem, route_src[routeOrigem]);
             // _printfvet(route_src, size);
@@ -930,12 +932,12 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRo
 
     k = 0;
 
-    while( k < NEIGHBORHOOD_STRUCTURES )
+    while( k <= NEIGHBORHOOD_STRUCTURES )
     {
 
         memcpy(test_sizeR,       best_sizeRoutes,   sizeof(int) * num_trucks);  // Copia tamanhos da melhor rota atual para modificação
         memcpy(test_demandR,     best_demandRoutes, sizeof(int) * num_trucks);  // Copia demandas da melhor rota atual para modificação
-        memcpy(test_costR      , best_costRoutes,        sizeof(double) * num_trucks);// Copia vetor costRoutes para modificação
+        memcpy(test_costR      , best_costRoutes,   sizeof(double) * num_trucks);// Copia vetor costRoutes para modificação
 
         int **solutionTest; // Matriz de rotas com a melhor solução para manipulação 
         solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
@@ -954,8 +956,13 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRo
                 control = _swap_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, NULL, k, capacity, test_costR, g);
                 break;
             case 2:
-            // printf("OPT\n");
+            // printf("OPT Inter\n");
                 control = opt2_inter_routes(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, demands, g);
+                break;
+            case 3:
+            // printf("OPT Intra\n");
+                control = 1;
+                _melhorarRotas(solutionTest, num_trucks, test_sizeR, test_costR, graph_return_adjacencies(g));
                 break;
         }
 
@@ -973,8 +980,8 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRo
 
         if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
             // printf("k = 0\n");
+            if(control == 0) printf("NOT OK (%d)\n", k);
             k = 0;
-            if(control == 0) printf("NOT OK\n");
 
             _destroyRoutesMatrix(bestSolution, num_trucks);
             bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR, num_vertex);
@@ -1030,15 +1037,6 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             idx_InRoutes[routes[i][j]] = i;
     }
 
-            // printf("\nSolução Inicial(%.3f):\n", currentCost);
-            // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
-    
-    // double c1, c2, c3;
-
-    // printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~ INITIAL ~~~~~~~~~~~~~~\n");
-    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
-
-    
     while( noImp < NUM_IT )
     {
         k = 0;
@@ -1258,29 +1256,7 @@ int _return_demand(int *r, int size, int *demands, Graph *g){
 
 char opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g){
 
-    int num_trucks = graph_return_trucks(g), 
-        // num_vertex = graph_return_num_vertex(g),          // Número de rotas/caminhões
-        // noImp = 0,                                                                             // Quantidade de vezes que não houve melhora da solução
-        // k,                                                                                     // Rota atual a ser manipulada
-        // **bestSolution = _copy_route_matrix(NULL, routes, num_trucks, sizeR, num_vertex), // Melhor solução achada
-        *best_sizeR =   malloc(sizeof(int) * num_trucks),                                 // Tamanho das rotas na melhor solução achada
-        *best_demandRoutes = malloc(sizeof(int) * num_trucks);                                 // Demanda das rotas na melhor solução achada
-        // *idx_InRoutes =      malloc(sizeof(int) * num_vertex);                                 // Vetor que salva o índice da rota dos vértices
-
-    // double currentCost = _return_total_cost_route(routes, sizeR, num_trucks, graph_return_adjacencies(g)),  // Variável com o custo da solução atual
-    //        newCost = 0,                                                                                          // Variável com o custo da nova solução encontrada
-    //       *costRoutes = malloc(sizeof(double) * num_trucks);                                                     // Vetor com custo de todas as rotas
-
-    // Inicializa variáveis
-    memcpy(best_sizeR, sizeR, sizeof(int) * num_trucks);      // Salva tamanhos da rota inicial (Melhor solução encontrada)
-    memcpy(best_demandRoutes, demandR, sizeof(int) * num_trucks);
-
-    // int vezes[size];
-    // for(int i = 0; i < size; i++) vezes[i] = 0;
-
     srand(time(NULL) + clock());
-
-    // char change = 0;
 
     int route_src[size], route_dest[size];
     for(int i = 0; i < size; i++) route_src[i] = 0;
@@ -1292,8 +1268,6 @@ char opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double 
         // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
         while(route_src[routeOrigem]){
             routeOrigem = rand() % size; // Rota 
-            // printf("Route src: %d(%d) - [", routeOrigem, route_src[routeOrigem]);
-            // _printfvet(route_src, size);
         }
         route_src[routeOrigem] = 1;
 
@@ -1354,18 +1328,11 @@ char opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double 
                             rota2[k2] = routes[routeDestino][k];
                         }
 
-                        // printa_rota(routes[routeOrigem], sizeR[routeOrigem], demands, graph_return_capacity(g), g);
-                        // printa_rota(routes[routeDestino], sizeR[routeDestino], demands, graph_return_capacity(g), g);
-                        // printa_rota(rota1, k1, demands, graph_return_capacity(g), g);
-                        // printa_rota(rota2, k2, demands, graph_return_capacity(g), g);
-
                         int demand1 = _return_demand(rota1, k1, demands, g),
                             demand2 = _return_demand(rota2, k2, demands, g);
 
                         int capacity = graph_return_capacity(g);
-                        // printf("Naum axei niadja\n");
                         if(demand1 <= capacity && demand2 <= capacity){
-                            // printf("Achado uma melhor!\n");
                             
                             memcpy(routes[routeOrigem], rota1, sizeof(int) * k1);
                             memcpy(routes[routeDestino], rota2, sizeof(int) * k2);

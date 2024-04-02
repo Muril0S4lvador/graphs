@@ -76,7 +76,7 @@ void graph_remove_edge(Graph *g, int v1, int v2);
 // Retorna se a aresta (v1, v2) existe no grafo
 bool graph_edge_exists(Graph *g, int v1, int v2);
 
-// Retorna um grafo de acordo com uma instância da CRVPLIB
+// Retorna um grafo de acordo com uma instância da CVRPLIB
 Graph *graph_read_file_CVRPLIB(char *fileName);
 
 // Retorna um grafo de acordo com um arquivo txt
