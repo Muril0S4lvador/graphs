@@ -3,7 +3,10 @@ all: objects objects/main.o main
 teste: objects
 	gcc -g -o main $(ARG1) objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o -lm
 
-objects: objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o
+objects: objects/ objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o
+
+objects/:
+	@mkdir objects
 
 objects/data.o: src/data/data.h src/data/data.c
 	gcc -g -c src/data/data.c -Wall -o objects/data.o
