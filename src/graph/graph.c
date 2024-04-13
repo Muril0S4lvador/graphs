@@ -10,6 +10,16 @@ struct Route{
     int demand;
 };
 
+struct Info{
+    int total_iterations;
+    int imp_iterations;
+    double time_ms;
+    int srand_seed;
+    char *instance;
+    Route *routes;
+    int optimal;
+};
+
 struct Graph{
     char *name;
     char *comment;
@@ -443,94 +453,6 @@ void graph_2opt(Graph *g){
     free(cost);
 }
 
-void graph_route_destroy(Graph *g){
-    if ( !graph_has_route(g) ) return;
-    for(int i = 0; i < g->trucks; i++){
-            free(g->route[i].route);
-    }
-    free(g->route);
-}
-
-void graph_destroy(Graph *g){
-
-    matrix_destroy(g->adj, g->num_vertex);
-
-    for(int i = 0; vector_size(g->vertices); i++){
-        Data *d = vector_pop_back(g->vertices);
-        data_destroy(d);
-    }
-    graph_route_destroy(g);
-    vector_destroy(g->vertices);
-    free(g->name);
-    free(g->comment);
-    free(g);
-}
-
-
-
-
-
-
-
-
-// void graphPossibilita(Graph *g){
-//     // int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g
-
-//     if( !graph_has_route(g) ){
-//         printf("Necessário a construção de uma solução inicial.\n");
-//         return;
-//     }
-    
-//     int **routes = malloc(sizeof(int*) * g->trucks),
-//         *sizeR = malloc(sizeof(int) * g->trucks),
-//         *demandsR = malloc(sizeof(int) * g->trucks),
-//         *demands = graph_return_demands(g);
-//     double *cost = malloc(sizeof(double) * g->trucks);
-//     for(int i = 0; i < g->trucks; i++){
-//         routes[i] = route_return_route(g, i);
-//         sizeR[i] = route_return_size(g, i);
-//         demandsR[i] = route_return_demand(g, i);
-//         cost[i] = route_return_cost(g, i);
-//     }
-    
-//     possibilitaRotas(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
-
-//     free(routes);
-//     free(sizeR);
-//     free(demandsR);
-//     free(cost);
-//     free(demands);
-// }
-
-// void graphPossibilitaRealoc(Graph *g){
-//     // int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g
-
-//     if( !graph_has_route(g) ){
-//         printf("Necessário a construção de uma solução inicial.\n");
-//         return;
-//     }
-    
-//     int **routes = malloc(sizeof(int*) * g->trucks),
-//         *sizeR = malloc(sizeof(int) * g->trucks),
-//         *demandsR = malloc(sizeof(int) * g->trucks),
-//         *demands = graph_return_demands(g);
-//     double *cost = malloc(sizeof(double) * g->trucks);
-//     for(int i = 0; i < g->trucks; i++){
-//         routes[i] = route_return_route(g, i);
-//         sizeR[i] = route_return_size(g, i);
-//         demandsR[i] = route_return_demand(g, i);
-//         cost[i] = route_return_cost(g, i);
-//     }
-    
-//     possibilitaRotasRealoc(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
-
-//     free(routes);
-//     free(sizeR);
-//     free(demandsR);
-//     free(cost);
-//     free(demands);
-// }
-
 void graph_enables_routes(Graph *g){
 
     if( !graph_has_route(g) ){
@@ -561,31 +483,25 @@ void graph_enables_routes(Graph *g){
 
 }
 
-void graph_teste(Graph *g){
-
-    if( !graph_has_route(g) ){
-        printf("Necessário a construção de uma solução inicial.\n");
-        return;
-    }
-    
-    int **routes = malloc(sizeof(int*) * g->trucks),
-        *sizeR = malloc(sizeof(int) * g->trucks),
-        *demandsR = malloc(sizeof(int) * g->trucks),
-        *demands = graph_return_demands(g);
-    double *cost = malloc(sizeof(double) * g->trucks);
+void graph_route_destroy(Graph *g){
+    if ( !graph_has_route(g) ) return;
     for(int i = 0; i < g->trucks; i++){
-        routes[i] = route_return_route(g, i);
-        sizeR[i] = route_return_size(g, i);
-        demandsR[i] = route_return_demand(g, i);
-        cost[i] = route_return_cost(g, i);
+            free(g->route[i].route);
     }
-    
-    opt2_inter_routes(routes, g->trucks, sizeR, demandsR, cost, demands, g);
+    free(g->route);
+}
 
-    free(routes);
-    free(sizeR);
-    free(demandsR);
-    free(cost);
-    free(demands);
+void graph_destroy(Graph *g){
 
+    matrix_destroy(g->adj, g->num_vertex);
+
+    for(int i = 0; vector_size(g->vertices); i++){
+        Data *d = vector_pop_back(g->vertices);
+        data_destroy(d);
+    }
+    graph_route_destroy(g);
+    vector_destroy(g->vertices);
+    free(g->name);
+    free(g->comment);
+    free(g);
 }

@@ -3,23 +3,21 @@
 #include "src/graph/graph.h"
 #include "src/graphviz_print/graphviz_print.h"
 
-#include "src/algorithms/algorithms.h"
-#include "src/adjacency_matrix/matrix.h"
-
 #include <time.h>
 
 void distanceToOptimal(double cost, double optimal){
     double difference;
     difference = (double)((cost - optimal) / optimal) * 100;
-    printf("%.0lf %.0lf (%.2lf)\n", cost, optimal, difference);
+    printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
 }
 
 int main( int argc, char* argv[] ){
 
+    srand(1);
+
+
     clock_t end, start = clock();
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-
-    // graph_print(g);
 
     // Prepara solução inicial para ser otimizada
     graph_Clarke_Wright_parallel_route(g);

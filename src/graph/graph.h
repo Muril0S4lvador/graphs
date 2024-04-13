@@ -7,18 +7,15 @@
 #include <string.h>
 
 #include "../adjacency_matrix/matrix.h"
+#include "../route/route.h"
 
 typedef unsigned char bool;
-
-#define UNDIRECTED 1
-#define DIRECTED 0
 
 #define NEIGHBORHOOD_STRUCTURES 3
 
 #define NUM_IT 10000
 
 typedef struct Graph Graph;
-typedef struct Route Route;
 
 Graph *graph_construct(int v, bool direction);
 
@@ -115,6 +112,8 @@ void graph_2opt(Graph *g);
 // Melhora as rotas de um grafo de acordo com o algoritmo VNS
 void graph_Variable_Neighborhood_Search(Graph *g);
 
+void graph_enables_routes(Graph *g);
+
 // Desaloca as rotas de um grafo da memória
 void graph_route_destroy(Graph *g);
 
@@ -122,11 +121,7 @@ void graph_route_destroy(Graph *g);
 void graph_destroy(Graph *g);
 
 
-void graph_enables_routes(Graph *g);
 
-
-
-void graph_teste(Graph *g);
 
 
 

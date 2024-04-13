@@ -34,7 +34,7 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost);
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *demands, int *demandRoutes);
 
 // Melhora uma rota já criada de acordo com o algoritmo de descida em vizinhanças
-int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *idx_InRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g);
+int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g);
 
 // Busca viabilizar uma rota com o método de troca de operadores
 void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g);
@@ -42,11 +42,11 @@ void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, i
 // Busca viabilizar uma rota com o método de realocação de operadores
 void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g);
 
+char opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g);
 
 
 /* =============================================== APAGAR DEPOIS ================================================================== */
 
-char opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g);
 
 // Printa todas as rotas
 void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands);

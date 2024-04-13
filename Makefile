@@ -38,5 +38,11 @@ main: objects/main.o objects/graph.o objects/graphviz_print.o objects/algorithms
 imgs_clean:
 	rm -r imgs/*.dot* imgs/arq_dots/*
 
+output: out/
+	@rm -rf out/*
+
+out/:
+	@mkdir out
+
 clean:
 	rm -rf */*.o *~ main
