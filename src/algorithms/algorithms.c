@@ -994,8 +994,9 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     memcpy(best_sizeRoutes, sizeRoutes, sizeof(int) * num_trucks);      // Salva tamanhos da rota inicial (Melhor solução encontrada)
     memcpy(best_demandRoutes, demandRoutes, sizeof(int) * num_trucks);  // Salva demandas da rota inicial (Melhor solução encontrada)
 
+    Route *r = graph_return_route(g);
     for(int i = 0; i < num_trucks; i++){
-        costRoutes[i] = route_return_cost(g, i);
+        costRoutes[i] = route_return_cost(r, i);
     }
 
     while( noImp < NUM_IT )
@@ -1113,9 +1114,10 @@ void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, i
         }
     }
 
+    Route *r = graph_return_route(g);
     for(int i = 0; i < size; i++){
-        route_set_demand(g, i, demandRoutes[i]);
-        route_set_cost(g, i, cost[i]);
+        route_set_cost(r, cost[i], i);
+        route_set_cost(r, demandRoutes[i], i);
     }
 }
 

@@ -32,8 +32,6 @@ int main( int argc, char* argv[] ){
 
     printf("Time: %.0lf ms\n", ((double)(end - start) / CLOCKS_PER_SEC) * 1000);
 
-    route_print(g);
-
     graph_destroy(g);
 
     return 0;

@@ -1,9 +1,9 @@
 all: objects objects/main.o main
 
 teste: objects
-	gcc -g -o main $(ARG1) objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o -lm
+	gcc -g -o main $(ARG1) objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o objects/route.o -lm
 
-objects: objects/ objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o
+objects: objects/ objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o objects/route.o
 
 objects/:
 	@mkdir objects
@@ -29,11 +29,14 @@ objects/algorithms.o: src/algorithms/algorithms.h src/algorithms/algorithms.c
 objects/graph.o: src/graph/graph.h src/graph/graph.c
 	gcc -g -c src/graph/graph.c -Wall -o objects/graph.o
 
+objects/route.o: src/route/route.h src/route/route.c
+	gcc -g -c src/route/route.c -Wall -o objects/route.o
+
 objects/main.o: main.c
 	gcc -g -c main.c -Wall -o objects/main.o
 
-main: objects/main.o objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o
-	gcc -g -o main objects/main.o objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o -lm
+main: objects/main.o objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o objects/route.o
+	gcc -g -o main objects/main.o objects/graph.o objects/graphviz_print.o objects/algorithms.o objects/union_find.o objects/vector.o objects/matrix.o objects/data.o objects/route.o -lm
 
 imgs_clean:
 	rm -r imgs/*.dot* imgs/arq_dots/*

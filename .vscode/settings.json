@@ -60,7 +60,11 @@
     "data.h": "c",
     "graphviz_print.h": "c",
     "stdio.h": "c",
-    "matrix.h": "c"
+    "matrix.h": "c",
+    "array": "c",
+    "string_view": "c",
+    "initializer_list": "c",
+    "utility": "c"
   },
   "C_Cpp.dimInactiveRegions": false,
   "C_Cpp.errorSquiggles": "disabled",
