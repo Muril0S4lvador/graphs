@@ -142,7 +142,7 @@ double graph_return_total_cost(Graph *g){
     Route *r = graph_return_route(g);
 
     for(int i = 0; i < g->trucks; i++){
-        cost += route_return_cost(r[i]);
+        cost += route_return_cost(r, i);
     }
     
     return cost;
@@ -353,10 +353,10 @@ void graph_Clarke_Wright_serial_route(Graph *g){
 void graph_set_route(Graph *g, int idx, void *route, int size, int demand){
     if( !idx ) g->route = route_construct(g->trucks);
 
-    route_set_route(g->route[idx], route);
-    route_set_cost(g->route[idx], matrix_return_route_cost(g->adj, route, size));
-    route_set_size(g->route[idx], size);
-    route_set_demand(g->route[idx], demand);
+    route_set_route(g->route, route, idx, size);
+    route_set_cost(g->route, matrix_return_route_cost(g->adj, route, size), idx);
+    route_set_size(g->route, size, idx);
+    route_set_demand(g->route, demand, idx);
 }
 
 int *graph_return_demands(Graph *g){
@@ -370,8 +370,9 @@ int *graph_return_demands(Graph *g){
 
 void graph_print_routes(Graph *g){
     if (!graph_has_route(g)) return;
-    printf("Capacity %d\n", graph_return_capacity(g));
+    printf("\nCapacity %d\n", graph_return_capacity(g));
     route_print(graph_return_route(g), graph_return_trucks(g));
+    printf("\n");
 }
 
 void graph_Variable_Neighborhood_Search(Graph *g){
@@ -386,9 +387,9 @@ void graph_Variable_Neighborhood_Search(Graph *g){
         *demandsR = malloc(sizeof(int) * g->trucks);
     for(int i = 0; i < g->trucks; i++){
         Route *r = graph_return_route(g);
-        routes[i] = route_return_route(r[i], i);
-        sizeR[i] = route_return_size(r[i], i);
-        demandsR[i] = route_return_demand(r[i], i);
+        routes[i] = route_return_route(r, i);
+        sizeR[i] = route_return_size(r, i);
+        demandsR[i] = route_return_demand(r, i);
     }
     
     variable_Neighborhood_Search(g, routes, sizeR, graph_return_demands(g), demandsR);
@@ -402,13 +403,13 @@ void graph_2opt(Graph *g){
     double *cost = malloc(sizeof(double) * graph_return_trucks(g));
     Route *r = graph_return_route(g);
     for(int i = 0; i < g->trucks; i++)
-        cost[i] = route_return_cost(r[i]);
+        cost[i] = route_return_cost(r, i);
 
     for(int i = 0; i < g->trucks; i++){
-        int *route = route_return_route(r[i]),
-            size = route_return_size(r[i]);
+        int *route = route_return_route(r, i),
+            size = route_return_size(r, i);
         opt2_algorithm(route, size, g->adj, &cost[i]);
-        route_set_cost(g->route, cost[i]);
+        route_set_cost(g->route, cost[i], i);
     }
     free(cost);
 }
@@ -427,10 +428,10 @@ void graph_enables_routes(Graph *g){
     double *cost = malloc(sizeof(double) * g->trucks);
     Route *r = graph_return_route(g);
     for(int i = 0; i < g->trucks; i++){
-        routes[i] = route_return_route(r[i]);
-        sizeR[i] = route_return_size(r[i]);
-        demandsR[i] = route_return_demand(r[i]);
-        cost[i] = route_return_cost(r[i]);
+        routes[i] = route_return_route(r, i);
+        sizeR[i] = route_return_size(r, i);
+        demandsR[i] = route_return_demand(r, i);
+        cost[i] = route_return_cost(r, i);
     }
     
     enables_route_swap(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
@@ -447,9 +448,7 @@ void graph_enables_routes(Graph *g){
 void graph_route_destroy(Graph *g){
     if ( !graph_has_route(g) ) return;
     Route *r = graph_return_route(g);
-    for(int i = 0; i < g->trucks; i++){
-            route_destroy(r[i]);
-    }
+    route_destroy(r, g->trucks);
     free(g->route);
 }
 

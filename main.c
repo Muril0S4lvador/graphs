@@ -15,22 +15,22 @@ int main( int argc, char* argv[] ){
 
     srand(1);
 
-
-    clock_t end, start = clock();
+    // clock_t end, start = clock();
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
     // Prepara solução inicial para ser otimizada
     graph_Clarke_Wright_parallel_route(g);
     graph_enables_routes(g);
-    graph_2opt(g);
 
     graph_Variable_Neighborhood_Search(g);
 
-    end = clock();
+    // end = clock();
 
-    distanceToOptimal(graph_return_total_cost(g), graph_return_optimal_cost(g));
+    // graph_print_routes(g);
 
-    printf("Time: %.0lf ms\n", ((double)(end - start) / CLOCKS_PER_SEC) * 1000);
+    // distanceToOptimal(graph_return_total_cost(g), graph_return_optimal_cost(g));
+
+    // printf("Time: %.0lf ms\n", ((double)(end - start) / CLOCKS_PER_SEC) * 1000);
 
     graph_destroy(g);
 

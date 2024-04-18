@@ -17,6 +17,9 @@ typedef unsigned char bool;
 
 typedef struct Graph Graph;
 
+struct Route;
+typedef struct Route Route;
+
 Graph *graph_construct(int v, bool direction);
 
 // Retorna número de vértices de um grafo
