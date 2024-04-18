@@ -13,23 +13,25 @@ typedef int costType;
 
 Route* route_construct(int size);
 
-int *route_return_route(Route *r, int i);
+int *route_return_route(Route *r, int index);
 
-int route_return_size(Route *r, int i);
+int route_return_size(Route *r, int index);
 
-int route_return_demand(Route *r, int i);
+int route_return_demand(Route *r, int index);
 
-costType route_return_cost(Route *r, int i);
+costType route_return_cost(Route *r, int index);
 
-void route_set_route(Route *r, int *route, int i, int size);
+costType route_return_total_cost(Route *r, int size);
 
-void route_set_size(Route *r, int size, int i);
+void route_set_route(Route *r, int *route, int index, int size);
 
-void route_set_demand(Route *r, int demand, int i);
+void route_set_size(Route *r, int size, int index);
 
-void route_set_cost(Route *r, costType cost, int i);
+void route_set_demand(Route *r, int demand, int index);
 
-void route_print(Route *r, int i);
+void route_set_cost(Route *r, costType cost, int index);
+
+void route_print(Route *r, int index);
     
 void route_destroy(Route *r, int size);
 

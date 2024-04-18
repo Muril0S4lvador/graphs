@@ -65,7 +65,9 @@
     "string_view": "c",
     "initializer_list": "c",
     "utility": "c",
-    "algorithms.h": "c"
+    "algorithms.h": "c",
+    "time.h": "c",
+    "info.h": "c"
   },
   "C_Cpp.dimInactiveRegions": false,
   "C_Cpp.errorSquiggles": "disabled",

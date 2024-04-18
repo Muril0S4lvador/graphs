@@ -11,7 +11,7 @@
 
 typedef unsigned char bool;
 
-#define NEIGHBORHOOD_STRUCTURES 3
+#define NEIGHBORHOOD_STRUCTURES 4
 
 #define NUM_IT 10000
 
@@ -48,9 +48,6 @@ void *graph_return_adjacencies(Graph *g);
 
 // Retorna a i-ésima rota de um grafo
 Route *graph_return_route(Graph *g);
-
-// Retorna o custo total das rotas de um grafo
-double graph_return_total_cost(Graph *g);
 
 // Retorna o custo ótimo da instância lida
 double graph_return_optimal_cost(Graph *g);

@@ -2,7 +2,8 @@
 #include "../graphviz_print/graphviz_print.h"
 #include "../union_find/union_find.h"
 #include "../adjacency_matrix/matrix.h"
-#include "../Vector/vector.h"
+
+#include "../info/info.h"
 
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
 
@@ -624,8 +625,8 @@ int edges_compare_descending(const void* a, const void* b) {
 
 void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
-    qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);                      // Ordena decrescente as economias
-    qsort(near_0, graph_return_num_vertex(g)-1, sizeof(Edges), edges_compare_growing); // Ordena crescrente os vértices + próx de 0
+    clock_t start, end;
+    start = clock();
 
     int num_vertex = graph_return_num_vertex(g),            // Número de vértices do grafo
         num_trucks = graph_return_trucks(g),                // Número de rotas/caminhões do grafo
@@ -635,6 +636,9 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
         *gl_visited = calloc( num_vertex,  sizeof(int) ),   // Vetor bool de vértices ja inseridos em alguma rota
         *demands = graph_return_demands(g),                 // Vetor de demanda dos vértices
         demand_act_route = 0;                               // Demanda da rota atual
+
+    qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);                      // Ordena decrescente as economias
+    qsort(near_0, graph_return_num_vertex(g)-1, sizeof(Edges), edges_compare_growing); // Ordena crescrente os vértices + próx de 0
 
     *(act_route) = 0;
 
@@ -718,11 +722,15 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
     free(gl_visited);
     free(act_route);
     free(demands);
+
+    end = clock();
+    info_set_time_constructive(start, end);
 }
 
 void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
-    qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);   // Ordena o vetor de economias decrescente
+    clock_t start, end;
+    start = clock();
 
    int  num_vertex = graph_return_num_vertex(g),                // Número de vértices no grafo
         num_trucks = graph_return_trucks(g),                    // Número de caminhões no grafo
@@ -735,6 +743,8 @@ void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int siz
         *demand_route = malloc(sizeof(int) * num_trucks);   // vetor de demanda das rotas
 
     char imp;   // Variável para controle de adição nas rotas
+
+    qsort(e, sizeEdges, sizeof(Edges), edges_compare_descending);   // Ordena o vetor de economias decrescente
 
     // Inicializa elementos de rota
     for( int i = 0; i < num_trucks; i++){
@@ -851,6 +861,9 @@ void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int siz
     for(int i = 0; i < num_trucks; i++)
         free(route[i]);
     free(route);
+
+    end = clock();
+    info_set_time_constructive(start, end);
 }
 
 void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
@@ -882,12 +895,15 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
 
 int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g){
 
-        int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),      // Número de rotas/caminhões
-        capacity = graph_return_capacity(g),                                                   // Capacidade da rota/caminhão
-        k = 0,                                                                                 // Rota atual a ser manipulada
-        **bestSolution = _copy_route_matrix(NULL, routes, num_trucks, sizeRoutes, num_vertex), // Melhor solução achada
-        *best_sizeRoutes =   malloc(sizeof(int) * num_trucks),                                 // Tamanho das rotas na melhor solução achada
-        *best_demandRoutes = malloc(sizeof(int) * num_trucks);                                 // Demanda das rotas na melhor solução achada
+    clock_t start, end;
+    start = clock();
+
+    int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),      // Número de rotas/caminhões
+    capacity = graph_return_capacity(g),                                                   // Capacidade da rota/caminhão
+    k = 0,                                                                                 // Rota atual a ser manipulada
+    **bestSolution = _copy_route_matrix(NULL, routes, num_trucks, sizeRoutes, num_vertex), // Melhor solução achada
+    *best_sizeRoutes =   malloc(sizeof(int) * num_trucks),                                 // Tamanho das rotas na melhor solução achada
+    *best_demandRoutes = malloc(sizeof(int) * num_trucks);                                 // Demanda das rotas na melhor solução achada
 
     double currentCost = _return_total_cost_route(routes, sizeRoutes, num_trucks, graph_return_adjacencies(g)),  // Variável com o custo da solução atual
            newCost = 0,                                                                                          // Variável com o custo da nova solução encontrada
@@ -904,7 +920,7 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
         *test_demandR     = malloc(sizeof(int) * num_trucks);   // Demanda das rotas da nova solução encontrada
     double *test_costR     = malloc(sizeof(double) * num_trucks); // Vetor com custo de todas as rotas da nova solução encontrada
 
-    while( k <= NEIGHBORHOOD_STRUCTURES )
+    while( k < NEIGHBORHOOD_STRUCTURES )
     {
 
         memcpy(test_sizeR,       best_sizeRoutes,   sizeof(int) * num_trucks);  // Copia tamanhos da melhor rota atual para modificação
@@ -946,6 +962,7 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
         if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
             if(control == 0) printf("NOT OK (%d)\n", k);
             k = 0;
+            info_inc_imp_iterations_vnd();
 
             _destroyRoutesMatrix(bestSolution, num_trucks);
             bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR, num_vertex);
@@ -957,7 +974,10 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
 
         } else {
             k++;
+            info_inc_noimp_iterations_vnd();
         }
+
+        info_inc_total_iterations_vnd();
         _destroyRoutesMatrix(solutionTest, num_trucks);
     }
 
@@ -974,10 +994,16 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
     free(test_demandR);
     free(test_costR);
 
+    end = clock();
+    info_set_time_vnd(start, end);
+
     return bestSolution;
 }
 
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *demands, int *demandRoutes){
+
+    clock_t start, end;
+    start = clock();
 
     int num_trucks = graph_return_trucks(g), num_vertex = graph_return_num_vertex(g),          // Número de rotas/caminhões
         noImp = 0,                                                                             // Quantidade de vezes que não houve melhora da solução
@@ -1029,6 +1055,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
                 k = 0;
                 noImp = 0;
+                info_inc_imp_iterations_vns();
 
                 _destroyRoutesMatrix(bestSolution, num_trucks);
                 bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR, num_vertex);
@@ -1049,7 +1076,10 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
             } else {
                 noImp++;
                 k++;
+                info_inc_real_noimp_iterations_vns();
             }
+
+            info_inc_total_iterations_vns();
             
             _destroyRoutesMatrix(solutionTest, num_trucks);
             free(test_sizeR);
@@ -1068,10 +1098,15 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     free(demands);
     free(costRoutes);
     _destroyRoutesMatrix(bestSolution, num_trucks);
+
+    end = clock();
+    info_set_time_vns(start, end);
 }
 
 void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g){
-
+    clock_t start, end;
+    start = clock();
+    
     for(int i = 0; i < size; i++){
         
         if( demandRoutes[i] <= capacity ) continue;
@@ -1119,9 +1154,15 @@ void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, i
         route_set_cost(r, cost[i], i);
         route_set_cost(r, demandRoutes[i], i);
     }
+
+    end = clock();
+    info_set_time_enables(start, end);
 }
 
 void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g){
+
+    clock_t start, end;
+    start = clock();
 
     int **solution = _copy_route_matrix(NULL, routes, size, sizeRoutes, graph_return_num_vertex(g));
 
@@ -1167,6 +1208,9 @@ void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *dema
         graph_set_route(g, i, solution[i], sizeRoutes[i], demandRoutes[i]);
     
     _destroyRoutesMatrix(solution, size);
+
+    end = clock();
+    info_set_time_enables(start, end);
 }
 
 /* =============================================== APAGAR DEPOIS ================================================================== */

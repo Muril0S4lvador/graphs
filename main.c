@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "src/graph/graph.h"
+#include "src/info/info.h"
 #include "src/graphviz_print/graphviz_print.h"
 
 #include <time.h>
@@ -12,27 +13,24 @@ void distanceToOptimal(double cost, double optimal){
 }
 
 int main( int argc, char* argv[] ){
+    int seed = 1;
 
-    srand(1);
+    srand(seed);
 
-    // clock_t end, start = clock();
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
+    info_construct(g, seed);
 
-    // Prepara solução inicial para ser otimizada
     graph_Clarke_Wright_parallel_route(g);
     graph_enables_routes(g);
 
     graph_Variable_Neighborhood_Search(g);
 
-    // end = clock();
+    info_set_routes(graph_return_route(g));
 
-    // graph_print_routes(g);
-
-    // distanceToOptimal(graph_return_total_cost(g), graph_return_optimal_cost(g));
-
-    // printf("Time: %.0lf ms\n", ((double)(end - start) / CLOCKS_PER_SEC) * 1000);
+    info_print();
 
     graph_destroy(g);
+    info_destroy();
 
     return 0;
 }

@@ -136,18 +136,6 @@ Route* graph_return_route(Graph *g){
     return (g->route) ? g->route : NULL;
 }
 
-double graph_return_total_cost(Graph *g){
-    if(!g) return -1;
-    double cost = 0;
-    Route *r = graph_return_route(g);
-
-    for(int i = 0; i < g->trucks; i++){
-        cost += route_return_cost(r, i);
-    }
-    
-    return cost;
-}
-
 double graph_return_optimal_cost(Graph *g){
     if(!g) return -1;
     double cost = -1;
@@ -449,7 +437,6 @@ void graph_route_destroy(Graph *g){
     if ( !graph_has_route(g) ) return;
     Route *r = graph_return_route(g);
     route_destroy(r, g->trucks);
-    free(g->route);
 }
 
 void graph_destroy(Graph *g){

@@ -12,37 +12,45 @@ Route* route_construct(int size){
     return r;
 }
 
-int *route_return_route(Route *r, int i){
-    return r[i].route;
+int *route_return_route(Route *r, int index){
+    return r[index].route;
 }
 
-int route_return_size(Route *r, int i){
-    return r[i].size;
+int route_return_size(Route *r, int index){
+    return r[index].size;
 }
 
-int route_return_demand(Route *r, int i){
-    return r[i].demand;
+int route_return_demand(Route *r, int index){
+    return r[index].demand;
 }
 
-costType route_return_cost(Route *r, int i){
-    return  r[i].cost;
+costType route_return_cost(Route *r, int index){
+    return  r[index].cost;
 }
 
-void route_set_route(Route *r, int *route, int i, int size){
-    r[i].route = malloc(sizeof(int) * size);
-    memcpy(r[i].route, route, sizeof(int) * size);
+costType route_return_total_cost(Route *r, int size){
+    if(!r) return -1;
+    costType cost = 0;
+    for(int i = 0; i < size; i++)
+        cost += route_return_cost(r, i);
+    return cost;
 }
 
-void route_set_size(Route *r, int size, int i){
-    r[i].size = size;
+void route_set_route(Route *r, int *route, int index, int size){
+    r[index].route = malloc(sizeof(int) * size);
+    memcpy(r[index].route, route, sizeof(int) * size);
 }
 
-void route_set_demand(Route *r, int demand, int i){
-    r[i].demand = demand;
+void route_set_size(Route *r, int size, int index){
+    r[index].size = size;
 }
 
-void route_set_cost(Route *r, costType cost, int i){
-    r[i].cost = cost;
+void route_set_demand(Route *r, int demand, int index){
+    r[index].demand = demand;
+}
+
+void route_set_cost(Route *r, costType cost, int index){
+    r[index].cost = cost;
 }
 
 void route_print(Route *r, int size){
@@ -65,4 +73,5 @@ void route_print(Route *r, int size){
 void route_destroy(Route *r, int size){
     for(int i = 0; i < size; i++)
         free(r[i].route);
+    free(r);
 }
