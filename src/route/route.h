@@ -32,6 +32,8 @@ void route_set_demand(Route *r, int demand, int index);
 void route_set_cost(Route *r, costType cost, int index);
 
 void route_print(Route *r, int index);
+
+void route_print_file(Route *r, int size, FILE *arq);
     
 void route_destroy(Route *r, int size);
 

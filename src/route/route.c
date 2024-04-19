@@ -69,6 +69,23 @@ void route_print(Route *r, int size){
     }
     printf("Total Cost: %d\n", sum);
 }
+
+void route_print_file(Route *r, int size, FILE *arq){
+    int sum = 0;
+    for(int j = 0; j < size; j++){
+
+        // printf("Route #%d | Demand:%d Cost: %d\n", j + 1, r[j].demand, (int)r[j].cost);
+        fprintf(arq, "Route #%d: ", j + 1);
+        int size = r[j].size;
+        for(int i = 0; i < size; i++){
+            fprintf(arq, "%d ", r[j].route[i]);
+        }
+        fprintf(arq, "\nDemand: %d Cost: %.0lf\n\n", r[j].demand, r[j].cost);
+        sum += r[j].cost;
+        // fprintf(arq, "\n");
+    }
+    fprintf(arq, "Total Cost: %d\n", sum);
+}
     
 void route_destroy(Route *r, int size){
     for(int i = 0; i < size; i++)

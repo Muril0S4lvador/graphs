@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <dirent.h>
 #include <time.h>
 
 #include "../graph/graph.h"
@@ -12,7 +13,12 @@ typedef struct Info Info;
 
 Info *info;
 
-void info_construct(Graph *g, int seed);
+Info *info_malloc();
+Info **info_array_construct();
+
+void info_define(Info **arr, int idx);
+
+void info_construct(Graph *g);
 
 void info_inc_total_iterations_vns();
 void info_inc_imp_iterations_vns();
@@ -29,10 +35,24 @@ void info_set_time_vns         (clock_t start, clock_t end);
 
 void info_set_routes(Route *r);
 
+void info_set_seed(int seed);
+
 void info_print();
 
+void info_print_arr_file(Info **arr, int size);
+
+void info_print_solution_file(Info **arr, int size);
+
+void info_print_results_file(Info **arr, int size);
+
+void info_print1(Info *info1);
+
+void info_reset();
+
+void info_route_destroy();
+
+void info_arr_destroy(Info **arr, int size);
+
 void info_destroy();
-
-
 
 #endif

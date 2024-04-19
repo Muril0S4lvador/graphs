@@ -12,25 +12,46 @@ void distanceToOptimal(double cost, double optimal){
     printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
 }
 
-int main( int argc, char* argv[] ){
-    int seed = 1;
 
-    srand(seed);
+int main( int argc, char* argv[] ){
+
+    int times = 10;
+    int seed  = 0;
+    FILE *f = fopen("entradas/seeds.bin", "rb");
+
+    Info **arr = info_array_construct(times);
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    info_construct(g, seed);
 
-    graph_Clarke_Wright_parallel_route(g);
-    graph_enables_routes(g);
+    for(int i = 0; i < times; i++){
 
-    graph_Variable_Neighborhood_Search(g);
+        info_define(arr, i);
+        info_construct(g);
 
-    info_set_routes(graph_return_route(g));
+        fread(&seed, sizeof(int), 1, f);
+        srand(seed);
+        info_set_seed(seed);
+        
+        graph_Clarke_Wright_parallel_route(g);
+        graph_enables_routes(g);
+        graph_Variable_Neighborhood_Search(g);
+        
+        info_set_routes(graph_return_route(g));
 
-    info_print();
+        graph_route_destroy(g);
+    }
+    fclose(f);
+
+    for(int i = 0; i < times; i++){
+        // info_print1(arr[i]);
+    }
+
+    info_print_arr_file(arr, times);
+    info_print_solution_file(arr, times);
+    info_print_results_file(arr, times);
 
     graph_destroy(g);
-    info_destroy();
+    info_arr_destroy(arr, times);
 
     return 0;
 }

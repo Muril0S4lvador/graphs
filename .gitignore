@@ -5,3 +5,4 @@ imgs/
 *.csv
 *.txt
 objects
+out/

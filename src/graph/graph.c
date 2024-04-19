@@ -437,6 +437,7 @@ void graph_route_destroy(Graph *g){
     if ( !graph_has_route(g) ) return;
     Route *r = graph_return_route(g);
     route_destroy(r, g->trucks);
+    g->route = NULL;
 }
 
 void graph_destroy(Graph *g){
