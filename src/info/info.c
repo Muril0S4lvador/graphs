@@ -40,7 +40,7 @@ void _print_vector_file(int *vet, int size, FILE *arq){
 void _directory_verify(){
     if(!info || !info->instance){printf("ERRO: No instance\n"); return;}
     char directory[50];
-    sprintf(directory, "out/%s", info->instance);
+    sprintf(directory, "out/%c/%s", info->instance[0], info->instance);
     DIR *dir = opendir(directory);
     if( dir ){
         closedir( dir );
@@ -228,7 +228,7 @@ void info_print_arr_file(Info **arr, int size){
 
         if(!arr[i] || !arr[i]->instance ){ printf("ERROR: No instance\n"); return; }
 
-        sprintf(filename, "out/%s/%s_Seed%d.info", arr[i]->instance, arr[i]->instance, arr[i]->srand_seed);
+        sprintf(filename, "out/%c/%s/%s_Seed%d.info", arr[i]->instance[0], arr[i]->instance, arr[i]->instance, arr[i]->srand_seed);
         arq = fopen(filename, "w");
 
         if(!arq) {printf("ERRO: Problem with file %s\n", filename); continue;}   
@@ -270,7 +270,7 @@ void info_print_solution_file(Info **arr, int size){
 
     _directory_verify();
     char filename[100];
-    sprintf(filename, "out/%s/%s.sol", arr[0]->instance, arr[0]->instance);
+    sprintf(filename, "out/%c/%s/%s.sol", arr[0]->instance[0], arr[0]->instance, arr[0]->instance);
     FILE *arq = fopen(filename, "w");
     if(!arq) {printf("ERRO: Problem with file %s\n", filename); return;} 
     
@@ -351,7 +351,7 @@ void info_print_results_file(Info **arr, int size){
     med_cost /= size;
 
     char filename[50];
-    sprintf(filename, "out/%s/%s_results.info", arr[0]->instance, arr[0]->instance);
+    sprintf(filename, "out/%c/%s/%s_results.info", arr[0]->instance[0], arr[0]->instance, arr[0]->instance);
     FILE *arq = fopen(filename, "w");
     if(!arq) {printf("ERRO: Problem with file %s\n", filename); return;} 
 

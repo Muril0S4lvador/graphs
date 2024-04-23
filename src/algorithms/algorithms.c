@@ -934,22 +934,22 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
 
         switch(k){
             case 0:
-            // printf("RELLOCATE\n");
+            printf("RELLOCATE\n");
                 // (void)
                 control = _reallocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, capacity, test_costR, graph_return_adjacencies(g), g);
                 break;
             case 1:
-            // printf("SWAP\n");
+            printf("SWAP\n");
                 // (void)
                 control = _swap_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, capacity, test_costR, g);
                 break;
             case 2:
-            // printf("OPT Intra\n");
+            printf("OPT Intra\n");
                 control = 1;
                 _melhorarRotas(solutionTest, num_trucks, test_sizeR, test_costR, graph_return_adjacencies(g));
                 break;
             case 3:
-            // printf("OPT Inter\n");
+            printf("OPT Inter\n");
                 control = _opt2_inter_routes(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, demands, g);
                 break;
         }
@@ -957,6 +957,18 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
         newCost = 0;
         for(int i = 0; i < num_trucks; i++){
             newCost += test_costR[i];
+            printf("%d ||| %d\n", (int)newCost, (int)currentCost);
+            if(test_demandR[i] > capacity){
+                printf("Route %d %d/%d\n", i, test_demandR[i], capacity);
+            }
+        }
+
+        if(newCost < 1162 && currentCost == 1162){
+            printf("\n\nNOVO\n");
+            printsd(solutionTest, num_trucks, test_sizeR, test_demandR,test_costR, demands);
+            printf("\n\nATUAL\n");
+            printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, best_costRoutes, demands);
+            exit(0);
         }
 
         if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){

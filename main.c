@@ -15,13 +15,15 @@ void distanceToOptimal(double cost, double optimal){
 
 int main( int argc, char* argv[] ){
 
-    int times = 10;
+    int times = 1;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
     Info **arr = info_array_construct(times);
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
+
+    graph_print(g); exit(0);
 
     for(int i = 0; i < times; i++){
 
@@ -31,6 +33,8 @@ int main( int argc, char* argv[] ){
         fread(&seed, sizeof(int), 1, f);
         srand(seed);
         info_set_seed(seed);
+
+        printf("%d\n", seed);
         
         graph_Clarke_Wright_parallel_route(g);
         graph_enables_routes(g);
@@ -41,10 +45,6 @@ int main( int argc, char* argv[] ){
         graph_route_destroy(g);
     }
     fclose(f);
-
-    for(int i = 0; i < times; i++){
-        // info_print1(arr[i]);
-    }
 
     info_print_arr_file(arr, times);
     info_print_solution_file(arr, times);

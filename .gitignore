@@ -4,5 +4,5 @@ imgs/
 *dot*
 *.csv
 *.txt
-objects
+.objects
 out/
