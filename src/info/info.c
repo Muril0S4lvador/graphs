@@ -39,9 +39,28 @@ void _print_vector_file(int *vet, int size, FILE *arq){
 
 void _directory_verify(){
     if(!info || !info->instance){printf("ERRO: No instance\n"); return;}
+
+    DIR *dir = opendir("out/");
+    if( dir ){
+        closedir( dir );
+    } else {
+        system("make out/");
+    }
+
+    char directory_group[50];
+    sprintf(directory_group, "out/%c/", info->instance[0]);
+    dir = opendir(directory_group);
+    if( dir ){
+        closedir( dir );
+    } else {
+        char call[60];
+        sprintf(call, "mkdir %s", directory_group);
+        system(call);
+    }
+    
     char directory[50];
     sprintf(directory, "out/%c/%s", info->instance[0], info->instance);
-    DIR *dir = opendir(directory);
+    dir = opendir(directory);
     if( dir ){
         closedir( dir );
     } else {
@@ -308,7 +327,9 @@ void info_print_results_file(Info **arr, int size){
         vet_opt[tam],
         vet_Nopt[tam],
         size_opt = 0,
-        size_Nopt = 0;
+        size_Nopt = 0,
+        min_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes),
+        max_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes);
 
     double med_time_ms_constructive = 0,
            med_time_ms_enables = 0,
@@ -331,6 +352,9 @@ void info_print_results_file(Info **arr, int size){
 
         int total_cost = route_return_total_cost(arr[i]->routes, arr[i]->num_routes);
         med_cost += total_cost;
+
+        min_cost = (total_cost < min_cost) ? total_cost : min_cost;
+        max_cost = (total_cost > max_cost) ? total_cost : max_cost;
 
         if(total_cost == arr[i]->optimal) 
             vet_opt[size_opt++] = arr[i]->srand_seed;
@@ -373,7 +397,9 @@ void info_print_results_file(Info **arr, int size){
     fprintf(arq, "Average VND time:            %.4lf ms\n", med_time_ms_vnd);
     fprintf(arq, "Average VNS time:            %.4lf ms\n", med_time_ms_vns);
 
-    fprintf(arq, "\nAverage Cost: %d\n", med_cost);
+    fprintf(arq, "\nMinimun Cost: %d\n", min_cost);
+    fprintf(arq, "Maximun Cost: %d\n", max_cost);
+    fprintf(arq, "Average Cost: %d\n", med_cost);
 
     fprintf(arq, "\nOptimal srand seeds   : ");
     _print_vector_file(vet_opt, size_opt, arq);

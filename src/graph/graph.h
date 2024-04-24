@@ -91,6 +91,8 @@ int *graph_return_demands(Graph *g);
 // Imprime as rotas do grafo no terminal
 void graph_print_routes(Graph *g);
 
+void graph_check_routes(char *filename, Graph *g);
+
 // Melhora as rotas do grafo de acordo com o algoritmo 2OPT intra-rotas
 void graph_2opt(Graph *g);
 
@@ -104,7 +106,6 @@ void graph_route_destroy(Graph *g);
 
 // Desaloca um grafo da memória
 void graph_destroy(Graph *g);
-
 
 
 

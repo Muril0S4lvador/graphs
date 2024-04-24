@@ -363,6 +363,78 @@ void graph_print_routes(Graph *g){
     printf("\n");
 }
 
+void graph_check_routes(char *filename, Graph *g){
+
+    if(!g){printf("ERROR: Need Graph to check the routes\n"); return;}
+
+    FILE *f = fopen(filename, "r");
+    if(!f){printf("ERROR: Problem with %s\n", filename); return; }
+
+    int num_routes = graph_return_trucks(g), idx = 0;
+
+    int **routes = malloc(sizeof(int*) * num_routes),
+        *route_size = calloc(num_routes, sizeof(int)),
+        *demands = graph_return_demands(g),
+        *route_cost = calloc(num_routes, sizeof(int)),
+        *route_demand = calloc(num_routes, sizeof(int));
+    
+    char linha[500]; // Buffer para armazenar uma linha do arquivo
+
+    while (fgets(linha, sizeof(linha), f) != NULL) {
+        
+        // Verificar se a linha começa com "Route #"
+        if (strncmp(linha, "Route #", 7) == 0) {
+            // Se sim, ler os números da rota
+
+            int num, size = 10;
+            sscanf(linha, "Route #%*d: ");
+            routes[idx] = malloc(sizeof(int) * size);
+            routes[idx][route_size[idx]++] = 0;
+
+            char *token = strtok(linha, ":");
+            token = strtok(NULL, " ");
+
+            while( token != NULL ){
+                sscanf(token, "%d", &num);
+                if ( num != 0 ) {
+                    routes[idx][route_size[idx]++] = num; 
+                    route_demand[idx] += demands[num];
+                }
+
+                if( route_size[idx] >= size ){
+                    size *= 2;
+                    routes[idx] = realloc(routes[idx], sizeof(int) * size);
+                }
+                token = strtok(NULL, " ");
+            }
+            routes[idx][route_size[idx]++] = 0;
+            idx++;
+        }
+    }
+    fclose(f);
+
+    printf("Capacity: %d\nOptimal: %d\n", graph_return_capacity(g), (int)graph_return_optimal_cost(g));
+    int cost = 0;
+    for(int i = 0; i < num_routes; i++){
+        route_cost[i] = (int)matrix_return_route_cost(graph_return_adjacencies(g), routes[i], route_size[i]);
+        cost += route_cost[i];
+        printf("\nRota %d | [C: %d D: %d]\n", i+1, route_cost[i], route_demand[i]);
+        for(int j = 0; j < route_size[i]; j++){
+            printf("%d ", routes[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\nTotal cost: %d\n", cost);
+
+    for(int i = 0; i < num_routes; i++)
+        free(routes[i]);
+    free(routes);
+    free(route_size);
+    free(route_demand);
+    free(route_cost);
+    free(demands);
+}
+
 void graph_Variable_Neighborhood_Search(Graph *g){
     
     if( !graph_has_route(g) ){

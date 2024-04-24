@@ -15,15 +15,20 @@ void distanceToOptimal(double cost, double optimal){
 
 int main( int argc, char* argv[] ){
 
+    Graph *g = graph_read_file_CVRPLIB(argv[1]);
+    confereRota(argv[2], g);
+
+    graph_destroy(g);
+
+    exit(EXIT_SUCCESS);
+
     int times = 1;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
     Info **arr = info_array_construct(times);
 
-    Graph *g = graph_read_file_CVRPLIB(argv[1]);
-
-    graph_print(g); exit(0);
+    // Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
     for(int i = 0; i < times; i++){
 
