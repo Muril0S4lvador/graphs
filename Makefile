@@ -51,4 +51,4 @@ out/:
 	@mkdir out
 
 clean:
-	rm -rf */*.o *~ main
+	rm -rf .*/*.o *~ main

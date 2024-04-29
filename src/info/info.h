@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "../graph/graph.h"
+#include "../Vector/vector.h"
 
 typedef struct Info Info;
 
@@ -33,6 +34,9 @@ void info_set_time_enables     (clock_t start, clock_t end);
 void info_set_time_vnd         (clock_t start, clock_t end);
 void info_set_time_vns         (clock_t start, clock_t end);
 
+void info_save_improvement_vns(int value);
+void info_save_improvement_vnd(int value);
+
 void info_set_routes(Route *r);
 
 void info_set_seed(int seed);
@@ -44,6 +48,8 @@ void info_print_arr_file(Info **arr, int size);
 void info_print_solution_file(Info **arr, int size);
 
 void info_print_results_file(Info **arr, int size);
+
+void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *instance, int control);
 
 void info_print1(Info *info1);
 

@@ -12,15 +12,36 @@ void distanceToOptimal(double cost, double optimal){
     printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
 }
 
+/*
+int main(){
+    Vector *v = vector_construct();
+
+
+    for(int i = 0; i < 3; i++){
+    int *num = malloc(sizeof(int));
+    *num = i + 1;
+    vector_push_back(v,num);
+
+    }
+    
+    while(vector_size(v)){
+        int* u = vector_pop_back(v);
+        printf("%d\n", *u);
+        free(u);
+    }
+    vector_destroy(v);
+    return 0;
+}
+*/
 
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    confereRota(argv[2], g);
+    // confereRota(argv[2], g);
 
-    graph_destroy(g);
+    // graph_destroy(g);
 
-    exit(EXIT_SUCCESS);
+    // exit(EXIT_SUCCESS);
 
     int times = 1;
     int seed  = 0;

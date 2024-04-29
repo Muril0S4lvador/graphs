@@ -22,7 +22,15 @@ struct Info{
     double time_ms_vns;
     Route *routes;
     int num_routes;
+
+    Vector *improvements_vns_vector;
+    Vector *it_improvements_vns_vector;
+
+    Vector *improvements_vnd_vector;
+    Vector *it_improvements_vnd_vector;
 };
+
+/* =============================================== FUNÇÕES INTERNAS ================================================================== */
 
 double _calculate_time(clock_t start, clock_t end){
     return ((double)(end - start) / CLOCKS_PER_SEC) * 1000;
@@ -69,6 +77,9 @@ void _directory_verify(){
         system(call);
     }
 }
+
+/* =================================================================================================================================== */
+
 
 Info *info_malloc(){
     Info *i = malloc(sizeof(Info));
@@ -122,6 +133,12 @@ void info_construct(Graph *g){
     info->capacity = graph_return_capacity(g);
 
     info->routes = NULL;
+
+    info->improvements_vns_vector = vector_construct();
+    info->improvements_vnd_vector = vector_construct();
+
+    info->it_improvements_vns_vector = vector_construct();
+    info->it_improvements_vnd_vector = vector_construct();
 }
 
 void info_inc_total_iterations_vns(){
@@ -155,6 +172,19 @@ void info_set_time_vnd(clock_t start, clock_t end){
 }
 void info_set_time_vns(clock_t start, clock_t end){
     info->time_ms_vns = _calculate_time(start, end);
+}
+
+void info_save_improvement_vns(int value){
+    int *val = malloc(sizeof(int)), *it = malloc(sizeof(int));
+    *val = value; *it = info->total_iterations_vns;
+    vector_push_back(info->improvements_vns_vector, val);
+    vector_push_back(info->it_improvements_vns_vector, it);
+}
+void info_save_improvement_vnd(int value){
+    int *val = malloc(sizeof(int)), *it = malloc(sizeof(int));
+    *val = value; *it = info->total_iterations_vnd;
+    vector_push_back(info->improvements_vnd_vector, val);
+    vector_push_back(info->it_improvements_vnd_vector, it);
 }
 
 void info_set_routes(Route *r){
@@ -282,6 +312,9 @@ void info_print_arr_file(Info **arr, int size){
 
         fclose(arq);
         arq = NULL;
+
+        info_print_vectors(arr[i]->improvements_vns_vector, arr[i]->it_improvements_vns_vector, info->srand_seed, info->instance, 1);
+        info_print_vectors(arr[i]->improvements_vnd_vector, arr[i]->it_improvements_vnd_vector, info->srand_seed, info->instance, 0);
     }
 }
 
@@ -409,6 +442,37 @@ void info_print_results_file(Info **arr, int size){
     fclose(arq);
 }
 
+void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *instance, int control){
+
+    char alg[4];
+    if(control){
+        strcpy(alg, "VNS");
+
+    } else {
+        strcpy(alg, "VND");
+    }
+
+    _directory_verify();
+    char filename[100];
+    sprintf(filename, "out/%c/%s/%s_Seed%d%s.csv", instance[0], instance, instance, seed, alg);
+    FILE *arq = fopen(filename, "w");
+    if(!arq) {printf("ERRO: Problem with file %s\n", filename); return;}
+
+    if( vector_size(improv) != vector_size(it_improv) ){
+        printf("NÃO É O MESMO VALOR! MAS DEVERIA\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(arq, "Iteration;Value;\n");
+    while(vector_size(improv)){
+        int *it = vector_pop_front(it_improv), *val = vector_pop_front(it_improv);
+        fprintf(arq, "%d;%d;\n", *it, *val );
+        free(it);
+        free(val);
+    }
+    fclose(arq);
+}
+
 void info_reset(){
     info->total_iterations_vns = 0;
     info->imp_iterations_vns = 0;
@@ -431,6 +495,10 @@ void info_route_destroy(){
 
 void info_destroy(){
     info_route_destroy();
+    vector_destroy(info->improvements_vns_vector);
+    vector_destroy(info->improvements_vnd_vector);
+    vector_destroy(info->it_improvements_vns_vector);
+    vector_destroy(info->it_improvements_vnd_vector);
     free(info->instance);
     free(info);
 }
