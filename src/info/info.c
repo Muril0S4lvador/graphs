@@ -465,7 +465,7 @@ void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *insta
 
     fprintf(arq, "Iteration;Value;\n");
     while(vector_size(improv)){
-        int *it = vector_pop_front(it_improv), *val = vector_pop_front(it_improv);
+        int *it = vector_pop_front(it_improv), *val = vector_pop_front(improv);
         fprintf(arq, "%d;%d;\n", *it, *val );
         free(it);
         free(val);
