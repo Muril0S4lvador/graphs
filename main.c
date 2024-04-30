@@ -31,7 +31,7 @@ int main( int argc, char* argv[] ){
         srand(seed);
         info_set_seed(seed);
 
-        printf("%d\n", seed);
+        // printf("%d\n", seed);
         
         graph_Clarke_Wright_parallel_route(g);
         info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));

@@ -12,8 +12,6 @@
 
 typedef struct Info Info;
 
-Info *info;
-
 Info *info_malloc();
 Info **info_array_construct();
 

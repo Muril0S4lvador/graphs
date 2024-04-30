@@ -31,6 +31,8 @@ struct Info{
     Vector *it_improvements_vns_vector;
 };
 
+Info *info;
+
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
 
 double _calculate_time(clock_t start, clock_t end){
