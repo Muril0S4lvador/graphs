@@ -34,8 +34,11 @@ void info_set_time_enables     (clock_t start, clock_t end);
 void info_set_time_vnd         (clock_t start, clock_t end);
 void info_set_time_vns         (clock_t start, clock_t end);
 
+void info_set_cost_constructive(int cost);
+void info_set_cost_enables     (int cost);
+void info_set_cost_vns         (int cost);
+
 void info_save_improvement_vns(int value);
-void info_save_improvement_vnd(int value);
 
 void info_set_routes(Route *r);
 
@@ -52,6 +55,9 @@ void info_print_results_file(Info **arr, int size);
 void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *instance, int control);
 
 void info_print1(Info *info1);
+
+void info_print_table_result(Info **arr, int size);
+void info_print_table_infos (Info **arr, int size);
 
 void info_reset();
 

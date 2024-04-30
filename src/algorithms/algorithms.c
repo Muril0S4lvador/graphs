@@ -975,7 +975,6 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
             if(control == 0) printf("NOT OK (%d)\n", k);
             k = 0;
             info_inc_imp_iterations_vnd();
-            info_save_improvement_vnd(newCost);
 
             _destroyRoutesMatrix(bestSolution, num_trucks);
             bestSolution = _copy_route_matrix(bestSolution, solutionTest, num_trucks, test_sizeR, num_vertex);

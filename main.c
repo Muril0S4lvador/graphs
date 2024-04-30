@@ -12,44 +12,15 @@ void distanceToOptimal(double cost, double optimal){
     printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
 }
 
-/*
-int main(){
-    Vector *v = vector_construct();
-
-
-    for(int i = 0; i < 3; i++){
-    int *num = malloc(sizeof(int));
-    *num = i + 1;
-    vector_push_back(v,num);
-
-    }
-    
-    while(vector_size(v)){
-        int* u = vector_pop_back(v);
-        printf("%d\n", *u);
-        free(u);
-    }
-    vector_destroy(v);
-    return 0;
-}
-*/
-
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    // confereRota(argv[2], g);
-
-    // graph_destroy(g);
-
-    // exit(EXIT_SUCCESS);
 
     int times = 1;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
     Info **arr = info_array_construct(times);
-
-    // Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
     for(int i = 0; i < times; i++){
 
@@ -63,8 +34,13 @@ int main( int argc, char* argv[] ){
         printf("%d\n", seed);
         
         graph_Clarke_Wright_parallel_route(g);
+        info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
+
         graph_enables_routes(g);
+        info_set_cost_enables(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
+
         graph_Variable_Neighborhood_Search(g);
+        info_set_cost_vns(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
         
         info_set_routes(graph_return_route(g));
 
@@ -72,9 +48,13 @@ int main( int argc, char* argv[] ){
     }
     fclose(f);
 
+    info_print_table_result(arr, times);
+    info_print_table_infos(arr, times);
+
     info_print_arr_file(arr, times);
     info_print_solution_file(arr, times);
     info_print_results_file(arr, times);
+
 
     graph_destroy(g);
     info_arr_destroy(arr, times);

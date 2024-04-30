@@ -5,6 +5,10 @@ struct Info{
     int optimal;
     int capacity;
 
+    int cost_constructive;
+    int cost_enables;
+    int cost_VNS;
+
     int total_iterations_vns;
     int imp_iterations_vns;
     int noImp_iterations_vns;
@@ -25,9 +29,6 @@ struct Info{
 
     Vector *improvements_vns_vector;
     Vector *it_improvements_vns_vector;
-
-    Vector *improvements_vnd_vector;
-    Vector *it_improvements_vnd_vector;
 };
 
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
@@ -99,9 +100,8 @@ Info **info_array_construct(int size){
 
 void info_arr_destroy(Info **arr, int size){
     for(int i = 0; i < size; i++){
-        if(arr[i]->routes != NULL) route_destroy(arr[i]->routes, arr[i]->num_routes);
-        free(arr[i]->instance);
-        free(arr[i]);
+        info_define(arr, i);
+        info_destroy();
     }
     free(arr);
 }
@@ -117,6 +117,10 @@ void info_construct(Graph *g){
     info->total_iterations_vnd = 0;
     info->imp_iterations_vnd = 0;
     info->noImp_iterations_vnd = 0;
+
+    info->cost_constructive = 0;
+    info->cost_enables = 0;
+    info->cost_VNS = 0;
 
     info->neighborhood_structures = NEIGHBORHOOD_STRUCTURES;
     info->srand_seed = -1;
@@ -135,10 +139,7 @@ void info_construct(Graph *g){
     info->routes = NULL;
 
     info->improvements_vns_vector = vector_construct();
-    info->improvements_vnd_vector = vector_construct();
-
     info->it_improvements_vns_vector = vector_construct();
-    info->it_improvements_vnd_vector = vector_construct();
 }
 
 void info_inc_total_iterations_vns(){
@@ -174,17 +175,25 @@ void info_set_time_vns(clock_t start, clock_t end){
     info->time_ms_vns = _calculate_time(start, end);
 }
 
+double info_return_total_time(Info *i){
+    return i->time_ms_constructive + i->time_ms_enables + i->time_ms_vns;
+}
+
+void info_set_cost_constructive(int cost){
+    info->cost_constructive = cost;
+}
+void info_set_cost_enables(int cost){
+    info->cost_enables = cost;
+}
+void info_set_cost_vns(int cost){
+    info->cost_VNS = cost;
+}
+
 void info_save_improvement_vns(int value){
     int *val = malloc(sizeof(int)), *it = malloc(sizeof(int));
     *val = value; *it = info->total_iterations_vns;
     vector_push_back(info->improvements_vns_vector, val);
     vector_push_back(info->it_improvements_vns_vector, it);
-}
-void info_save_improvement_vnd(int value){
-    int *val = malloc(sizeof(int)), *it = malloc(sizeof(int));
-    *val = value; *it = info->total_iterations_vnd;
-    vector_push_back(info->improvements_vnd_vector, val);
-    vector_push_back(info->it_improvements_vnd_vector, it);
 }
 
 void info_set_routes(Route *r){
@@ -314,7 +323,6 @@ void info_print_arr_file(Info **arr, int size){
         arq = NULL;
 
         info_print_vectors(arr[i]->improvements_vns_vector, arr[i]->it_improvements_vns_vector, info->srand_seed, info->instance, 1);
-        info_print_vectors(arr[i]->improvements_vnd_vector, arr[i]->it_improvements_vnd_vector, info->srand_seed, info->instance, 0);
     }
 }
 
@@ -454,7 +462,7 @@ void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *insta
 
     _directory_verify();
     char filename[100];
-    sprintf(filename, "out/%c/%s/%s_Seed%d%s.csv", instance[0], instance, instance, seed, alg);
+    sprintf(filename, "out/%c/%s/%s_Seed%d%s.txt", instance[0], instance, instance, seed, alg);
     FILE *arq = fopen(filename, "w");
     if(!arq) {printf("ERRO: Problem with file %s\n", filename); return;}
 
@@ -463,13 +471,91 @@ void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *insta
         exit(EXIT_FAILURE);
     }
 
-    fprintf(arq, "Iteration;Value;\n");
+    fprintf(arq, "x y\n");
     while(vector_size(improv)){
         int *it = vector_pop_front(it_improv), *val = vector_pop_front(improv);
-        fprintf(arq, "%d;%d;\n", *it, *val );
+        fprintf(arq, "%d %d\n", *it, *val );
         free(it);
         free(val);
     }
+    fclose(arq);
+}
+
+void info_print_table_result(Info **arr, int size){
+
+    FILE *arq = fopen("TableResults.txt", "a");
+    if(!arq) return;
+    
+    int best = 0,
+        cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes);
+    double time = info_return_total_time(arr[0]);
+    for( int i = 0; i < size; i++){
+        int newCost = route_return_total_cost(arr[i]->routes, arr[i]->num_routes);
+        double newTime = info_return_total_time(arr[i]);
+        if( newCost <= cost ){
+            if( newTime < time ){
+                cost = newCost;
+                best = i;
+            }
+        }
+    }
+
+    if( cost == arr[best]->optimal ){
+
+        fprintf(arq, "\\textbf{%s} & %d & %d & \\textbf{%d} & \\textbf{%d}& \\textbf{%.2lf} & \\textbf{%d} \\\\\n",
+        arr[best]->instance, arr[best]->cost_constructive, arr[best]->cost_enables,
+        arr[best]->cost_VNS, arr[best]->optimal, info_return_total_time(arr[best]), 
+        arr[best]->srand_seed);
+    } else {
+
+        fprintf(arq, "%s & %d & %d & %d & %d & %.2lf & %d \\\\\n",
+        arr[best]->instance, arr[best]->cost_constructive, arr[best]->cost_enables,
+        arr[best]->cost_VNS, arr[best]->optimal, info_return_total_time(arr[best]), 
+        arr[best]->srand_seed);
+    }
+
+    fclose(arq);
+}
+void info_print_table_infos(Info **arr, int size){
+
+    FILE *arq = fopen("TableInfos.txt", "a");
+    if(!arq) return;
+
+    int max_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes),
+        min_cost = max_cost,
+        med_cost = 0,
+        med_num_it = 0,
+        med_num_it_opt = 0;
+
+    double time = 0,
+           num_sucess = 0;
+
+    for(int i = 0; i < size; i++){
+        int total_cost = route_return_total_cost(arr[i]->routes, arr[i]->num_routes);
+        med_cost += total_cost;
+        min_cost = (total_cost < min_cost) ? total_cost : min_cost;
+        max_cost = (total_cost > max_cost) ? total_cost : max_cost;
+
+        if( total_cost == arr[i]->optimal ) num_sucess++;
+
+        med_num_it += arr[i]->total_iterations_vns;
+
+        int sizeV = vector_size(arr[i]->it_improvements_vns_vector) - 1;
+        int *numget = (int*)vector_get(arr[i]->it_improvements_vns_vector, sizeV);
+        med_num_it_opt += *numget;
+
+        time += info_return_total_time(arr[i]);
+    }
+
+    med_cost /= size;
+    med_num_it /= size;
+    med_num_it_opt /= size;
+    time /= size;
+    num_sucess = (num_sucess / size) * 100;
+
+    fprintf(arq, "%s & %d & %d & %d & %.2lf & %d & %d & %.2lf\\\\\n",
+    arr[0]->instance, max_cost, min_cost, med_cost, num_sucess, med_num_it, med_num_it_opt, time);
+
     fclose(arq);
 }
 
@@ -496,9 +582,7 @@ void info_route_destroy(){
 void info_destroy(){
     info_route_destroy();
     vector_destroy(info->improvements_vns_vector);
-    vector_destroy(info->improvements_vnd_vector);
     vector_destroy(info->it_improvements_vns_vector);
-    vector_destroy(info->it_improvements_vnd_vector);
     free(info->instance);
     free(info);
 }
