@@ -454,17 +454,17 @@ void info_print_results_file(Info **arr, int size){
 
 void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *instance, int control){
 
-    char alg[4];
-    if(control){
-        strcpy(alg, "VNS");
+    // char alg[4];
+    // if(control){
+    //     strcpy(alg, "VNS");
 
-    } else {
-        strcpy(alg, "VND");
-    }
+    // } else {
+    //     strcpy(alg, "VND");
+    // }
 
     _directory_verify();
     char filename[100];
-    sprintf(filename, "out/%c/%s/%s_Seed%d%s.txt", instance[0], instance, instance, seed, alg);
+    sprintf(filename, "out/%c/%s/%s_Seed%dVNS.txt", instance[0], instance, instance, seed);
     FILE *arq = fopen(filename, "w");
     if(!arq) {printf("ERRO: Problem with file %s\n", filename); return;}
 
