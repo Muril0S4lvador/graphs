@@ -498,6 +498,7 @@ void info_print_table_result(Info **arr, int size){
             if( newTime < time ){
                 cost = newCost;
                 best = i;
+                time = newTime;
             }
         }
     }
@@ -525,11 +526,11 @@ void info_print_table_infos(Info **arr, int size){
 
     int max_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes),
         min_cost = max_cost,
-        med_cost = 0,
         med_num_it = 0,
         med_num_it_opt = 0;
 
     double time = 0,
+           med_cost = 0,
            num_sucess = 0;
 
     for(int i = 0; i < size; i++){
@@ -549,14 +550,19 @@ void info_print_table_infos(Info **arr, int size){
         time += info_return_total_time(arr[i]);
     }
 
-    med_cost /= size;
-    med_num_it /= size;
-    med_num_it_opt /= size;
+    med_cost = round(med_cost / (double)size);
+    med_num_it = round(med_num_it / (double)size);;
+    med_num_it_opt = round(med_num_it_opt / (double)size);;
     time /= size;
-    num_sucess = (num_sucess / size) * 100;
+    num_sucess = (num_sucess / (double)size) * 100;
 
-    fprintf(arq, "%s & %d & %d & %d & %.2lf & %d & %d & %.2lf\\\\\n",
-    arr[0]->instance, max_cost, min_cost, med_cost, num_sucess, med_num_it, med_num_it_opt, time);
+    if( min_cost == arr[0]->optimal ){
+        fprintf(arq, "\\textbf{%s} & %d & \\textbf{%d} & %.2lf & \\textbf{%.2lf} & %d & \\textbf{%d} & \\textbf{%.2lf}\\\\\n",
+        arr[0]->instance, max_cost, min_cost, med_cost, num_sucess, med_num_it, med_num_it_opt, time);
+    } else {
+        fprintf(arq, "%s & %d & %d & %.2lf & -- & %d & -- & %.2lf\\\\\n",
+        arr[0]->instance, max_cost, min_cost, med_cost, med_num_it, time);
+    }
 
     fclose(arq);
 }

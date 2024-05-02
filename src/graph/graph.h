@@ -13,7 +13,7 @@ typedef unsigned char bool;
 
 #define NEIGHBORHOOD_STRUCTURES 4
 
-#define NUM_IT 10000
+#define NUM_IT 1000
 
 typedef struct Graph Graph;
 

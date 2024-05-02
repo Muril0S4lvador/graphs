@@ -16,7 +16,7 @@ int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    int times = 1;
+    int times = 10;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
