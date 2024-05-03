@@ -543,9 +543,12 @@ void info_print_table_infos(Info **arr, int size){
 
         med_num_it += arr[i]->total_iterations_vns;
 
-        int sizeV = vector_size(arr[i]->it_improvements_vns_vector) - 1;
-        int *numget = (int*)vector_get(arr[i]->it_improvements_vns_vector, sizeV);
-        med_num_it_opt += *numget;
+        int sizeV = vector_size(arr[i]->it_improvements_vns_vector) - 1,
+            *numget;
+        if( sizeV >= 0 ){
+            numget = (int*)vector_get(arr[i]->it_improvements_vns_vector, sizeV);
+            med_num_it_opt += *numget;
+        } 
 
         time += info_return_total_time(arr[i]);
     }

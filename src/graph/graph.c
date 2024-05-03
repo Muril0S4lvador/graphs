@@ -180,7 +180,7 @@ bool graph_edge_exists(Graph *g, int v1, int v2){
 
 Graph *graph_read_file_CVRPLIB(char *fileName){
 
-    if( !fileName ) exit(printf("ERROR\nrun ./<exe> <CVRP file>\n"));
+    if( !fileName ) exit(printf("ERRO\nrun ./<exe> <CVRP file>\n"));
     FILE *arq = fopen(fileName, "r");
     if( !arq ) exit(printf("ERRO: Falha ao abrir %s\n", fileName));
 
@@ -363,12 +363,12 @@ void graph_print_routes(Graph *g){
     printf("\n");
 }
 
-void graph_check_routes(char *filename, Graph *g){
+int graph_check_routes(char *filename, Graph *g){
 
-    if(!g){printf("ERROR: Need Graph to check the routes\n"); return;}
+    if(!g){printf("ERROR: Need Graph to check the routes\n"); return -1;}
 
     FILE *f = fopen(filename, "r");
-    if(!f){printf("ERROR: Problem with %s\n", filename); return; }
+    if(!f){printf("ERROR: Problem with %s\n", filename); return -1; }
 
     int num_routes = graph_return_trucks(g), idx = 0;
 
@@ -413,18 +413,32 @@ void graph_check_routes(char *filename, Graph *g){
     }
     fclose(f);
 
-    printf("Capacity: %d\nOptimal: %d\n", graph_return_capacity(g), (int)graph_return_optimal_cost(g));
+    // printf("Capacity: %d\nOptimal: %d\n", graph_return_capacity(g), (int)graph_return_optimal_cost(g));
+    int num_vertex = graph_return_num_vertex(g);
+    int *vtx = calloc(num_vertex, sizeof(int));
     int cost = 0;
     for(int i = 0; i < num_routes; i++){
         route_cost[i] = (int)matrix_return_route_cost(graph_return_adjacencies(g), routes[i], route_size[i]);
         cost += route_cost[i];
-        printf("\nRota %d | [C: %d D: %d]\n", i+1, route_cost[i], route_demand[i]);
+
+        if(route_demand[i] > graph_return_capacity(g)){printf("ERRO demada #%d\n%d | C: %d\n", i+1, route_demand[i], graph_return_capacity(g));}
+        
+        // printf("\nRota %d | [C: %d D: %d]\n", i+1, route_cost[i], route_demand[i]);
         for(int j = 0; j < route_size[i]; j++){
-            printf("%d ", routes[i][j]);
+            // printf("%d ", routes[i][j]);
+            vtx[routes[i][j]]++;
         }
-        printf("\n");
+        // printf("\n");
     }
-    printf("\nTotal cost: %d\n", cost);
+    // printf("\nTotal cost: %d\n", cost);
+
+    for(int i = 1; i < num_vertex; i++){
+        if(vtx[i] == 0){
+            printf("Vertice %d não aparece na solução.\n", i);
+        } else if( vtx[i] > 1 ){
+            printf("Vertice %d não aparece na solução %d vezes.\n", i,vtx[i]);
+        }
+    }
 
     for(int i = 0; i < num_routes; i++)
         free(routes[i]);
@@ -433,6 +447,8 @@ void graph_check_routes(char *filename, Graph *g){
     free(route_demand);
     free(route_cost);
     free(demands);
+
+    return cost;
 }
 
 void graph_Variable_Neighborhood_Search(Graph *g){

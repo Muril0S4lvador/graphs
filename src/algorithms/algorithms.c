@@ -117,12 +117,17 @@ void _random_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, 
     for(int i = 0; i < size; i++) route_src[i] = 0;
 
     int routeOrigem = k;
+    if( sizeRoutes[routeOrigem] <= 3 ) route_src[routeOrigem] = 1;
 
     while(!_checkVetor(route_src, size)) // Enquanto todas as rotas nao serem testadas como origem
     { 
         // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
         while(route_src[routeOrigem]){
             routeOrigem = rand() % size; // Rota aleatoria
+            if( sizeRoutes[routeOrigem] <= 3 ){ // Garante que não vai tirar vértice se so houver ele na rota
+                route_src[routeOrigem] = 1;
+                if(_checkVetor(route_src, size)) return;
+            }
         }
         route_src[routeOrigem] = 1;
 
@@ -188,12 +193,17 @@ void _move_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, in
     for(int i = 0; i < size; i++) route_src[i] = 0;
 
     int routeOrigem = k;
+    if( sizeRoutes[routeOrigem] <= 3 ) route_src[routeOrigem] = 1;
 
     while(!_checkVetor(route_src, size)) // Enquanto todas as rotas nao serem testadas como origem
     { 
         // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
         while(route_src[routeOrigem]){
             routeOrigem = rand() % size; // Rota aleatoria
+            if( sizeRoutes[routeOrigem] <= 3 ){ // Garante que não vai tirar vértice se so houver ele na rota
+                route_src[routeOrigem] = 1;
+                if(_checkVetor(route_src, size)) return;
+            }
         }
         route_src[routeOrigem] = 1;
 
@@ -258,6 +268,7 @@ void _shake(int **routes, int size, int *sizeRoutes, int *demands, int *demandRo
         // printf("Random\n");
         _random_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_return_adjacencies(g), g);
     }
+
 }
 
 // Calcula novo custo de rotas trocando dois vértices de lugar
@@ -296,14 +307,18 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
     for(int i = 0; i < size; i++) route_src[i] = 0;
 
     int routeOrigem = k;
-    if( sizeRoutes[routeOrigem] <= 2 ) route_src[routeOrigem] = 1;
+    if( sizeRoutes[routeOrigem] <= 3 ) route_src[routeOrigem] = 1;
 
     while(!_checkVetor(route_src, size)) // Enquanto todas as rotas nao serem testadas como origem
     { 
         // Seleciona a rota aleatoria Garante que nao repetira e sera aleatorio
         while(route_src[routeOrigem]){
             routeOrigem = rand() % size; // Rota aleatoria
-            if( sizeRoutes[routeOrigem] <= 2 ) route_src[routeOrigem] = 1;
+            if( sizeRoutes[routeOrigem] <= 3 ){ // Garante que não vai tirar vértice se so houver ele na rota
+                route_src[routeOrigem] = 1;
+                if(_checkVetor(route_src, size)) return 0; // Retorna sem fazer alterações
+            }
+            
         }
         route_src[routeOrigem] = 1;
 
@@ -320,7 +335,6 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
             while(vertexRSRC[idx_vertex]){
                 idx_vertex = rand() % (sizeRoutes[routeOrigem] - 2) + 1; // Selecionando um vértice aleatório dessa rota
             }
-
             vertexRSRC[idx_vertex] = 1;
             int vertex = routes[routeOrigem][idx_vertex];
 
@@ -338,6 +352,11 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
                 }
                 route_dest[routeDestino] = 1;
 
+                // printf("Dest: [");
+                // _printfvet(route_dest, size);
+                // printf("Src: [");
+                // _printfvet(route_src, size);
+
                 // tenta adicionar
                 // printf("Testing vertex %d from %d to %d\n", vertex, routeOrigem, routeDestino);
                 if( demandRoutes[routeDestino]  + demands[vertex] <= capacity )
@@ -353,8 +372,13 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
                         new_cost = costAIB + matrix_return_edge_weight(graph_adj, routes[routeOrigem][idx_vertex - 1], routes[routeOrigem][idx_vertex + 1], graph_return_direction(g)), // Custo a->i->b + x->y
                         old_cost = costXIY + matrix_return_edge_weight(graph_adj, routes[routeDestino][i - 1], routes[routeDestino][i], graph_return_direction(g)); // Custo x->i->y + a->b
 
-                        // Se custo a->i->y + x->y < a->b + x->y->i
+                        // Se custo a->i->b + x->y < a->b + x->i->y
                         if( new_cost < old_cost ){
+
+                                // printf("%d->%d->%d(%.0lf) + %d->%d(%.0lf) < %d->%d(%.0lf) + %d->%d->%d(%.0lf)\n", routes[routeDestino][i-1], vertex, routes[routeDestino][i], costAIB,
+                                                                                                    //   routes[routeOrigem][idx_vertex-1], routes[routeOrigem][idx_vertex+1], matrix_return_edge_weight(graph_adj, routes[routeOrigem][idx_vertex - 1], routes[routeOrigem][idx_vertex + 1], graph_return_direction(g)),
+                                                                                                    //   routes[routeDestino][i-1], routes[routeDestino][i], matrix_return_edge_weight(graph_adj, routes[routeDestino][i - 1], routes[routeDestino][i], graph_return_direction(g)),
+                                                                                                    //   routes[routeOrigem][idx_vertex-1], vertex, routes[routeOrigem][idx_vertex+1], costXIY);
 
                             if(_route_delete_vertex(routes[routeOrigem], &sizeRoutes[routeOrigem], vertex, &cost[routeOrigem], graph_adj)){
 
@@ -491,11 +515,12 @@ char _opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double
             {
                 for(int j = 0; j < sizeR[routeDestino] - 2; j++) // Vértices em Destino
                 {
-                    if( i + j == 0 ) j++;
 
                     int vi1 = routes[routeOrigem][i],  vi2 = routes[routeOrigem][i+1],
                         vj1 = routes[routeDestino][j], vj2 = routes[routeDestino][(j+1) % (sizeR[routeDestino] - 1)];
                     // Selecionei 2 vértices em cada rota
+
+                    if( vi1 + vj1 == 0 ) continue;
 
                     double custo_atual = matrix_return_edge_weight(graph_return_adjacencies(g), vi1, vi2, graph_return_direction(g))
                                        + matrix_return_edge_weight(graph_return_adjacencies(g), vj1, vj2, graph_return_direction(g));
@@ -893,6 +918,25 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
     } // Fim while
 }
 
+
+
+void _int_print_file(int **routes, int size, int *sizeR, int *demandR, double *costR, FILE *arq){
+
+    int sum = 0;
+    for(int j = 0; j < size; j++){
+        fprintf(arq, "Route #%d: ", j + 1);
+        int tam = sizeR[j];
+        for(int i = 0; i < tam; i++){
+            fprintf(arq, "%d ", routes[j][i]);
+        }
+        fprintf(arq, "\nDemand: %d Cost: %.0lf\n\n", demandR[j], costR[j]);
+        sum += costR[j];
+    }
+    fprintf(arq, "Total Cost: %d\n", sum);
+}
+
+
+
 int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g){
 
     clock_t start, end;
@@ -920,6 +964,7 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
         *test_demandR     = malloc(sizeof(int) * num_trucks);   // Demanda das rotas da nova solução encontrada
     double *test_costR     = malloc(sizeof(double) * num_trucks); // Vetor com custo de todas as rotas da nova solução encontrada
 
+
     while( k < NEIGHBORHOOD_STRUCTURES )
     {
 
@@ -931,6 +976,11 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
         solutionTest = _copy_route_matrix(NULL, bestSolution, num_trucks, test_sizeR, num_vertex);    // Copia melhor solução para fazer mudanças
 
         char control = 0;
+
+            // char controlex = 0;
+            //     for(int i = 0; i < num_trucks; i++){
+            //         if(test_sizeR[i] == 3) controlex = 1;
+            //     }
 
         switch(k){
             case 0:
@@ -954,14 +1004,47 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
                 break;
         }
 
-        newCost = 0;
-        for(int i = 0; i < num_trucks; i++){
-            newCost += test_costR[i];
+        // char coringa = 0;
+        // for(int i = 0; i < num_trucks; i++){
+        //     if(test_sizeR[i] <= 2){
+        //         printf("\nERROR %d\n\n", k);
+        //         coringa = 1;
+        //         exit(0);
+        //     }
+        // }
+
+        // newCost = 0;
+        // for(int i = 0; i < num_trucks; i++){
+        //     newCost += test_costR[i];
             // printf("%d ||| %d\n", (int)newCost, (int)currentCost);
             // if(test_demandR[i] > capacity){
             //     printf("Route %d %d/%d\n", i, test_demandR[i], capacity);
             // }
-        }
+        // }
+
+        // double realCost = 0;
+        // FILE *arq = fopen("RotaMelhorOtimo.txt", "w");
+        // _int_print_file(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, arq);
+        // fclose(arq);
+        // realCost = (double)graph_check_routes("RotaMelhorOtimo.txt", g);
+
+        // if( realCost != newCost ){
+        //     printf("ERRO com contagem de custo pelo algoritmo %d\nalg: %lf | real: %lf\n", k, newCost, realCost);
+        //     // exit(0);
+        // }
+
+        // if( newCost < graph_return_optimal_cost(g) ){
+        //     printf("ERRO rota impossível\nk = %d\nCusto encontrado: %lf\n", k, newCost);
+        //     // printsd(solutionTest, num_trucks, test_sizeR, test_demandR,test_costR, NULL);
+        //     FILE *arq = fopen("RotaMelhorOtimo.txt", "w");
+        //     _int_print_file(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, arq);
+        //     fclose(arq);
+        //     int test = graph_check_routes("RotaMelhorOtimo.txt", g);
+        //     printf("Real cost: %d\n", test);
+            // exit(-9);
+        // }
+
+        // if(coringa) exit(19);
 
         // if(newCost < 1162 && currentCost == 1162){
         //     printf("\n\nNOVO\n");

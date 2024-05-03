@@ -3,7 +3,6 @@
 #include "src/graph/graph.h"
 #include "src/info/info.h"
 #include "src/graphviz_print/graphviz_print.h"
-
 #include <time.h>
 
 void distanceToOptimal(double cost, double optimal){
@@ -31,8 +30,6 @@ int main( int argc, char* argv[] ){
         srand(seed);
         info_set_seed(seed);
 
-        // printf("%d\n", seed);
-        
         graph_Clarke_Wright_parallel_route(g);
         info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
@@ -45,8 +42,14 @@ int main( int argc, char* argv[] ){
         info_set_routes(graph_return_route(g));
 
         graph_route_destroy(g);
+        // printf("Final cost: %d\n", route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
     }
     fclose(f);
+
+                    // FILE *arq = fopen("RotaMelhorOtimo.txt", "w");
+                    // route_print_file(graph_return_route(g), graph_return_trucks(g), arq);
+                    // fclose(arq);
+                    // graph_check_routes("RotaMelhorOtimo.txt", g);
 
     info_print_table_result(arr, times);
     info_print_table_infos(arr, times);
@@ -54,7 +57,6 @@ int main( int argc, char* argv[] ){
     info_print_arr_file(arr, times);
     info_print_solution_file(arr, times);
     info_print_results_file(arr, times);
-
 
     graph_destroy(g);
     info_arr_destroy(arr, times);
