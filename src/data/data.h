@@ -22,7 +22,7 @@ float data_return_y(Data *d);
 int data_return_demand(Data *d);
 
 // Imprime os atributos de um elemento Data
-void data_print(Data *d);
+void data_print(Data *d, FILE *arq);
 
 // Desaloca da memória um elemento Data
 void data_destroy(Data *d);

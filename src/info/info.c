@@ -473,7 +473,7 @@ void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *insta
         exit(EXIT_FAILURE);
     }
 
-    fprintf(arq, "x y\n");
+    // fprintf(arq, "x y\n");
     while(vector_size(improv)){
         int *it = vector_pop_front(it_improv), *val = vector_pop_front(improv);
         fprintf(arq, "%d %d\n", *it, *val );

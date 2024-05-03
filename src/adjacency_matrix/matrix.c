@@ -34,24 +34,24 @@ double matrix_return_edge_weight(void *vm, int v1, int v2, int direction){
     return m[v1][v2];
 }
 
-void matrix_print(void *vm, int size){
+void matrix_print(void *vm, int size, FILE *arq){
     Matrix m = vm;
-    printf("---: ");
+    fprintf(arq, "---: ");
     for(int i = 0; i < size; i++)
-        printf("%03d ", i);
+        fprintf(arq, "%03d ", i);
 
     for(int i = 0; i < size; i++){
-        printf("\n");
-        printf("%03d:", i);
+        fprintf(arq, "\n");
+        fprintf(arq, "%03d:", i);
 
         for(int j = 0; j < size; j++)
             if(m[i][j])
-            printf(" %03.0f", m[i][j]);
+            fprintf(arq, " %03.0f", m[i][j]);
             else 
-            printf(" ---");
+            fprintf(arq, " ---");
 
     }
-    printf("\n");
+    fprintf(arq, "\n");
 }
 
 void matrix_file_write(void *vm, int size, FILE *arq, char *edge){

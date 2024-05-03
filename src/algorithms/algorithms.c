@@ -977,11 +977,6 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
 
         char control = 0;
 
-            // char controlex = 0;
-            //     for(int i = 0; i < num_trucks; i++){
-            //         if(test_sizeR[i] == 3) controlex = 1;
-            //     }
-
         switch(k){
             case 0:
             // printf("RELLOCATE\n");
@@ -1004,55 +999,14 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
                 break;
         }
 
-        // char coringa = 0;
-        // for(int i = 0; i < num_trucks; i++){
-        //     if(test_sizeR[i] <= 2){
-        //         printf("\nERROR %d\n\n", k);
-        //         coringa = 1;
-        //         exit(0);
-        //     }
-        // }
-
-        // newCost = 0;
-        // for(int i = 0; i < num_trucks; i++){
-        //     newCost += test_costR[i];
+        newCost = 0;
+        for(int i = 0; i < num_trucks; i++){
+            newCost += test_costR[i];
             // printf("%d ||| %d\n", (int)newCost, (int)currentCost);
-            // if(test_demandR[i] > capacity){
-            //     printf("Route %d %d/%d\n", i, test_demandR[i], capacity);
-            // }
-        // }
-
-        // double realCost = 0;
-        // FILE *arq = fopen("RotaMelhorOtimo.txt", "w");
-        // _int_print_file(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, arq);
-        // fclose(arq);
-        // realCost = (double)graph_check_routes("RotaMelhorOtimo.txt", g);
-
-        // if( realCost != newCost ){
-        //     printf("ERRO com contagem de custo pelo algoritmo %d\nalg: %lf | real: %lf\n", k, newCost, realCost);
-        //     // exit(0);
-        // }
-
-        // if( newCost < graph_return_optimal_cost(g) ){
-        //     printf("ERRO rota impossível\nk = %d\nCusto encontrado: %lf\n", k, newCost);
-        //     // printsd(solutionTest, num_trucks, test_sizeR, test_demandR,test_costR, NULL);
-        //     FILE *arq = fopen("RotaMelhorOtimo.txt", "w");
-        //     _int_print_file(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, arq);
-        //     fclose(arq);
-        //     int test = graph_check_routes("RotaMelhorOtimo.txt", g);
-        //     printf("Real cost: %d\n", test);
-            // exit(-9);
-        // }
-
-        // if(coringa) exit(19);
-
-        // if(newCost < 1162 && currentCost == 1162){
-        //     printf("\n\nNOVO\n");
-        //     printsd(solutionTest, num_trucks, test_sizeR, test_demandR,test_costR, demands);
-        //     printf("\n\nATUAL\n");
-        //     printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, best_costRoutes, demands);
-        //     exit(0);
-        // }
+            if(test_demandR[i] > capacity){
+                // printf("Route %d %d/%d\n", i, test_demandR[i], capacity);
+            }
+        }
 
         if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
             if(control == 0) printf("NOT OK (%d)\n", k);
@@ -1120,6 +1074,8 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
         costRoutes[i] = route_return_cost(r, i);
     }
 
+    info_save_improvement_vns(currentCost);
+
     while( noImp < NUM_IT )
     {
         k = 0;
@@ -1151,6 +1107,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
                 k = 0;
                 noImp = 0;
                 info_inc_imp_iterations_vns();
+                info_inc_total_iterations_vns();
                 info_save_improvement_vns(newCost);
 
 
@@ -1174,9 +1131,9 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
                 noImp++;
                 k++;
                 info_inc_real_noimp_iterations_vns();
+                info_inc_total_iterations_vns();
             }
 
-            info_inc_total_iterations_vns();
             
             _destroyRoutesMatrix(solutionTest, num_trucks);
             free(test_sizeR);

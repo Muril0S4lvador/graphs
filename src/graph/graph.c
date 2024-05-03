@@ -274,16 +274,23 @@ Graph *graph_read_file(){
 }
 
 void graph_print(Graph *g){
-    printf("Vértices: %d\nArestas: %d\n", g->num_vertex, g->num_edge);
 
-    matrix_print(g->adj, g->num_vertex);
+    FILE *arq = fopen("Matriz.txt", "w");
+    if(!arq){ printf("ERRO: Problema ao imprimir matriz.\n"); return; }
 
-    printf("\nVertices:\n");
+    fprintf(arq, "%s Matrix\n", graph_return_name(g));
+    fprintf(arq, "Vértices: %d\nArestas: %d\n", g->num_vertex, g->num_edge);
+
+    matrix_print(g->adj, g->num_vertex, arq);
+
+    fprintf(arq, "\nVertices:\n");
     for(int i = 0; i < vector_size(g->vertices); i++){
         Data *d = vector_get(g->vertices, i);
-        printf("%d : ", i);
-        data_print(d);
+        fprintf(arq, "%d : ", i);
+        data_print(d, arq);
     }
+
+    fclose(arq);
 }
 
 Graph *graph_mst_kruskal(Graph *g){
@@ -447,6 +454,7 @@ int graph_check_routes(char *filename, Graph *g){
     free(route_demand);
     free(route_cost);
     free(demands);
+    free(vtx);
 
     return cost;
 }
