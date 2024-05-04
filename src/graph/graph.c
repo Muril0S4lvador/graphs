@@ -439,7 +439,7 @@ int graph_check_routes(char *filename, Graph *g){
     }
     // printf("\nTotal cost: %d\n", cost);
 
-    for(int i = 1; i < num_vertex; i++){
+    for(int i = 0; i < num_vertex; i++){
         if(vtx[i] == 0){
             printf("Vertice %d não aparece na solução.\n", i);
         } else if( vtx[i] > 1 ){

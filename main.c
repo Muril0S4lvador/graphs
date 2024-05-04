@@ -15,14 +15,7 @@ int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    int cost = graph_check_routes("out/F/F-n135-k7/F-n135-k7.sol", g);
-    printf("%d\n", cost);
-    graph_print(g);
-    graph_destroy(g);
-
-    exit(0);
-
-    int times = 2;
+    int times = 10;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 

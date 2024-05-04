@@ -494,9 +494,12 @@ void info_print_table_result(Info **arr, int size){
     for( int i = 0; i < size; i++){
         int newCost = route_return_total_cost(arr[i]->routes, arr[i]->num_routes);
         double newTime = info_return_total_time(arr[i]);
-        if( newCost <= cost ){
+        if( newCost < cost ){
+            cost = newCost;
+            best = i;
+            time = newTime;
+        } else if( newCost == cost ){
             if( newTime < time ){
-                cost = newCost;
                 best = i;
                 time = newTime;
             }
