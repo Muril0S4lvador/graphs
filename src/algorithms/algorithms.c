@@ -1003,9 +1003,9 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
         for(int i = 0; i < num_trucks; i++){
             newCost += test_costR[i];
             // printf("%d ||| %d\n", (int)newCost, (int)currentCost);
-            if(test_demandR[i] > capacity){
-                // printf("Route %d %d/%d\n", i, test_demandR[i], capacity);
-            }
+            // if(test_demandR[i] > capacity){
+                    // printf("Route %d %d/%d\n", i, test_demandR[i], capacity);
+            // }
         }
 
         if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){

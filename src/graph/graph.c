@@ -51,6 +51,7 @@ void _read_EUC_2D(Graph *g, FILE *arq){
             weight w = (weight)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
 
             w = round(w);
+            // w = ceil(w);
 
             graph_add_edge(g, i, j, w);
         }
@@ -443,7 +444,7 @@ int graph_check_routes(char *filename, Graph *g){
         if(vtx[i] == 0){
             printf("Vertice %d não aparece na solução.\n", i);
         } else if( vtx[i] > 1 ){
-            printf("Vertice %d não aparece na solução %d vezes.\n", i,vtx[i]);
+            printf("Vertice %d aparece na solução %d vezes.\n", i,vtx[i]);
         }
     }
 

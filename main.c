@@ -15,7 +15,7 @@ int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    int times = 10;
+    int times = 1;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
@@ -57,6 +57,9 @@ int main( int argc, char* argv[] ){
     info_print_arr_file(arr, times);
     info_print_solution_file(arr, times);
     info_print_results_file(arr, times);
+
+    int cost = graph_check_routes("out/F/F-n135-k7/F-n135-k7.sol", g);
+    printf("Real Cost: %d\n", cost);
 
     graph_destroy(g);
     info_arr_destroy(arr, times);
