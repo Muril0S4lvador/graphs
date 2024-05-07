@@ -551,3 +551,98 @@ void graph_destroy(Graph *g){
     free(g->comment);
     free(g);
 }
+
+
+
+
+void graph_cross_exchange(Graph *g){
+
+    if( !graph_has_route(g) ){
+        printf("Necessário a construção de uma solução inicial.\n");
+        return;
+    }
+    
+    int **routes = malloc(sizeof(int*) * g->trucks),
+        *sizeR = malloc(sizeof(int) * g->trucks),
+        *demandsR = malloc(sizeof(int) * g->trucks),
+        *demands = graph_return_demands(g),
+        // num_vertex = graph_return_num_vertex(g),
+        size = graph_return_trucks(g);
+
+    double *cost = malloc(sizeof(double) * g->trucks);
+    Route *r = graph_return_route(g);
+    for(int i = 0; i < g->trucks; i++){
+        routes[i] = route_return_route(r, i);
+        sizeR[i] = route_return_size(r, i);
+        demandsR[i] = route_return_demand(r, i);
+        cost[i] = route_return_cost(r, i);
+    }
+
+    int r1, v_r1, r2, v_r2;
+
+    r1 = rand() % size;
+
+    v_r1 = rand() % (sizeR[r1] - 3) + 1; //num entre 1 e penultimo
+
+    r2 = r1;
+    while( r2 == r1 ){
+        r2 = rand() % size;
+    }
+
+    v_r2 = rand() % (sizeR[r2] - 3) + 1;
+
+    printf("Capacity: %d", graph_return_capacity(g));
+    printsd(routes, size, sizeR, demandsR, cost, NULL);
+    printf("\n\nSize: %d v_r1 = %d\n", sizeR[r1], v_r1);
+
+    void *m = graph_return_adjacencies(g);
+
+    for(int i = v_r1; i < sizeR[r1]; i++){
+
+        if( i >= sizeR[r1] - 2 ) i = i % (sizeR[r1] - 2) + 1;
+
+        int v11 = routes[r1][i], v12 = routes[r1][i + 1];
+
+        int demand1 = demands[v11] + demands[v12];
+        int cost1 = matrix_return_edge_weight(m, v11, v12, graph_return_direction(g));
+
+        for(int j = v_r2; j < sizeR[r2]; j++){
+            if( j >= sizeR[r2] - 2 ) j = j % (sizeR[r2] - 2) + 1;
+
+            int v21 = routes[r2][j], v22 = routes[r2][j + 1];
+            int demand2 = demands[v21] + demands[v22];
+            int cost2 = matrix_return_edge_weight(m, v21, v22, graph_return_direction(g));
+
+            int result1 = demandsR[r1] - demand1 + demand2;
+            int result2 = demandsR[r2] + demand1 - demand2;
+            if( result1 <= graph_return_capacity(g) && result2 <= graph_return_capacity(g) ){
+                routes[r1][i] = v21;
+                routes[r1][i + 1] = v22;
+                routes[r2][j] = v11;
+                routes[r2][j + 1] = v12;
+                demandsR[r1] = result1;
+                demandsR[r2] = result2;
+                cost[r1] += cost2 - cost1 + matrix_return_edge_weight(m, v21, routes[r1][i-1], graph_return_direction(g)) + matrix_return_edge_weight(m, v22, routes[r1][i+2], graph_return_direction(g)) - 
+                            (matrix_return_edge_weight(m, v11, routes[r1][i-1], graph_return_direction(g)) + matrix_return_edge_weight(m, v12, routes[r1][i+2], graph_return_direction(g)));
+                cost[r2] += cost1 - cost2 + matrix_return_edge_weight(m, v11, routes[r2][j-1], graph_return_direction(g)) + matrix_return_edge_weight(m, v12, routes[r2][j+2], graph_return_direction(g)) - 
+                            (matrix_return_edge_weight(m, v21, routes[r2][j-1], graph_return_direction(g)) + matrix_return_edge_weight(m, v22, routes[r2][j+2], graph_return_direction(g)));
+                i = sizeR[r1];
+                j = sizeR[r2];
+
+                printf("%0.lf %0.lf\n", cost[r1], cost[r2]);
+                printf("%0.lf %0.lf\n", matrix_return_route_cost(m, routes[r1], sizeR[r1]), matrix_return_route_cost(m, routes[r2], sizeR[r2]));
+            }
+        }
+    }
+    printsd(routes, size, sizeR, demandsR, cost, NULL);
+
+    free(routes);
+    free(sizeR);
+    free(demandsR);
+    free(cost);
+    free(demands);
+}
+
+
+// 665.000
+// 425.000

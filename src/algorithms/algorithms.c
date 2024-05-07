@@ -258,15 +258,174 @@ void _move_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, in
     return;
 }
 
+void _cross_perturbation(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, void *graph_adj, Graph *g){
+
+    int r1 = rand() % size, r2;
+
+    while(sizeRoutes[r1] <= 3){
+        r1 = rand() % size;
+    } 
+
+    r2 = r1;
+    while( r2 == r1 || sizeRoutes[r2] <= 3){ r2 = rand() % size; }
+
+    int vertexRSRC_1[sizeRoutes[r1]]; // Vetor controlando quais vértices eu testei da rota aleatoria
+    for(int i = 0; i < sizeRoutes[r1]; i++) vertexRSRC_1[i] = 0;
+    vertexRSRC_1[0] = 1;
+    vertexRSRC_1[sizeRoutes[r1] - 1] = 1;
+    vertexRSRC_1[sizeRoutes[r1] - 2] = 1;
+
+    while(!_checkVetor(vertexRSRC_1, sizeRoutes[r1])) // Enquanto todos os vértices da rota origem nao forem testados
+    { 
+
+        int idx_vertex_1 = 0;
+        // Garante que nao repetira vertices
+        while(vertexRSRC_1[idx_vertex_1]){
+            idx_vertex_1 = rand() % (sizeRoutes[r1] - 3) + 1; // Selecionando um vértice aleatório dessa rota entre 0 e penultimo
+        }
+
+        vertexRSRC_1[idx_vertex_1] = 1;
+
+        int vertexRSRC_2[sizeRoutes[r2]]; // Vetor controlando quais vértices eu testei da rota aleatoria
+        for(int i = 0; i < sizeRoutes[r2]; i++) vertexRSRC_2[i] = 0;
+        vertexRSRC_2[0] = 1;
+        vertexRSRC_2[sizeRoutes[r2] - 1] = 1;
+        vertexRSRC_2[sizeRoutes[r2] - 2] = 1;
+
+        while(!_checkVetor(vertexRSRC_2, sizeRoutes[r2])) // Enquanto todos os vértices da rota origem nao forem testados
+        { 
+
+            int idx_vertex_2 = 0;
+            // Garante que nao repetira vertices
+            while(vertexRSRC_2[idx_vertex_2]){
+                idx_vertex_2 = rand() % (sizeRoutes[r2] - 3) + 1; // Selecionando um vértice aleatório dessa rota entre 0 e penultimo
+            }
+
+            vertexRSRC_2[idx_vertex_2] = 1;
+
+
+            // IF
+
+            int v11 = routes[r1][idx_vertex_1], v12 = routes[r1][idx_vertex_1 + 1];
+
+            int demand1 = demands[v11] + demands[v12];
+            int cost1 = matrix_return_edge_weight(graph_adj, v11, v12, graph_return_direction(g));
+
+            int v21 = routes[r2][idx_vertex_2], v22 = routes[r2][idx_vertex_2 + 1];
+            int demand2 = demands[v21] + demands[v22];
+            int cost2 = matrix_return_edge_weight(graph_adj, v21, v22, graph_return_direction(g));
+
+            int result1 = demandRoutes[r1] - demand1 + demand2;
+            int result2 = demandRoutes[r2] + demand1 - demand2;
+            
+            if( result1 <= graph_return_capacity(g) && result2 <= graph_return_capacity(g) ){
+                
+                routes[r1][idx_vertex_1] = v21;
+                routes[r1][idx_vertex_1 + 1] = v22;
+                routes[r2][idx_vertex_2] = v11;
+                routes[r2][idx_vertex_2 + 1] = v12;
+
+                demandRoutes[r1] = result1;
+                demandRoutes[r2] = result2;
+                
+                cost[r1] += cost2 - cost1 + matrix_return_edge_weight(graph_adj, v21, routes[r1][idx_vertex_1 - 1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v22, routes[r1][idx_vertex_1 + 2], graph_return_direction(g)) - 
+                            (matrix_return_edge_weight(graph_adj, v11, routes[r1][idx_vertex_1 - 1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v12, routes[r1][idx_vertex_1 + 2], graph_return_direction(g)));
+                cost[r2] += cost1 - cost2 + matrix_return_edge_weight(graph_adj, v11, routes[r2][idx_vertex_2 - 1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v12, routes[r2][idx_vertex_2 + 2], graph_return_direction(g)) - 
+                            (matrix_return_edge_weight(graph_adj, v21, routes[r2][idx_vertex_2 - 1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v22, routes[r2][idx_vertex_2 + 2], graph_return_direction(g)));
+// printf("\nDEPOIS");
+// printsd(routes, size, sizeRoutes, demandRoutes, cost, NULL);
+            
+
+        // double custo = matrix_return_route_cost(graph_adj, routes[r1], sizeRoutes[r1]);
+        // if(cost[r1] != custo) printf("Erro custo rota %d! %.0lf | %0.lf\n", r1, cost[r1], custo );
+        // custo = matrix_return_route_cost(graph_adj, routes[r2], sizeRoutes[r2]);
+        // if(cost[r2] != custo) printf("Erro custo rota %d! %.0lf | %0.lf\n", r2, cost[r2], custo);
+
+        // int demanda = _return_demand(routes[r1], sizeRoutes[r1], demands, g);
+        // if(demandRoutes[r1] != demanda) printf("Erro demada rota %d! %d | %d\n", r1, demandRoutes[r1], demanda);
+        // demanda = _return_demand(routes[r2], sizeRoutes[r2], demands, g);
+        // if(demandRoutes[r2] != demanda) printf("Erro demada rota %d! %d | %d\n",r2, demandRoutes[r2], demanda);
+                return;
+            }
+        }
+    }
+
+    return;
+//     for(int i = v_r1; i < sizeRoutes[r1]; i++){
+
+//         if( i >= sizeRoutes[r1] - 2 ) i = i % (sizeRoutes[r1] - 2) + 1;
+//         if( i == (v_r1 % sizeRoutes[r1] - 1) + 1 ) break;
+//         printf("I: %d\n", i);
+
+//         int v11 = routes[r1][i], v12 = routes[r1][i + 1];
+
+//         int demand1 = demands[v11] + demands[v12];
+//         int cost1 = matrix_return_edge_weight(graph_adj, v11, v12, graph_return_direction(g));
+
+//         for(int j = v_r2; j < sizeRoutes[r2]; j++){
+
+//             if( j >= sizeRoutes[r2] - 2 ) j = j % (sizeRoutes[r2] - 2) + 1;
+//             if( j == (v_r2 % sizeRoutes[r2] - 1) + 1 ) break;
+//             printf("J = %d\n", j);
+
+
+//             int v21 = routes[r2][j], v22 = routes[r2][j + 1];
+//             int demand2 = demands[v21] + demands[v22];
+//             int cost2 = matrix_return_edge_weight(graph_adj, v21, v22, graph_return_direction(g));
+
+//             int result1 = demandRoutes[r1] - demand1 + demand2;
+//             int result2 = demandRoutes[r2] + demand1 - demand2;
+            
+//             if( result1 <= graph_return_capacity(g) && result2 <= graph_return_capacity(g) ){
+                
+//                 routes[r1][i] = v21;
+//                 routes[r1][i + 1] = v22;
+//                 routes[r2][j] = v11;
+//                 routes[r2][j + 1] = v12;
+
+//                 demandRoutes[r1] = result1;
+//                 demandRoutes[r2] = result2;
+                
+//                 cost[r1] += cost2 - cost1 + matrix_return_edge_weight(graph_adj, v21, routes[r1][i-1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v22, routes[r1][i+2], graph_return_direction(g)) - 
+//                             (matrix_return_edge_weight(graph_adj, v11, routes[r1][i-1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v12, routes[r1][i+2], graph_return_direction(g)));
+//                 cost[r2] += cost1 - cost2 + matrix_return_edge_weight(graph_adj, v11, routes[r2][j-1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v12, routes[r2][j+2], graph_return_direction(g)) - 
+//                             (matrix_return_edge_weight(graph_adj, v21, routes[r2][j-1], graph_return_direction(g)) + matrix_return_edge_weight(graph_adj, v22, routes[r2][j+2], graph_return_direction(g)));
+
+// printf("\nDEPOIS");
+// printsd(routes, size, sizeRoutes, demandRoutes, cost, NULL);
+            
+
+//         double custo = matrix_return_route_cost(graph_adj, routes[r1], sizeRoutes[r1]);
+//         if(cost[r1] != custo) printf("Erro custo rota %d! %.0lf | %0.lf\n", r1, cost[r1], custo );
+//         custo = matrix_return_route_cost(graph_adj, routes[r2], sizeRoutes[r2]);
+//         if(cost[r2] != custo) printf("Erro custo rota %d! %.0lf | %0.lf\n", r2, cost[r2], custo);
+
+//         int demanda = _return_demand(routes[r1], sizeRoutes[r1], demands, g);
+//         if(demandRoutes[r1] != demanda) printf("Erro demada rota %d! %d | %d\n", r1, demandRoutes[r1], demanda);
+//         demanda = _return_demand(routes[r2], sizeRoutes[r2], demands, g);
+//         if(demandRoutes[r2] != demanda) printf("Erro demada rota %d! %d | %d\n",r2, demandRoutes[r2], demanda);
+
+// printsd(routes, size, sizeRoutes, demandRoutes, cost, NULL);
+                            
+//                 return;
+//             }
+//         }
+//     }
+//     return;
+}
+
 void _shake(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int k, int capacity, double *cost, void *graph_adj, Graph *g){
 
-    int div = NUM_IT / 2;
+    int div = NUM_IT / 3;
     if( k >= 0 && k < div ){
         // printf("MOVE\n");
         _move_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_return_adjacencies(g), g);
-    } else {
+    } else if( k >= div && k < (div + div)){
         // printf("Random\n");
         _random_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_return_adjacencies(g), g);
+    } else{
+        // printf("Cross\n");
+        _cross_perturbation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_adj, g);
     }
 
 }

@@ -110,7 +110,7 @@ void graph_route_destroy(Graph *g);
 void graph_destroy(Graph *g);
 
 
-
+void graph_cross_exchange(Graph *g);
 
 
 #endif
