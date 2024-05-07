@@ -1,132 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "src/graph/graph.h"
+#include "src/info/info.h"
 #include "src/graphviz_print/graphviz_print.h"
-
-#include "src/algorithms/algorithms.h"
-#include "src/adjacency_matrix/matrix.h"
-
 #include <time.h>
 
-#define size 5
-
-int optimal = -1;
-int cost[size];
-
-void printcost(int custo){
-    char control = 0;
-    for(int i = 0; i < size - 1; i++) if(cost[i] == optimal) control = 1;
-
-    if( custo == optimal && control ){
-        printf("\\textbf{%d} ", custo);
-        
-    } else if(custo == -1){
-        printf("--");
-
-    } else {
-        printf("%d ", custo);
-
-    }
-}
-
-void printname(char *name){
-    char control = 0;
-    for(int i = 0; i < size - 1; i++) if(cost[i] == optimal) control = 1;
-
-    if( control ){
-        printf("\\textbf{%s} ", name);
-    } else {
-        printf("%s ", name);
-
-    }
-}
-
-// int main( int argc, char* argv[] ){
-
-//     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-
-//     optimal = graph_return_optimal_cost(g);
-
-//     graph_Clarke_Wright_parallel_route(g);
-//     cost[0] = graph_return_total_cost(g);
-
-//     graph_enables_routes(g);
-//     cost[1] = graph_return_total_cost(g);
-
-//     graph_2opt(g);
-//     cost[2] = graph_return_total_cost(g);
-
-// if( graph_return_num_vertex(g) == 135 ){
-//     cost[3] = -1;
-// } else{
-
-//     graph_Variable_Neighborhood_Search(g);
-//     cost[3] = graph_return_total_cost(g);
-// }
-
-//     cost[4] = optimal;
-
-//     printname(graph_return_name(g));
-//     for(int i = 0; i < size; i++){
-//         printf("& ");
-//         printcost(cost[i]);
-//     }
-
-//     printf(" \\\\\n");
-
-
-//     graph_destroy(g);
-
-//     return 0;
-// }
-
-void reset(Graph *g, char *argv[]){
-    graph_destroy(g);
-    graph_read_file_CVRPLIB(argv[1]);
-    graph_Clarke_Wright_parallel_route(g);
+void distanceToOptimal(double cost, double optimal){
+    double difference;
+    difference = (double)((cost - optimal) / optimal) * 100;
+    printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
 }
 
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    optimal = graph_return_optimal_cost(g);
+    int times = 1;
+    int seed  = 0;
+    FILE *f = fopen("entradas/seeds.bin", "rb");
 
-    graph_Clarke_Wright_parallel_route(g);
-    cost[0] = graph_return_total_cost(g);
+    Info **arr = info_array_construct(times);
 
-            reset(g, argv);
+    for(int i = 0; i < times; i++){
 
-    graph_enables_routes(g);
-    cost[1] = graph_return_total_cost(g);
+        info_define(arr, i);
+        info_construct(g);
 
-            reset(g, argv);
+        fread(&seed, sizeof(int), 1, f);
+        srand(seed);
+        info_set_seed(seed);
 
-    graph_2opt(g);
-    cost[2] = graph_return_total_cost(g);
+        graph_Clarke_Wright_parallel_route(g);
+        info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
-            reset(g, argv);
+        graph_enables_routes(g);
+        info_set_cost_enables(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
-if( graph_return_num_vertex(g) == 135 ){
-    cost[3] = -1;
-} else{
+        graph_Variable_Neighborhood_Search(g);
+        info_set_cost_vns(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
+        
+        info_set_routes(graph_return_route(g));
 
-    graph_Variable_Neighborhood_Search(g);
-    cost[3] = graph_return_total_cost(g);
-}
-
-    cost[4] = optimal;
-
-    printname(graph_return_name(g));
-    for(int i = 0; i < size; i++){
-        printf("& ");
-        printcost(cost[i]);
+        graph_route_destroy(g);
+        // printf("Final cost: %d\n", route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
     }
+    fclose(f);
 
-    printf(" \\\\\n");
+                    // FILE *arq = fopen("RotaMelhorOtimo.txt", "w");
+                    // route_print_file(graph_return_route(g), graph_return_trucks(g), arq);
+                    // fclose(arq);
+                    // graph_check_routes("RotaMelhorOtimo.txt", g);
 
+    info_print_table_result(arr, times);
+    info_print_table_infos(arr, times);
+
+    info_print_arr_file(arr, times);
+    info_print_solution_file(arr, times);
+    info_print_results_file(arr, times);
+
+    int cost = graph_check_routes("out/F/F-n135-k7/F-n135-k7.sol", g);
+    printf("Real Cost: %d\n", cost);
 
     graph_destroy(g);
+    info_arr_destroy(arr, times);
 
     return 0;
 }

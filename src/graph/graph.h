@@ -7,17 +7,17 @@
 #include <string.h>
 
 #include "../adjacency_matrix/matrix.h"
+#include "../route/route.h"
 
 typedef unsigned char bool;
 
-#define UNDIRECTED 1
-#define DIRECTED 0
+#define NEIGHBORHOOD_STRUCTURES 4
 
-#define NEIGHBORHOOD_STRUCTURES 3
-
-#define NUM_IT 10000
+#define NUM_IT 1000
 
 typedef struct Graph Graph;
+
+struct Route;
 typedef struct Route Route;
 
 Graph *graph_construct(int v, bool direction);
@@ -47,19 +47,7 @@ void *graph_return_vertex_vector(Graph *g);
 void *graph_return_adjacencies(Graph *g);
 
 // Retorna a i-ésima rota de um grafo
-void *route_return_route(Graph *g, int i);
-
-// Retorna o tamanho da i-ésima rota de um grafo
-int route_return_size(Graph *g, int i);
-
-// Retorna a demanda da i-ésima rota de um grafo
-int route_return_demand(Graph *g, int i);
-
-// Retorna o custo da i-ésima rota de um grafo
-double route_return_cost(Graph *g, int i);
-
-// Retorna o custo total das rotas de um grafo
-double graph_return_total_cost(Graph *g);
+Route *graph_return_route(Graph *g);
 
 // Retorna o custo ótimo da instância lida
 double graph_return_optimal_cost(Graph *g);
@@ -97,23 +85,23 @@ void graph_Clarke_Wright_serial_route(Graph *g);
 // Atribui a rota ao grafo
 void graph_set_route(Graph *g, int idx, void *route, int size, int demand);
 
-// Atribui uma demanda a i-ésima rota de um grafo
-void route_set_demand(Graph *g, int idx, int demand);
-
-// Atribui um custo a i-ésima rota de um grafo
-void route_set_cost(Graph *g, int idx, double cost);
-
 // Retorna um vetor int com as demandas dos vértices do grafo
 int *graph_return_demands(Graph *g);
 
 // Imprime as rotas do grafo no terminal
-void route_print(Graph *g);
+void graph_print_routes(Graph *g);
+
+
+int graph_check_routes(char *filename, Graph *g);
+
 
 // Melhora as rotas do grafo de acordo com o algoritmo 2OPT intra-rotas
 void graph_2opt(Graph *g);
 
 // Melhora as rotas de um grafo de acordo com o algoritmo VNS
 void graph_Variable_Neighborhood_Search(Graph *g);
+
+void graph_enables_routes(Graph *g);
 
 // Desaloca as rotas de um grafo da memória
 void graph_route_destroy(Graph *g);
@@ -122,11 +110,6 @@ void graph_route_destroy(Graph *g);
 void graph_destroy(Graph *g);
 
 
-void graph_enables_routes(Graph *g);
-
-
-
-void graph_teste(Graph *g);
 
 
 

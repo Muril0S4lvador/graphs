@@ -3,13 +3,6 @@
 #include "../Vector/vector.h"
 #include "../algorithms/algorithms.h"
 
-struct Route{
-    int size;
-    void *route;
-    double cost;
-    int demand;
-};
-
 struct Graph{
     char *name;
     char *comment;
@@ -58,6 +51,7 @@ void _read_EUC_2D(Graph *g, FILE *arq){
             weight w = (weight)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
 
             w = round(w);
+            // w = ceil(w);
 
             graph_add_edge(g, i, j, w);
         }
@@ -139,28 +133,8 @@ void *graph_return_adjacencies(Graph *g){
     return (g) ? g->adj : NULL;
 }
 
-void *route_return_route(Graph *g, int i){
-    return (g) ? g->route[i].route : NULL;
-}
-
-int route_return_size(Graph *g, int i){
-    return (g) ? g->route[i].size : -1;
-}
-
-int route_return_demand(Graph *g, int i){
-    return (g) ? g->route[i].demand : -1;
-}
-
-double route_return_cost(Graph *g, int i){
-    return (g) ? g->route[i].cost : -1;
-}
-
-double graph_return_total_cost(Graph *g){
-    if(!g) return -1;
-    double cost = 0;
-    for(int i = 0; i < g->trucks; i++)
-        cost += g->route[i].cost;
-    return cost;
+Route* graph_return_route(Graph *g){
+    return (g->route) ? g->route : NULL;
 }
 
 double graph_return_optimal_cost(Graph *g){
@@ -207,7 +181,7 @@ bool graph_edge_exists(Graph *g, int v1, int v2){
 
 Graph *graph_read_file_CVRPLIB(char *fileName){
 
-    if( !fileName ) exit(printf("ERROR\nrun ./<exe> <CVRP file>\n"));
+    if( !fileName ) exit(printf("ERRO\nrun ./<exe> <CVRP file>\n"));
     FILE *arq = fopen(fileName, "r");
     if( !arq ) exit(printf("ERRO: Falha ao abrir %s\n", fileName));
 
@@ -301,16 +275,23 @@ Graph *graph_read_file(){
 }
 
 void graph_print(Graph *g){
-    printf("Vértices: %d\nArestas: %d\n", g->num_vertex, g->num_edge);
 
-    matrix_print(g->adj, g->num_vertex);
+    FILE *arq = fopen("Matriz.txt", "w");
+    if(!arq){ printf("ERRO: Problema ao imprimir matriz.\n"); return; }
 
-    printf("\nVertices:\n");
+    fprintf(arq, "%s Matrix\n", graph_return_name(g));
+    fprintf(arq, "Vértices: %d\nArestas: %d\n", g->num_vertex, g->num_edge);
+
+    matrix_print(g->adj, g->num_vertex, arq);
+
+    fprintf(arq, "\nVertices:\n");
     for(int i = 0; i < vector_size(g->vertices); i++){
         Data *d = vector_get(g->vertices, i);
-        printf("%d : ", i);
-        data_print(d);
+        fprintf(arq, "%d : ", i);
+        data_print(d, arq);
     }
+
+    fclose(arq);
 }
 
 Graph *graph_mst_kruskal(Graph *g){
@@ -366,21 +347,12 @@ void graph_Clarke_Wright_serial_route(Graph *g){
 }
 
 void graph_set_route(Graph *g, int idx, void *route, int size, int demand){
-    if( !idx ) g->route = malloc(sizeof(Route) * g->trucks);
+    if( !idx ) g->route = route_construct(g->trucks);
 
-    g->route[idx].route = malloc(sizeof(int) * size);
-    g->route[idx].route = memcpy(g->route[idx].route, route, sizeof(int) * size);
-    g->route[idx].size = size;
-    g->route[idx].demand = demand;
-    g->route[idx].cost = matrix_return_route_cost(g->adj, route, size);
-}
-
-void route_set_demand(Graph *g, int idx, int demand){
-    g->route[idx].demand = demand;
-}
-
-void route_set_cost(Graph *g, int idx, double cost){
-    g->route[idx].cost = cost;
+    route_set_route(g->route, route, idx, size);
+    route_set_cost(g->route, matrix_return_route_cost(g->adj, route, size), idx);
+    route_set_size(g->route, size, idx);
+    route_set_demand(g->route, demand, idx);
 }
 
 int *graph_return_demands(Graph *g){
@@ -392,18 +364,100 @@ int *graph_return_demands(Graph *g){
     return demands;
 }
 
-void route_print(Graph *g){
-    printf("Capacity %d\n", graph_return_capacity(g));
-    for(int i = 0; i < g->trucks; i++){
-        // printf("Rota %d \n", i, route_return_demand(g, i), g->route[i].cost);
-        printf("Rota %d Demanda %d Custo %.2f\n", i, route_return_demand(g, i), g->route[i].cost);
-        int size = route_return_size(g, i);
-        for(int j = 0; j < size; j++){
-            int *v = g->route[i].route;
-            printf("%d ", (v[j]));
+void graph_print_routes(Graph *g){
+    if (!graph_has_route(g)) return;
+    printf("\nCapacity %d\n", graph_return_capacity(g));
+    route_print(graph_return_route(g), graph_return_trucks(g));
+    printf("\n");
+}
+
+int graph_check_routes(char *filename, Graph *g){
+
+    if(!g){printf("ERROR: Need Graph to check the routes\n"); return -1;}
+
+    FILE *f = fopen(filename, "r");
+    if(!f){printf("ERROR: Problem with %s\n", filename); return -1; }
+
+    int num_routes = graph_return_trucks(g), idx = 0;
+
+    int **routes = malloc(sizeof(int*) * num_routes),
+        *route_size = calloc(num_routes, sizeof(int)),
+        *demands = graph_return_demands(g),
+        *route_cost = calloc(num_routes, sizeof(int)),
+        *route_demand = calloc(num_routes, sizeof(int));
+    
+    char linha[500]; // Buffer para armazenar uma linha do arquivo
+
+    while (fgets(linha, sizeof(linha), f) != NULL) {
+        
+        // Verificar se a linha começa com "Route #"
+        if (strncmp(linha, "Route #", 7) == 0) {
+            // Se sim, ler os números da rota
+
+            int num, size = 10;
+            sscanf(linha, "Route #%*d: ");
+            routes[idx] = malloc(sizeof(int) * size);
+            routes[idx][route_size[idx]++] = 0;
+
+            char *token = strtok(linha, ":");
+            token = strtok(NULL, " ");
+
+            while( token != NULL ){
+                sscanf(token, "%d", &num);
+                if ( num != 0 ) {
+                    routes[idx][route_size[idx]++] = num; 
+                    route_demand[idx] += demands[num];
+                }
+
+                if( route_size[idx] >= size ){
+                    size *= 2;
+                    routes[idx] = realloc(routes[idx], sizeof(int) * size);
+                }
+                token = strtok(NULL, " ");
+            }
+            routes[idx][route_size[idx]++] = 0;
+            idx++;
         }
-        printf("\n");
     }
+    fclose(f);
+
+    // printf("Capacity: %d\nOptimal: %d\n", graph_return_capacity(g), (int)graph_return_optimal_cost(g));
+    int num_vertex = graph_return_num_vertex(g);
+    int *vtx = calloc(num_vertex, sizeof(int));
+    int cost = 0;
+    for(int i = 0; i < num_routes; i++){
+        route_cost[i] = (int)matrix_return_route_cost(graph_return_adjacencies(g), routes[i], route_size[i]);
+        cost += route_cost[i];
+
+        if(route_demand[i] > graph_return_capacity(g)){printf("ERRO demada #%d\n%d | C: %d\n", i+1, route_demand[i], graph_return_capacity(g));}
+        
+        // printf("\nRota %d | [C: %d D: %d]\n", i+1, route_cost[i], route_demand[i]);
+        for(int j = 0; j < route_size[i]; j++){
+            // printf("%d ", routes[i][j]);
+            vtx[routes[i][j]]++;
+        }
+        // printf("\n");
+    }
+    // printf("\nTotal cost: %d\n", cost);
+
+    for(int i = 0; i < num_vertex; i++){
+        if(vtx[i] == 0){
+            printf("Vertice %d não aparece na solução.\n", i);
+        } else if( vtx[i] > 1 ){
+            printf("Vertice %d aparece na solução %d vezes.\n", i,vtx[i]);
+        }
+    }
+
+    for(int i = 0; i < num_routes; i++)
+        free(routes[i]);
+    free(routes);
+    free(route_size);
+    free(route_demand);
+    free(route_cost);
+    free(demands);
+    free(vtx);
+
+    return cost;
 }
 
 void graph_Variable_Neighborhood_Search(Graph *g){
@@ -417,9 +471,10 @@ void graph_Variable_Neighborhood_Search(Graph *g){
         *sizeR = malloc(sizeof(int) * g->trucks),
         *demandsR = malloc(sizeof(int) * g->trucks);
     for(int i = 0; i < g->trucks; i++){
-        routes[i] = route_return_route(g, i);
-        sizeR[i] = route_return_size(g, i);
-        demandsR[i] = route_return_demand(g, i);
+        Route *r = graph_return_route(g);
+        routes[i] = route_return_route(r, i);
+        sizeR[i] = route_return_size(r, i);
+        demandsR[i] = route_return_demand(r, i);
     }
     
     variable_Neighborhood_Search(g, routes, sizeR, graph_return_demands(g), demandsR);
@@ -431,24 +486,55 @@ void graph_Variable_Neighborhood_Search(Graph *g){
 
 void graph_2opt(Graph *g){
     double *cost = malloc(sizeof(double) * graph_return_trucks(g));
+    Route *r = graph_return_route(g);
     for(int i = 0; i < g->trucks; i++)
-        cost[i] = route_return_cost(g, i);
+        cost[i] = route_return_cost(r, i);
 
     for(int i = 0; i < g->trucks; i++){
-        int *route = route_return_route(g, i),
-            size = route_return_size(g, i);
+        int *route = route_return_route(r, i),
+            size = route_return_size(r, i);
         opt2_algorithm(route, size, g->adj, &cost[i]);
-        g->route[i].cost = cost[i];
+        route_set_cost(g->route, cost[i], i);
     }
     free(cost);
 }
 
+void graph_enables_routes(Graph *g){
+
+    if( !graph_has_route(g) ){
+        printf("Necessário a construção de uma solução inicial.\n");
+        return;
+    }
+    
+    int **routes = malloc(sizeof(int*) * g->trucks),
+        *sizeR = malloc(sizeof(int) * g->trucks),
+        *demandsR = malloc(sizeof(int) * g->trucks),
+        *demands = graph_return_demands(g);
+    double *cost = malloc(sizeof(double) * g->trucks);
+    Route *r = graph_return_route(g);
+    for(int i = 0; i < g->trucks; i++){
+        routes[i] = route_return_route(r, i);
+        sizeR[i] = route_return_size(r, i);
+        demandsR[i] = route_return_demand(r, i);
+        cost[i] = route_return_cost(r, i);
+    }
+    
+    enables_route_swap(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
+    enables_route_reallocate(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
+
+    free(routes);
+    free(sizeR);
+    free(demandsR);
+    free(cost);
+    free(demands);
+
+}
+
 void graph_route_destroy(Graph *g){
     if ( !graph_has_route(g) ) return;
-    for(int i = 0; i < g->trucks; i++){
-            free(g->route[i].route);
-    }
-    free(g->route);
+    Route *r = graph_return_route(g);
+    route_destroy(r, g->trucks);
+    g->route = NULL;
 }
 
 void graph_destroy(Graph *g){
@@ -464,128 +550,4 @@ void graph_destroy(Graph *g){
     free(g->name);
     free(g->comment);
     free(g);
-}
-
-
-
-
-
-
-
-
-// void graphPossibilita(Graph *g){
-//     // int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g
-
-//     if( !graph_has_route(g) ){
-//         printf("Necessário a construção de uma solução inicial.\n");
-//         return;
-//     }
-    
-//     int **routes = malloc(sizeof(int*) * g->trucks),
-//         *sizeR = malloc(sizeof(int) * g->trucks),
-//         *demandsR = malloc(sizeof(int) * g->trucks),
-//         *demands = graph_return_demands(g);
-//     double *cost = malloc(sizeof(double) * g->trucks);
-//     for(int i = 0; i < g->trucks; i++){
-//         routes[i] = route_return_route(g, i);
-//         sizeR[i] = route_return_size(g, i);
-//         demandsR[i] = route_return_demand(g, i);
-//         cost[i] = route_return_cost(g, i);
-//     }
-    
-//     possibilitaRotas(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
-
-//     free(routes);
-//     free(sizeR);
-//     free(demandsR);
-//     free(cost);
-//     free(demands);
-// }
-
-// void graphPossibilitaRealoc(Graph *g){
-//     // int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g
-
-//     if( !graph_has_route(g) ){
-//         printf("Necessário a construção de uma solução inicial.\n");
-//         return;
-//     }
-    
-//     int **routes = malloc(sizeof(int*) * g->trucks),
-//         *sizeR = malloc(sizeof(int) * g->trucks),
-//         *demandsR = malloc(sizeof(int) * g->trucks),
-//         *demands = graph_return_demands(g);
-//     double *cost = malloc(sizeof(double) * g->trucks);
-//     for(int i = 0; i < g->trucks; i++){
-//         routes[i] = route_return_route(g, i);
-//         sizeR[i] = route_return_size(g, i);
-//         demandsR[i] = route_return_demand(g, i);
-//         cost[i] = route_return_cost(g, i);
-//     }
-    
-//     possibilitaRotasRealoc(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
-
-//     free(routes);
-//     free(sizeR);
-//     free(demandsR);
-//     free(cost);
-//     free(demands);
-// }
-
-void graph_enables_routes(Graph *g){
-
-    if( !graph_has_route(g) ){
-        printf("Necessário a construção de uma solução inicial.\n");
-        return;
-    }
-    
-    int **routes = malloc(sizeof(int*) * g->trucks),
-        *sizeR = malloc(sizeof(int) * g->trucks),
-        *demandsR = malloc(sizeof(int) * g->trucks),
-        *demands = graph_return_demands(g);
-    double *cost = malloc(sizeof(double) * g->trucks);
-    for(int i = 0; i < g->trucks; i++){
-        routes[i] = route_return_route(g, i);
-        sizeR[i] = route_return_size(g, i);
-        demandsR[i] = route_return_demand(g, i);
-        cost[i] = route_return_cost(g, i);
-    }
-    
-    enables_route_swap(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
-    enables_route_reallocate(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
-
-    free(routes);
-    free(sizeR);
-    free(demandsR);
-    free(cost);
-    free(demands);
-
-}
-
-void graph_teste(Graph *g){
-
-    if( !graph_has_route(g) ){
-        printf("Necessário a construção de uma solução inicial.\n");
-        return;
-    }
-    
-    int **routes = malloc(sizeof(int*) * g->trucks),
-        *sizeR = malloc(sizeof(int) * g->trucks),
-        *demandsR = malloc(sizeof(int) * g->trucks),
-        *demands = graph_return_demands(g);
-    double *cost = malloc(sizeof(double) * g->trucks);
-    for(int i = 0; i < g->trucks; i++){
-        routes[i] = route_return_route(g, i);
-        sizeR[i] = route_return_size(g, i);
-        demandsR[i] = route_return_demand(g, i);
-        cost[i] = route_return_cost(g, i);
-    }
-    
-    opt2_inter_routes(routes, g->trucks, sizeR, demandsR, cost, demands, g);
-
-    free(routes);
-    free(sizeR);
-    free(demandsR);
-    free(cost);
-    free(demands);
-
 }

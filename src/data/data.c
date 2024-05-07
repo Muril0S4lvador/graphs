@@ -31,8 +31,8 @@ int data_return_demand(Data *d){
     return (d) ? d->demand : 0 ;
 }
 
-void data_print(Data *d){
-    printf("(%.2f, %.2f) - %d\n", d->x, d->y, d->demand);
+void data_print(Data *d, FILE *arq){
+    fprintf(arq, "(%.2f, %.2f) - %d\n", d->x, d->y, d->demand);
 }
 
 void data_destroy(Data *d){

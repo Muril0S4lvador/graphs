@@ -28,8 +28,8 @@ char matrix_edge_exists(void *vm, int v1, int v2);
 // Retorna peso da aresta (v1, v2)
 double matrix_return_edge_weight(void *vm, int v1, int v2, int direction);
 
-// Imprime a matriz de adjacências no terminal
-void matrix_print(void *vm, int size);
+// Imprime a matriz de adjacências no arquivo Matriz.txt
+void matrix_print(void *vm, int size, FILE *arq);
 
 // Escreve as arestas de cada vértice de acordo com a matriz no arquivo
 void matrix_file_write(void *vm, int size, FILE *arq, char *edge);

@@ -91,7 +91,8 @@ void _route_file_write(Graph *g, int size, FILE *arq){
         strcat(color, end_color);
         fprintf(arq, "\n%s\n", color);
 
-        int route_size = route_return_size(g, i), *rt = route_return_route(g, i);
+        Route *r = graph_return_route(g);
+        int route_size = route_return_size(r, i), *rt = route_return_route(r, i);
         for( int j = 0; j < route_size; j++ ){
             fprintf(arq, "v%d ", rt[j]);
                 if( j < route_size - 1) fprintf(arq, "-- ");
