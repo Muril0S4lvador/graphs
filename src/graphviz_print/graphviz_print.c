@@ -2,6 +2,7 @@
 #include "../adjacency_matrix/matrix.h"
 #include "../Vector/vector.h"
 #include "../graph/graph.h"
+#include <dirent.h>
 
 enum Color {
     BLACK,
@@ -18,6 +19,15 @@ enum Color {
 };
 
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
+
+void _directory_imgs_verify(){
+    DIR *dir = opendir("imgs/");
+    if( dir ){
+        closedir( dir );
+    } else {
+        system("mkdir imgs/");
+    }
+}
 
 // Cria a imagem <filename>.png de acordo com os comandos neato do graphviz
 void _system_call_graphviz(char *file_name){
@@ -105,8 +115,12 @@ void _route_file_write(Graph *g, int size, FILE *arq){
 
 /* =================================================================================================================================== */
 
-void img_print_vertex(Graph *g, char *file_name){
+void img_print_vertex(Graph *g, char *fileName){
 
+    _directory_imgs_verify();
+    char file_name[200] = "imgs/";
+    strcat(file_name, fileName);
+    
     FILE *arq_vertex = fopen(file_name, "w");
 
     if( !arq_vertex ){
@@ -124,7 +138,11 @@ void img_print_vertex(Graph *g, char *file_name){
     _system_call_graphviz(file_name);
 }
 
-void img_print_graph(Graph *g, char *file_name){
+void img_print_graph(Graph *g, char *fileName){
+
+    _directory_imgs_verify();
+    char file_name[200] = "imgs/";
+    strcat(file_name, fileName);
 
     FILE *arq_graph = fopen(file_name, "w");
     char open_arq[11] = "di", suf[9] = "graph {\n";
@@ -153,7 +171,11 @@ void img_print_graph(Graph *g, char *file_name){
     _system_call_graphviz(file_name);
 }
 
-void img_print_route(Graph *g, char *file_name){
+void img_print_route(Graph *g, char *fileName){
+    
+    _directory_imgs_verify();
+    char file_name[200] = "imgs/";
+    strcat(file_name, fileName);
 
     FILE *arq_graph = fopen(file_name, "w");
     char open_arq[11] = "di", suf[9] = "graph {\n";
@@ -182,9 +204,13 @@ void img_print_route(Graph *g, char *file_name){
     _system_call_graphviz(file_name);
 }
 
-void img_print_graph_per_edge(Graph *g1, Graph *g2, int it, char *file_name){
+void img_print_graph_per_edge(Graph *g1, Graph *g2, int it, char *fileName){
 
-    char real_filename[50];
+    _directory_imgs_verify();
+    char file_name[200] = "imgs/";
+    strcat(file_name, fileName);
+
+    char real_filename[206];
     sprintf(real_filename, "%s%d.dot",file_name, it);
 
     FILE *arq_graph = fopen(real_filename, "w");
