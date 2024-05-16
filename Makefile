@@ -42,7 +42,7 @@ main: .objects/main.o .objects/graph.o .objects/graphviz_print.o .objects/algori
 	gcc -g -o main .objects/main.o .objects/graph.o .objects/graphviz_print.o .objects/algorithms.o .objects/union_find.o .objects/vector.o .objects/matrix.o .objects/data.o .objects/route.o .objects/info.o -lm
 
 imgs_clean:
-	rm -r imgs/*.dot* imgs/arq_dots/*
+	rm imgs/*
 
 output: out/
 	@rm -rf out/*

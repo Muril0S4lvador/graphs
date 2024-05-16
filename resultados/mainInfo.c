@@ -14,8 +14,6 @@ void distanceToOptimal(double cost, double optimal){
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    img_print_vertex(g, "imgs/graph");
-    graph_print(g);
 
     int times = 10;
     int seed  = 0;
@@ -33,7 +31,6 @@ int main( int argc, char* argv[] ){
         info_set_seed(seed);
 
         graph_Clarke_Wright_parallel_route(g);
-        // graph_Clarke_Wright_serial_route(g);
         info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
         graph_enables_routes(g);
@@ -44,11 +41,7 @@ int main( int argc, char* argv[] ){
 
         info_set_routes(graph_return_route(g));
 
-        char name[20];
-        sprintf(name, "imgs/route_seed%d", seed);
-        img_print_route(g, name);
         graph_route_destroy(g);
-
     }
     fclose(f);
 

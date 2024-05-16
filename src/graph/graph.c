@@ -431,9 +431,9 @@ int graph_check_routes(char *filename, Graph *g){
 
         if(route_demand[i] > graph_return_capacity(g)){printf("ERRO demada #%d\n%d | C: %d\n", i+1, route_demand[i], graph_return_capacity(g));}
         
-        // printf("\nRota %d | [C: %d D: %d]\n", i+1, route_cost[i], route_demand[i]);
+        printf("\nRota %d | [C: %d D: %d]\n", i+1, route_cost[i], route_demand[i]);
         for(int j = 0; j < route_size[i]; j++){
-            // printf("%d ", routes[i][j]);
+            printf("%d[%d] ", routes[i][j], demands[routes[i][j]]);
             vtx[routes[i][j]]++;
         }
         // printf("\n");
@@ -442,9 +442,9 @@ int graph_check_routes(char *filename, Graph *g){
 
     for(int i = 0; i < num_vertex; i++){
         if(vtx[i] == 0){
-            printf("Vertice %d não aparece na solução.\n", i);
+            printf("\nVertice %d não aparece na solução.\n", i);
         } else if( vtx[i] > 1 ){
-            printf("Vertice %d aparece na solução %d vezes.\n", i,vtx[i]);
+            printf("\nVertice %d aparece na solução %d vezes.\n", i,vtx[i]);
         }
     }
 
