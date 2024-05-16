@@ -17,7 +17,7 @@ int main( int argc, char* argv[] ){
     img_print_vertex(g, "imgs/graph");
     graph_print(g);
 
-    int times = 10;
+    int times = 1;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 

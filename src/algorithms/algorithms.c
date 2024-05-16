@@ -1235,6 +1235,9 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
 
     info_save_improvement_vns(currentCost);
 
+    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, NULL);
+    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
+
     while( noImp < NUM_IT )
     {
         k = 0;
