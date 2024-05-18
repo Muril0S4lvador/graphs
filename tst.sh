@@ -14,7 +14,7 @@ output_file="tabela.txt"
 # Use o comando "find" para percorrer todos os arquivos em profundidade nas pastas "a," "b," e "e"
 
 # Loop para percorrer as pastas "a," "b," e "e"
-for folder in "$root_folder"/{a,b,e,f}; do
+for folder in "$root_folder"/{a,b,e,f,m,p}; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
         #echo "Achado $folder/"

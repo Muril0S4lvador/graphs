@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "../adjacency_matrix/matrix.h"
 #include "../route/route.h"
@@ -50,7 +51,7 @@ void *graph_return_adjacencies(Graph *g);
 Route *graph_return_route(Graph *g);
 
 // Retorna o custo ótimo da instância lida
-double graph_return_optimal_cost(Graph *g);
+int graph_return_optimal_cost(Graph *g);
 
 // Retorna o nome da instância lida
 char *graph_return_name(Graph *g);

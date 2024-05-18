@@ -14,8 +14,6 @@ void distanceToOptimal(double cost, double optimal){
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    img_print_vertex(g, "graph");
-    // graph_print(g);
 
     int times = 10;
     int seed  = 0;
@@ -43,9 +41,6 @@ int main( int argc, char* argv[] ){
 
         info_set_routes(graph_return_route(g));
 
-        char name[20];
-        sprintf(name, "route_seed%d", seed);
-        img_print_route(g, name);
         graph_route_destroy(g);
 
     }
