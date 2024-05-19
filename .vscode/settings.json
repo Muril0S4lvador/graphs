@@ -67,7 +67,8 @@
     "utility": "c",
     "algorithms.h": "c",
     "time.h": "c",
-    "info.h": "c"
+    "info.h": "c",
+    "vector.h": "c"
   },
   "C_Cpp.dimInactiveRegions": false,
   "C_Cpp.errorSquiggles": "disabled",

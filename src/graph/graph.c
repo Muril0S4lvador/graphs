@@ -10,6 +10,7 @@ struct Graph{
     int num_edge;
     int capacity;
     int trucks;
+    int optimal;
     bool direction;
     void *adj;
     Vector *vertices;
@@ -18,13 +19,24 @@ struct Graph{
 
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
 
-// Trata a string para ser comparável a outra string
-void _trataString(char *string){
-    int tam = strlen(string);
-    for(int i = 0; i < tam; i++){
-        if(string[i] == ' ')
-            string[i] = 0;
+// Retona ótimo da instância a partir de COMMENT
+int _return_optimal(char *string){
+
+    int value = 0;
+    char *token = strtok(string, " ");
+    
+    while( token != NULL){
+        token[0] = tolower(token[0]);
+
+        if( !strcmp(token, "value:") ){
+            token = strtok(NULL, " ");
+            sscanf(token, "%d", &value);
+        }
+
+        token = strtok(NULL, " ");
     }
+
+    return value;
 }
 
 // Lê as arestas de uma instância pela forma EUC_2D (euclidiana)
@@ -32,15 +44,20 @@ void _read_EUC_2D(Graph *g, FILE *arq){
 
     int dimension = g->num_vertex;
     double m[dimension][3];
+    char buffer[100];
+    
+    for(int i = 0; i < dimension; i++){
+        fgets(buffer, sizeof(buffer), arq);
+        sscanf(buffer, "%*d %lf %lf", &m[i][0], &m[i][1]);
+    }
 
-    for(int i = 0; i < dimension; i++)
-        fscanf(arq, " %*d %lf %lf%*c", &m[i][0], &m[i][1]);
-
-    fscanf(arq, "%*[^\n]\n"); // DEMAND_COORD_SECTION
+    fgets(buffer, sizeof(buffer), arq); // DEMAND_COORD_SECTION
 
     for(int i = 0; i < dimension; i++){
         
-        fscanf(arq, "%*c %lf %*c", &m[i][2]);
+        fgets(buffer, sizeof(buffer), arq); 
+        sscanf(buffer, "%*d %lf", &m[i][2]);
+
         float x1 = m[i][0], y1 = m[i][1];
         Data *d = data_construct(x1, y1, m[i][2]);
         vector_push_back(g->vertices, d);
@@ -95,6 +112,7 @@ Graph *graph_construct(int v, bool direction){
     g->route = NULL;
     g->capacity = 1;
     g->trucks = 0;
+    g->optimal = 0;
 
     g->adj = matrix_construct(g->num_vertex);
 
@@ -137,21 +155,8 @@ Route* graph_return_route(Graph *g){
     return (g->route) ? g->route : NULL;
 }
 
-double graph_return_optimal_cost(Graph *g){
-    if(!g) return -1;
-    double cost = -1;
-    char value[7] = "value:", comment[strlen(g->comment) + 1], *token = NULL;
-    memcpy(comment, g->comment, strlen(g->comment) + 1);
-
-    token = strtok(comment, " ");
-    while( token ){
-        if( !strcmp(token, value) ){
-            token = strtok(NULL, " ");
-            sscanf(token, "%lf", &cost);
-        }
-        token = strtok(NULL, " ");
-    }
-    return cost;
+int graph_return_optimal_cost(Graph *g){
+    return (g) ? g->optimal : -1;
 }
 
 char *graph_return_name(Graph *g){
@@ -185,43 +190,48 @@ Graph *graph_read_file_CVRPLIB(char *fileName){
     FILE *arq = fopen(fileName, "r");
     if( !arq ) exit(printf("ERRO: Falha ao abrir %s\n", fileName));
 
-    char nameprev[1000], commentprev[256];
+    char buffer[1000];
     int dimension = 0, capacity = 0;
 
-    fscanf(arq, "%*[^:]: %s%*c", nameprev); // NAME
-    char *name = malloc(sizeof(char) * strlen(nameprev) + 2);
-    memcpy(name, nameprev, strlen(nameprev) + 1);
+    fgets(buffer, sizeof(buffer), arq); // NAME
+    char name[50];
+    sscanf(buffer, "%*[^:]: %s", name);
 
-    fscanf(arq, "%*[^:]: "); // COMMENT
-    fgets(commentprev, 256, arq);
-    char *comment = malloc(sizeof(char) * strlen(commentprev) + 1);
-    memcpy(comment, commentprev, strlen(commentprev) + 1);
+    fgets(buffer, sizeof(buffer), arq); // COMMENT
+    char *token = strtok(buffer, "()"); token = strtok(NULL, ")");
+    token[strlen(token) - 1] = (token[strlen(token) - 1] == '\n') ? '\0' : token[strlen(token) - 1]; // tira \n caso precise
+    char *comment = malloc( sizeof(char) * (strlen(token) + 1) );
+    strcpy(comment, token);
 
-    fscanf(arq, "%*[^\n]\n"); // TYPE
+    fgets(buffer, sizeof(buffer), arq); // TYPE
 
-    fscanf(arq, "%*[^:]: %d%*c", &dimension); // DIMENSION
+    fgets(buffer, sizeof(buffer), arq); // DIMENSION
+    sscanf(buffer, "%*[^:]: %d", &dimension);
 
-    char edgeWType[20] = "";
-    fscanf(arq, "%*[^:]: "); // EDGE_WEIGHT_TYPE
-    fscanf(arq, "%[^\n]\n", edgeWType); // TYPE
-    _trataString(edgeWType);
+    char edgeWType[20];
+    fgets(buffer, sizeof(buffer), arq); // EDGE_WEIGHT_TYPE
+    token = strtok(buffer, ":"); token = strtok(NULL, " ");
+    token[strlen(token) - 1] = (token[strlen(token) - 1] == '\n') ? '\0' : token[strlen(token) - 1]; // tira \n caso precise
+    strcpy(edgeWType, token);
 
-    if( !strcmp(edgeWType, "EXPLICIT") ){
-        fscanf(arq, "%*[^:]: "); // EDGE_WEIGHT_FORMAT
-        fscanf(arq, "%[^\n]\n", edgeWType);
-        _trataString(edgeWType);
-        fscanf(arq, "%*[^\n]\n"); //DISPLAY_DATA_TYPE
+    if( !strcmp(token, "EXPLICIT") ){
+        fgets(buffer, sizeof(buffer), arq); // EDGE_WEIGHT_TYPE
+        sscanf(buffer, "%*[^:]: %s", edgeWType);
+        fgets(buffer, sizeof(buffer), arq); // DISPLAY_DATA_TYPE
     }
     
-    fscanf(arq, "%*[^:]: %d%*c", &capacity); // CAPACITY
+    fgets(buffer, sizeof(buffer), arq); // CAPACITY
+    sscanf(buffer, "%*[^:]: %d", &capacity);
     
-    fscanf(arq, "%*[^\n]\n"); //NODE_COORD_SECTION ou EDGE_WEIGHT_SECTION
+    fgets(buffer, sizeof(buffer), arq); // NODE_COORD_SECTION ou EDGE_WEIGHT_SECTION
 
     Graph *g = graph_construct(dimension, UNDIRECTED);
-    sscanf(nameprev, "%*[^k]k%d" , &g->trucks);
+    sscanf(name, "%*[^k]k%d" , &g->trucks);
     g->capacity = capacity;
-    g->name = name;
+    g->name = malloc(sizeof(char) * (strlen(name) + 1));
+    strcpy(g->name, name);
     g->comment = comment;
+    g->optimal = _return_optimal(g->comment);
 
     if( !strcmp(edgeWType, "EUC_2D") ){
         _read_EUC_2D(g, arq);
@@ -239,6 +249,7 @@ Graph *graph_read_file(){
     Graph *g2 = graph_construct(vx, UNDIRECTED);
     g2->capacity = cap;
     g2->trucks = trucks;
+    g2->optimal = 0;
     weight weight;
     scanf("\nDISTANCES\n");
     for(int i = 0; i < vx; i++){
@@ -426,7 +437,7 @@ int graph_check_routes(char *filename, Graph *g){
     int *vtx = calloc(num_vertex, sizeof(int));
     int cost = 0;
     for(int i = 0; i < num_routes; i++){
-        route_cost[i] = (int)matrix_return_route_cost(graph_return_adjacencies(g), routes[i], route_size[i]);
+        route_cost[i] = round( matrix_return_route_cost(graph_return_adjacencies(g), routes[i], route_size[i]) );
         cost += route_cost[i];
 
         if(route_demand[i] > graph_return_capacity(g)){printf("ERRO demada #%d\n%d | C: %d\n", i+1, route_demand[i], graph_return_capacity(g));}

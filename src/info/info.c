@@ -399,7 +399,7 @@ void info_print_results_file(Info **arr, int size){
         min_cost = (total_cost < min_cost) ? total_cost : min_cost;
         max_cost = (total_cost > max_cost) ? total_cost : max_cost;
 
-        if(total_cost == arr[i]->optimal) 
+        if(total_cost == arr[i]->optimal)
             vet_opt[size_opt++] = arr[i]->srand_seed;
         else
             vet_Nopt[size_Nopt++] = arr[i]->srand_seed;
@@ -453,14 +453,6 @@ void info_print_results_file(Info **arr, int size){
 }
 
 void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *instance, int control){
-
-    // char alg[4];
-    // if(control){
-    //     strcpy(alg, "VNS");
-
-    // } else {
-    //     strcpy(alg, "VND");
-    // }
 
     _directory_verify();
     char filename[100];
