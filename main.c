@@ -15,45 +15,11 @@ int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    int times = 1;
-    int seed  = 0;
-    FILE *f = fopen("entradas/seeds.bin", "rb");
+    FILE *arq = fopen("medias instancias.csv", "a");
 
-    Info **arr = info_array_construct(times);
+    printf("%c;%d;%d;%d;%d;\n", graph_return_name(g)[0], graph_return_num_vertex(g), graph_return_trucks(g), graph_return_capacity(g), graph_return_optimal_cost(g));
 
-    for(int i = 0; i < times; i++){
-
-        info_define(arr, i);
-        info_construct(g);
-
-        fread(&seed, sizeof(int), 1, f);
-        srand(seed);
-        info_set_seed(seed);
-
-        graph_Clarke_Wright_parallel_route(g);
-        info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
-
-        graph_enables_routes(g);
-        info_set_cost_enables(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
-
-        graph_Variable_Neighborhood_Search(g);
-        info_set_cost_vns(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
-
-        info_set_routes(graph_return_route(g));
-
-        graph_route_destroy(g);
-
-    }
-    fclose(f);
-
-    info_print_table_result(arr, times);
-    info_print_table_infos(arr, times);
-
-    info_print_arr_file(arr, times);
-    info_print_solution_file(arr, times);
-    info_print_results_file(arr, times);
-
-    info_arr_destroy(arr, times);
+    fclose(arq);
     graph_destroy(g);
 
     return 0;

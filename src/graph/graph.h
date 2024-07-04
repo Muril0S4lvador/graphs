@@ -13,6 +13,7 @@
 typedef unsigned char bool;
 
 #define NEIGHBORHOOD_STRUCTURES 4
+#define SHAKE_STRUCTURES 3
 
 #define NUM_IT 1000
 

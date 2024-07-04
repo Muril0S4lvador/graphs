@@ -36,7 +36,7 @@ Info *info;
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
 
 double _calculate_time(clock_t start, clock_t end){
-    return ((double)(end - start) / CLOCKS_PER_SEC) * 1000;
+    return ((double)(end - start) / CLOCKS_PER_SEC);
 }
 
 void _print_vector_file(int *vet, int size, FILE *arq){
@@ -591,4 +591,68 @@ void info_destroy(){
     vector_destroy(info->it_improvements_vns_vector);
     free(info->instance);
     free(info);
+}
+
+
+
+
+
+double _distanceToOptimal(double cost, double optimal){
+    double difference;
+    difference = (double)((cost - optimal) / optimal) * 100;
+    return difference;
+    // printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
+}
+
+void info_print_ERI(Info **arr, int size){
+
+    FILE *arq = fopen("TableERI.txt", "a");
+    if(!arq) return;
+
+    double  savingCost = 0,
+            enableCost = 0,
+            vnsCost = 0,
+            otimo = 0,
+            time = 0,
+            vezesOtimo = 0,
+            gap = 0,
+            totalIt = 0,
+            optIt = 0;
+
+    for(int i = 0; i < size; i++){
+
+        savingCost += arr[i]->cost_constructive;
+        enableCost += arr[i]->cost_enables;
+        vnsCost += arr[i]->cost_VNS;
+        otimo += arr[i]->optimal;
+        gap += _distanceToOptimal(arr[i]->cost_VNS, arr[i]->optimal);
+
+        if( arr[i]->cost_VNS == arr[i]->optimal ) vezesOtimo++;
+
+        time += info_return_total_time(arr[i]);
+
+        totalIt += arr[i]->imp_iterations_vns;
+
+        // Pega iteração que chegou ao custo ótimo
+        int sizeV = vector_size(arr[i]->it_improvements_vns_vector) - 1,
+            *numget;
+        if( sizeV >= 0 ){
+            numget = (int*)vector_get(arr[i]->it_improvements_vns_vector, sizeV);
+            optIt += *numget;
+        }
+    }
+
+    savingCost /= size;
+    enableCost /= size;
+    vnsCost /= size;
+    otimo /= size;
+    time /= size;
+    vezesOtimo /= size;
+    gap /= size;
+    totalIt /= size;
+    optIt /= size;
+
+    printf("%c;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;")
+
+    fclose(arq);
 }

@@ -11,10 +11,14 @@ output_file="tabela.txt"
 # Cria um arquivo vazio para as saídas consolidadas
 > "$output_file"
 
+# Deleta pastas txt e pasta out com informações antigas
+delete="rm *.txt"
+$delete
+
 # Use o comando "find" para percorrer todos os arquivos em profundidade nas pastas "a," "b," e "e"
 
 # Loop para percorrer as pastas "a," "b," e "e"
-for folder in "$root_folder"/{a,b,e,f,m,p}; do
+for folder in "$root_folder"/{a,b,e,f,p,m}; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
         #echo "Achado $folder/"
