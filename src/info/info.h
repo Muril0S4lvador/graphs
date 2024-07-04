@@ -65,4 +65,8 @@ void info_arr_destroy(Info **arr, int size);
 
 void info_destroy();
 
+
+
+void info_print_ERI(Info **arr, int size);
+
 #endif

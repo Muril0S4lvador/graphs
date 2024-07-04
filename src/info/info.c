@@ -631,7 +631,7 @@ void info_print_ERI(Info **arr, int size){
 
         time += info_return_total_time(arr[i]);
 
-        totalIt += arr[i]->imp_iterations_vns;
+        totalIt += arr[i]->total_iterations_vns;
 
         // Pega iteração que chegou ao custo ótimo
         int sizeV = vector_size(arr[i]->it_improvements_vns_vector) - 1,
@@ -648,11 +648,15 @@ void info_print_ERI(Info **arr, int size){
     otimo /= size;
     time /= size;
     vezesOtimo /= size;
+    vezesOtimo *= 100;
     gap /= size;
+    gap *= 100;
     totalIt /= size;
     optIt /= size;
+    
 
-    printf("%c;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;")
+    fprintf(arq, "%c;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;\n", arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, vezesOtimo, gap, totalIt, optIt);
+    // arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, vezesOtimo, gap, totalIt, optIt
 
     fclose(arq);
 }
