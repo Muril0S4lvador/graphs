@@ -614,10 +614,12 @@ void info_print_ERI(Info **arr, int size){
             vnsCost = 0,
             otimo = 0,
             time = 0,
-            vezesOtimo = 0,
             gap = 0,
             totalIt = 0,
             optIt = 0;
+
+    int best = 0;
+    char boolOtimo = 0;
 
     for(int i = 0; i < size; i++){
 
@@ -625,38 +627,34 @@ void info_print_ERI(Info **arr, int size){
         enableCost += arr[i]->cost_enables;
         vnsCost += arr[i]->cost_VNS;
         otimo += arr[i]->optimal;
-        gap += _distanceToOptimal(arr[i]->cost_VNS, arr[i]->optimal);
 
-        if( arr[i]->cost_VNS == arr[i]->optimal ) vezesOtimo++;
 
         time += info_return_total_time(arr[i]);
 
-        totalIt += arr[i]->total_iterations_vns;
+        best = ( arr[i]->cost_VNS < arr[best]->cost_VNS ) ? i : best;
 
-        // Pega iteração que chegou ao custo ótimo
-        int sizeV = vector_size(arr[i]->it_improvements_vns_vector) - 1,
-            *numget;
-        if( sizeV >= 0 ){
-            numget = (int*)vector_get(arr[i]->it_improvements_vns_vector, sizeV);
-            optIt += *numget;
-        }
     }
+
+    // Pega iteração que chegou ao custo ótimo
+    int sizeV = vector_size(arr[best]->it_improvements_vns_vector) - 1,
+        *numget;
+    if( sizeV >= 0 ){
+        numget = (int*)vector_get(arr[best]->it_improvements_vns_vector, sizeV);
+        optIt += *numget;
+    }
+    totalIt = arr[best]->total_iterations_vns;
+    gap = _distanceToOptimal(arr[best]->cost_VNS, arr[best]->optimal);
+    boolOtimo = ( arr[best]->cost_VNS == arr[best]->optimal ) ? 1 : 0;
 
     savingCost /= size;
     enableCost /= size;
     vnsCost /= size;
     otimo /= size;
     time /= size;
-    vezesOtimo /= size;
-    vezesOtimo *= 100;
-    gap /= size;
-    gap *= 100;
-    totalIt /= size;
-    optIt /= size;
     
 
-    fprintf(arq, "%c;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;\n", arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, vezesOtimo, gap, totalIt, optIt);
-    // arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, vezesOtimo, gap, totalIt, optIt
+    fprintf(arq, "%c;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%d;%.2lf;%.2lf;%.2lf;\n", arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, boolOtimo, gap, totalIt, optIt);
+    // arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, bool_otimo, gap do melhor, totalIt do melhor, optIt do melhor
 
     fclose(arq);
 }

@@ -4,6 +4,8 @@
 
 int main( int argc, char* argv[] ){
 
+    if(argc <= 1) exit(printf("Missing .txt file\n"));
+
     FILE *arq = fopen(argv[1], "r");
     FILE *write = fopen("eriTable.csv", "w");
 

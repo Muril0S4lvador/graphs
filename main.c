@@ -46,10 +46,6 @@ int main( int argc, char* argv[] ){
 
         info_set_routes(graph_return_route(g));
 
-
-        img_print_route(g, "rota");
-        exit(1);
-
         graph_route_destroy(g);
 
     }
