@@ -9,6 +9,8 @@ typedef struct Data Data;
 // Constrói um elemento Data
 Data *data_construct(float x, float y, int demand);
 
+void data_set_id(Data *d, int id);
+
 // Atribui uma demanda para um elemento Data
 void data_set_demand(Data *d, int demand);
 

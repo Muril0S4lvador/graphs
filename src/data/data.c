@@ -2,7 +2,8 @@
 
 struct Data{
     float x, y;
-    int demand;
+    int demand,
+        id;
 };
 
 Data *data_construct(float x, float y, int demand){
@@ -11,8 +12,13 @@ Data *data_construct(float x, float y, int demand){
     d->x = x;
     d->y = y;
     d->demand = demand;
+    d->id = 0;
 
     return d;
+}
+
+void data_set_id(Data *d, int id){
+    d->id = id;
 }
 
 void data_set_demand(Data *d, int demand){

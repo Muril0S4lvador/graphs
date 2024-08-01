@@ -55,7 +55,7 @@ void _vertex_file_write(void *vertices, int size, FILE *arq){
         denY = ( dataY > denY ) ? dataY : denY;
     }
 
-    denX = denY = 10;
+    // denX = denY = 10;
 
     for(int i = 0; i < size; i++){
         d = vector_get(v, i);
@@ -72,7 +72,7 @@ void _graph_file_write(Graph *g, int size, FILE *arq, int direction){
 
 // Retorna a i-ésima cor, de acordo com o enum Color
 char *_color_return(int i){
-    return "black";
+    // return "black";
     switch( i ){
         case BLACK: return "black";
         case GREEN: return "green";
@@ -95,7 +95,7 @@ void _route_file_write(Graph *g, int size, FILE *arq){
     sprintf(ini_color, "edge [color = %c", asp);
     sprintf(end_color, "%c];\n", asp);
 
-    fprintf(arq, "edge [dir = forward, penwidth=3];\n");
+    fprintf(arq, "edge [penwidth=3];\n");
 
     for(int i = 0; i < size; i++){
         char color[30] = "";
@@ -105,8 +105,8 @@ void _route_file_write(Graph *g, int size, FILE *arq){
         fprintf(arq, "\n%s\n", color);
 
         Route *r = graph_return_route(g);
-        int route_size = route_return_size(r, i), *rt = route_return_route(r, i);
-        for( int j = 0; j < route_size; j++ ){
+        int route_size = route_return_size(r, i) - 1, *rt = route_return_route(r, i);
+        for( int j = 1; j < route_size; j++ ){
             fprintf(arq, "v%d ", rt[j]);
                 if( j < route_size - 1) fprintf(arq, "-- ");
             
