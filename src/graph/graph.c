@@ -75,6 +75,52 @@ void _read_EUC_2D(Graph *g, FILE *arq){
     }
 }
 
+// Lê as arestas de instâncias mundo real
+void _read_LOWER_ROW_VIX(Graph *g, FILE *arq){
+    int dimension = g->num_vertex;
+    int id;
+
+    double m[dimension][3];
+    char buffer[100];
+    
+    for(int i = 0; i < dimension; i++){
+        fgets(buffer, sizeof(buffer), arq);
+        sscanf(buffer, "%d %lf %lf", &id ,&m[i][0], &m[i][1]);
+    }
+
+    fgets(buffer, sizeof(buffer), arq); // DEMAND_COORD_SECTION
+
+    for(int i = 0; i < dimension; i++){
+    
+        fgets(buffer, sizeof(buffer), arq); 
+        sscanf(buffer, "%*d %lf", &m[i][2]);
+
+
+        float x1 = m[i][0], y1 = m[i][1];
+        Data *d = data_construct(x1, y1, m[i][2]);
+        data_set_id(d, id);
+        vector_push_back(g->vertices, d);
+
+        // Adiciona aresta para deposito em (0, 0)
+        weight w = (weight)sqrt( ( pow( (x1 - 0), 2) + pow( (y1 - 0), 2) ) );
+        w = round(w);
+        graph_add_edge(g, i, 0, w);
+    }
+
+    fgets(buffer, sizeof(buffer), arq); // DEMAND_COORD_SECTION
+
+    weight weight;
+    for (int i = 0; i < dimension; i++) {
+        for (int j = 1; j < dimension; j++) {
+            // Verifica se o elemento está no triângulo inferior
+            if (i > j) {
+                fscanf(arq, "%lf", &weight);
+                graph_add_edge(g, j, i, round(weight));
+            }
+        }
+    }
+}
+
 // Lê as arestas de uma instância pela forma EXPLICIT LOWER_ROW (Triângulo inferior de uma matriz)
 void _read_LOWER_ROW(Graph *g, FILE *arq){
     int dimension = g->num_vertex;
@@ -237,6 +283,8 @@ Graph *graph_read_file_CVRPLIB(char *fileName){
         _read_EUC_2D(g, arq);
     } else if( !strcmp(edgeWType, "LOWER_ROW") ){
         _read_LOWER_ROW(g, arq);
+    } else if( !strcmp(edgeWType, "LOWER_ROW_VIX") ){
+        _read_LOWER_ROW_VIX(g, arq);
     }
     fclose(arq);
 

@@ -15,14 +15,16 @@ int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    // graph_check_routes("out/M/M-n200-k17/M-n200-k17.sol", g);
-
+    graph_print(g);
     // graph_destroy(g);
-    // return 0;
+    // exit(0);
+
 
     int times = 1;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
+
+    img_print_vertex(g, "vertices");
 
     Info **arr = info_array_construct(times);
 
@@ -39,6 +41,10 @@ int main( int argc, char* argv[] ){
         info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
         // img_print_route(g, "construtivoVixJardimPenha");
 
+        char *name = malloc(sizeof(char) * 20);
+        sprintf(name, "route_%d", i+1);
+        img_print_route(g, name);
+        
         graph_enables_routes(g);
         info_set_cost_enables(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
@@ -46,6 +52,7 @@ int main( int argc, char* argv[] ){
         info_set_cost_vns(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
         info_set_routes(graph_return_route(g));
+        
 
         img_print_route(g, "routeVix");
 
