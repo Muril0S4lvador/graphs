@@ -20,7 +20,7 @@ int main( int argc, char* argv[] ){
     // graph_destroy(g);
     // return 0;
 
-    int times = 10;
+    int times = 1;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
@@ -37,6 +37,7 @@ int main( int argc, char* argv[] ){
 
         graph_Clarke_Wright_parallel_route(g);
         info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
+        // img_print_route(g, "construtivoVixJardimPenha");
 
         graph_enables_routes(g);
         info_set_cost_enables(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
@@ -45,6 +46,8 @@ int main( int argc, char* argv[] ){
         info_set_cost_vns(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
         info_set_routes(graph_return_route(g));
+
+        img_print_route(g, "routeVix");
 
         graph_route_destroy(g);
 
