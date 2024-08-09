@@ -2,6 +2,7 @@
 #include "../adjacency_matrix/matrix.h"
 #include "../Vector/vector.h"
 #include "../algorithms/algorithms.h"
+#include "../info/info.h"
 
 struct Graph{
     char *name;
@@ -392,6 +393,8 @@ void graph_Clarke_Wright_route(Graph *g, char control){
         clarke_wright_parallel_algorithm(g, e, near_0, sizeEdges);
     else
         clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
+    
+    info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
     free(e);
     free(near_0);
@@ -497,9 +500,9 @@ int graph_check_routes(char *filename, Graph *g){
         }
         // printf("\n");
     }
-    // printf("\nTotal cost: %d\n", cost);
+    printf("\nTotal cost: %d\n", cost);
 
-    for(int i = 0; i < num_vertex; i++){
+    for(int i = 1; i < num_vertex; i++){
         if(vtx[i] == 0){
             printf("\nVertice %d não aparece na solução.\n", i);
         } else if( vtx[i] > 1 ){
@@ -537,6 +540,8 @@ void graph_Variable_Neighborhood_Search(Graph *g){
     }
     
     variable_Neighborhood_Search(g, routes, sizeR, graph_return_demands(g), demandsR);
+
+    info_set_cost_vns(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));    
 
     free(routes);
     free(sizeR);
@@ -581,12 +586,13 @@ void graph_enables_routes(Graph *g){
     enables_route_swap(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
     enables_route_reallocate(routes, g->trucks, sizeR, demands, demandsR, g->capacity, cost, g);
 
+    info_set_cost_enables(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
+
     free(routes);
     free(sizeR);
     free(demandsR);
     free(cost);
     free(demands);
-
 }
 
 void graph_route_destroy(Graph *g){
@@ -702,6 +708,3 @@ void graph_cross_exchange(Graph *g){
     free(demands);
 }
 
-
-// 665.000
-// 425.000

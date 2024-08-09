@@ -17,6 +17,10 @@ struct Info{
     int total_iterations_vnd;
     int imp_iterations_vnd;
     int noImp_iterations_vnd;
+
+    int move_perturbation;
+    int random_perturbation;
+    int cross_perturbation;
     
     int neighborhood_structures;
     int srand_seed;
@@ -127,6 +131,10 @@ void info_construct(Graph *g){
     info->neighborhood_structures = NEIGHBORHOOD_STRUCTURES;
     info->srand_seed = -1;
 
+    info->move_perturbation = 0;
+    info->random_perturbation = 0;
+    info->cross_perturbation = 0;
+
     info->time_ms_constructive = 0;
     info->time_ms_enables = 0;
     info->time_ms_vnd = 0;
@@ -162,6 +170,16 @@ void info_inc_imp_iterations_vnd(){
 }
 void info_inc_noimp_iterations_vnd(){
     info->noImp_iterations_vnd++;
+}
+
+void info_inc_move_perturbation(){
+    info->move_perturbation++;
+}
+void info_inc_random_perturbation(){
+    info->random_perturbation++;
+}
+void info_inc_cross_perturbation(){
+    info->cross_perturbation++;
 }
 
 void info_set_time_constructive(clock_t start, clock_t end){
@@ -372,7 +390,10 @@ void info_print_results_file(Info **arr, int size){
         size_opt = 0,
         size_Nopt = 0,
         min_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes),
-        max_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes);
+        max_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes),
+        move = 0,
+        random = 0,
+        cross = 0;
 
     double med_time_ms_constructive = 0,
            med_time_ms_enables = 0,
@@ -399,6 +420,10 @@ void info_print_results_file(Info **arr, int size){
         min_cost = (total_cost < min_cost) ? total_cost : min_cost;
         max_cost = (total_cost > max_cost) ? total_cost : max_cost;
 
+        random += arr[i]->random_perturbation;
+        move += arr[i]->move_perturbation;
+        cross += arr[i]->cross_perturbation;
+
         if(total_cost == arr[i]->optimal)
             vet_opt[size_opt++] = arr[i]->srand_seed;
         else
@@ -416,6 +441,9 @@ void info_print_results_file(Info **arr, int size){
     med_time_ms_vnd /= size;
     med_time_ms_vns /= size;
     med_cost /= size;
+    move /= size;
+    random /= size;
+    cross /= size;
 
     char filename[50];
     sprintf(filename, "out/%c/%s/%s_results.info", arr[0]->instance[0], arr[0]->instance, arr[0]->instance);
@@ -439,6 +467,11 @@ void info_print_results_file(Info **arr, int size){
     fprintf(arq, "Average enables routes time: %.4lf ms\n", med_time_ms_enables);
     fprintf(arq, "Average VND time:            %.4lf ms\n", med_time_ms_vnd);
     fprintf(arq, "Average VNS time:            %.4lf ms\n", med_time_ms_vns);
+
+    fprintf(arq, "\nPERTURBATIONS\n");
+    fprintf(arq, "Move:   %d\n", move);
+    fprintf(arq, "Random: %d\n", random);
+    fprintf(arq, "Cross:  %d\n", cross);
 
     fprintf(arq, "\nMinimun Cost: %d\n", min_cost);
     fprintf(arq, "Maximun Cost: %d\n", max_cost);

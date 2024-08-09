@@ -14,13 +14,13 @@ void distanceToOptimal(double cost, double optimal){
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-
     graph_print(g);
-    // graph_destroy(g);
-    // exit(0);
 
+    graph_check_routes("solutions/e/E-n31-k7.sol", g);
+    graph_check_routes("out/E/E-n31-k7/E-n31-k7.sol", g);
+    exit(0);
 
-    int times = 1;
+    int times = 10;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
@@ -38,32 +38,17 @@ int main( int argc, char* argv[] ){
         info_set_seed(seed);
 
         graph_Clarke_Wright_parallel_route(g);
-        info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
-        // img_print_route(g, "construtivoVixJardimPenha");
-
-        char *name = malloc(sizeof(char) * 20);
-        sprintf(name, "route_%d", i+1);
-        img_print_route(g, name);
         
         graph_enables_routes(g);
-        info_set_cost_enables(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
         graph_Variable_Neighborhood_Search(g);
-        info_set_cost_vns(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
 
         info_set_routes(graph_return_route(g));
         
-
-        img_print_route(g, "routeVix");
-
         graph_route_destroy(g);
 
     }
     fclose(f);
-
-    info_print_table_result(arr, times);
-    info_print_table_infos(arr, times);
-    info_print_ERI(arr, times);
 
     info_print_arr_file(arr, times);
     info_print_solution_file(arr, times);

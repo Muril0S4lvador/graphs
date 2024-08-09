@@ -27,6 +27,10 @@ void info_inc_total_iterations_vnd();
 void info_inc_imp_iterations_vnd();
 void info_inc_noimp_iterations_vnd();
 
+void info_inc_move_perturbation();
+void info_inc_random_perturbation();
+void info_inc_cross_perturbation();
+
 void info_set_time_constructive(clock_t start, clock_t end);
 void info_set_time_enables     (clock_t start, clock_t end);
 void info_set_time_vnd         (clock_t start, clock_t end);

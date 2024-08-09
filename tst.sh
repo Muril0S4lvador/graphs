@@ -18,15 +18,18 @@ $delete
 # Use o comando "find" para percorrer todos os arquivos em profundidade nas pastas "a," "b," e "e"
 
 # Loop para percorrer as pastas "a," "b," e "e"
-for folder in "$root_folder"/{a,p,b,e,f,m}; do
+
+# for folder in "$root_folder"/{a,p,b,e,f,m}; do
+for folder in "$root_folder"/m; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
-        #echo "Achado $folder/"
+        echo "Achado $folder/"
+        #  for file in $folder/*.vrp; do
          for file in $folder/*.vrp; do
-            #echo "$file"
+            # echo "$file"
             if [ -f "$file" ]; then
                # echo "$file"
-              #  echo "Executando $program com $file"
+               echo "Executando $program com $file"
                 $program "$file" >> "$output_file"
             fi
         done

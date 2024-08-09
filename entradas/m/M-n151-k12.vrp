@@ -1,5 +1,5 @@
 NAME : M-n151-k12
-COMMENT : (Christophides et al, No of trucks: 12, Best value: 1053)
+COMMENT : (Christophides et al, No of trucks: 12, Best value: 1015)
 TYPE : CVRP
 DIMENSION : 151
 EDGE_WEIGHT_TYPE : EUC_2D

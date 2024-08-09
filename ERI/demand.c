@@ -16,12 +16,12 @@ int main ( int argc, char* argv[] ) {
         fgets(buffer, sizeof(buffer), arq);
     }
 
-    printf("\nString Controle\n");
+    // printf("\nString Controle\n");
 
     fgets(buffer, sizeof(buffer), arq);
     int sum = 0, qtd = 0;
     while(strcmp(buffer, "EDGE_WEIGHT_SECTION\n")){
-        printf("%s\n", buffer);
+        // printf("%s\n", buffer);
         int demand = 0;
         sscanf(buffer, "%*d %d", &demand);
         sum += demand;
