@@ -14,17 +14,10 @@ void distanceToOptimal(double cost, double optimal){
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
-    graph_print(g);
-
-    graph_check_routes("solutions/e/E-n31-k7.sol", g);
-    graph_check_routes("out/E/E-n31-k7/E-n31-k7.sol", g);
-    exit(0);
 
     int times = 10;
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
-
-    img_print_vertex(g, "vertices");
 
     Info **arr = info_array_construct(times);
 
@@ -53,6 +46,8 @@ int main( int argc, char* argv[] ){
     info_print_arr_file(arr, times);
     info_print_solution_file(arr, times);
     info_print_results_file(arr, times);
+
+    info_print_ERI(arr, times);
 
     info_arr_destroy(arr, times);
     graph_destroy(g);

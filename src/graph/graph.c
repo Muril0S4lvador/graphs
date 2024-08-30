@@ -440,6 +440,12 @@ int graph_check_routes(char *filename, Graph *g){
     FILE *f = fopen(filename, "r");
     if(!f){printf("ERROR: Problem with %s\n", filename); return -1; }
 
+    int vertices = 0, num_trucks = 0;
+    sscanf(filename, "[^n]n%d-k%d", &vertices, &num_trucks);
+    if( vertices != graph_return_num_vertex(g) || num_trucks != graph_return_trucks(g)){
+        printf("ERROR: Graph and solution doesn't belong to the same instance.\n"); return -1;
+    }
+
     int num_routes = graph_return_trucks(g), idx = 0;
 
     int **routes = malloc(sizeof(int*) * num_routes),

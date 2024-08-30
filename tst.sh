@@ -19,8 +19,8 @@ $delete
 
 # Loop para percorrer as pastas "a," "b," e "e"
 
-# for folder in "$root_folder"/{a,p,b,e,f,m}; do
-for folder in "$root_folder"/m; do
+for folder in "$root_folder"/{a,p,b,e,f,m}; do
+# for folder in "$root_folder"/m; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
         echo "Achado $folder/"

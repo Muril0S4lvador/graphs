@@ -94,6 +94,7 @@ Info *info_malloc(){
 }
 
 void info_define(Info **arr, int idx){
+    if( !arr ) return;
     info = arr[idx];
 }
 
@@ -105,6 +106,7 @@ Info **info_array_construct(int size){
 }
 
 void info_arr_destroy(Info **arr, int size){
+    if( !arr ) return;
     for(int i = 0; i < size; i++){
         info_define(arr, i);
         info_destroy();
@@ -153,63 +155,81 @@ void info_construct(Graph *g){
 }
 
 void info_inc_total_iterations_vns(){
+    if ( !info ) return;
     info->total_iterations_vns++;
 }
 void info_inc_imp_iterations_vns(){
+    if ( !info ) return;
     info->imp_iterations_vns++;
 }
 void info_inc_real_noimp_iterations_vns(){
+    if ( !info ) return;
     info->real_noImp_iterations_vns++;
 }
 
 void info_inc_total_iterations_vnd(){
+    if ( !info ) return;
     info->total_iterations_vnd++;
 }
 void info_inc_imp_iterations_vnd(){
+    if ( !info ) return;
     info->imp_iterations_vnd++;
 }
 void info_inc_noimp_iterations_vnd(){
+    if ( !info ) return;
     info->noImp_iterations_vnd++;
 }
 
 void info_inc_move_perturbation(){
+    if ( !info ) return;
     info->move_perturbation++;
 }
 void info_inc_random_perturbation(){
+    if ( !info ) return;
     info->random_perturbation++;
 }
 void info_inc_cross_perturbation(){
+    if ( !info ) return;
     info->cross_perturbation++;
 }
 
 void info_set_time_constructive(clock_t start, clock_t end){
+    if ( !info ) return;
     info->time_ms_constructive = _calculate_time(start, end);
 }
 void info_set_time_enables(clock_t start, clock_t end){
+    if ( !info ) return;
     info->time_ms_enables += _calculate_time(start, end);
 }
 void info_set_time_vnd(clock_t start, clock_t end){
+    if ( !info ) return;
     info->time_ms_vnd += _calculate_time(start, end);
 }
 void info_set_time_vns(clock_t start, clock_t end){
+    if ( !info ) return;
     info->time_ms_vns = _calculate_time(start, end);
 }
 
 double info_return_total_time(Info *i){
+    if ( !i ) return -1;
     return i->time_ms_constructive + i->time_ms_enables + i->time_ms_vns;
 }
 
 void info_set_cost_constructive(int cost){
+    if ( !info ) return;
     info->cost_constructive = cost;
 }
 void info_set_cost_enables(int cost){
+    if ( !info ) return;
     info->cost_enables = cost;
 }
 void info_set_cost_vns(int cost){
+    if ( !info ) return;
     info->cost_VNS = cost;
 }
 
 void info_save_improvement_vns(int value){
+    if ( !info ) return;
     int *val = malloc(sizeof(int)), *it = malloc(sizeof(int));
     *val = value; *it = info->total_iterations_vns;
     vector_push_back(info->improvements_vns_vector, val);
@@ -217,6 +237,7 @@ void info_save_improvement_vns(int value){
 }
 
 void info_set_routes(Route *r){
+    if ( !info ) return;
     info->routes = route_construct(info->num_routes);
     for(int i = 0; i < info->num_routes; i++){
         route_set_route(info->routes, route_return_route(r, i), i, route_return_size(r, i));
@@ -227,6 +248,7 @@ void info_set_routes(Route *r){
 }
 
 void info_set_seed(int seed){
+    if ( !info ) return;
     info->srand_seed = seed;    
 }
 
@@ -304,7 +326,7 @@ void info_print_arr_file(Info **arr, int size){
     
     for(int i = 0; i < size; i++){
 
-        if(!arr[i] || !arr[i]->instance ){ printf("ERROR: No instance\n"); return; }
+        if( !arr || !arr[i] || !arr[i]->instance ){ printf("ERROR: No instance\n"); return; }
 
         sprintf(filename, "out/%c/%s/%s_Seed%d.info", arr[i]->instance[0], arr[i]->instance, arr[i]->instance, arr[i]->srand_seed);
         arq = fopen(filename, "w");
@@ -348,6 +370,7 @@ void info_print_arr_file(Info **arr, int size){
 
 void info_print_solution_file(Info **arr, int size){
 
+    if ( !arr ) return;
     _directory_verify();
     char filename[100];
     sprintf(filename, "out/%c/%s/%s.sol", arr[0]->instance[0], arr[0]->instance, arr[0]->instance);
@@ -373,7 +396,7 @@ void info_print_solution_file(Info **arr, int size){
 
 void info_print_results_file(Info **arr, int size){
 
-    if(!info || !info->instance ){ printf("ERROR: No instance\n"); return; }
+    if(!info || !info->instance || !arr ){ printf("ERROR: No instance\n"); return; }
     if(!info->routes){ printf("ERROR: No results\n"); return; }
     _directory_verify();
 
@@ -511,7 +534,7 @@ void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *insta
 void info_print_table_result(Info **arr, int size){
 
     FILE *arq = fopen("TableResults.txt", "a");
-    if(!arq) return;
+    if( !arq || !arr ) return;
     
     int best = 0,
         cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes);
@@ -550,7 +573,7 @@ void info_print_table_result(Info **arr, int size){
 void info_print_table_infos(Info **arr, int size){
 
     FILE *arq = fopen("TableInfos.txt", "a");
-    if(!arq) return;
+    if( !arq || !arr ) return;
 
     int max_cost = route_return_total_cost(arr[0]->routes, arr[0]->num_routes),
         min_cost = max_cost,
@@ -599,6 +622,7 @@ void info_print_table_infos(Info **arr, int size){
 }
 
 void info_reset(){
+    if ( !info ) return;
     info->total_iterations_vns = 0;
     info->imp_iterations_vns = 0;
     info->real_noImp_iterations_vns = 0;
@@ -614,11 +638,12 @@ void info_reset(){
 }
 
 void info_route_destroy(){
-    if(info->routes) 
+    if(info && info->routes) 
         route_destroy(info->routes, info->num_routes);
 }
 
 void info_destroy(){
+    if ( !info ) return;
     info_route_destroy();
     vector_destroy(info->improvements_vns_vector);
     vector_destroy(info->it_improvements_vns_vector);
@@ -640,7 +665,7 @@ double _distanceToOptimal(double cost, double optimal){
 void info_print_ERI(Info **arr, int size){
 
     FILE *arq = fopen("TableERI.txt", "a");
-    if(!arq) return;
+    if( !arq || !arr ) return;
 
     double  savingCost = 0,
             enableCost = 0,
