@@ -12,6 +12,7 @@ struct Graph{
     int capacity;
     int trucks;
     int optimal;
+    int total_demand;
     bool direction;
     void *adj;
     Vector *vertices;
@@ -210,6 +211,10 @@ char *graph_return_name(Graph *g){
     return (g) ? g->name : "";
 }
 
+int graph_return_total_demand(Graph *g){
+    return (g) ? g->total_demand : -1;
+}
+
 void graph_add_edge(Graph *g, int v1, int v2, weight peso){
     if( !(v1 - v2) ) return;
     // Se for não direcionado, o menor aponta para o maior
@@ -288,6 +293,12 @@ Graph *graph_read_file_CVRPLIB(char *fileName){
         _read_LOWER_ROW_VIX(g, arq);
     }
     fclose(arq);
+
+    int sum = 0;
+    for(int i = 0; i < g->num_vertex; i++){
+        sum += data_return_demand(vector_get(g->vertices, i));
+    }
+    g->total_demand = sum;
 
     return g;
 }

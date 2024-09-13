@@ -57,6 +57,9 @@ int graph_return_optimal_cost(Graph *g);
 // Retorna o nome da instância lida
 char *graph_return_name(Graph *g);
 
+// Retorna a demanda total da instância lida
+int graph_return_total_demand(Graph *g);
+
 // Adiciona uma aresta (v1, v2) com peso em um grafo
 void graph_add_edge(Graph *g, int v1, int v2, weight peso);
 
