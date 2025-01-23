@@ -19,13 +19,13 @@ $delete
 
 # Loop para percorrer as pastas "a," "b," e "e"
 
-for folder in "$root_folder"/{a,p,b,e,f,m}; do
-# for folder in "$root_folder"/m; do
+# for folder in "$root_folder"/{a,p,b,e,f,m}; do
+for folder in "$root_folder"/vix; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
         echo "Achado $folder/"
+         for file in $folder/*.txt; do
         #  for file in $folder/*.vrp; do
-         for file in $folder/*.vrp; do
             # echo "$file"
             if [ -f "$file" ]; then
                # echo "$file"

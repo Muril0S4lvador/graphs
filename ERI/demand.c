@@ -31,7 +31,10 @@ int main ( int argc, char* argv[] ) {
 
     printf("Demanda total: %d\nNós: %d\n\n", sum, qtd);
 
-    int capTrucks = ceil( sum / 0.76 );
+    int capTrucks = ceil( sum / 0.92 );
+
+
+
     int numTrucks = ceil( qtd / 7.5 );
     int capacity = ceil( capTrucks / numTrucks );
 
@@ -41,3 +44,19 @@ int main ( int argc, char* argv[] ) {
 
     return 0;
 }
+
+/*
+pontos de coleta
+- Demanda do ponto é a soma de todas as residências
+- Cada residência adiciona 10 na demanda
+- 1 residência não pode ser contabilizada em 2 pontos de coleta
+
+Capacidade Total
+- Capacidade total dos caminhões é Demanda Total / 0.85
+
+Caminhões
+- Número de caminhões é número de vértices / 7.5  arredondado pra cima
+
+Capacidade de cada caminhão
+- Capacidade total / qtd caminhões
+*/
