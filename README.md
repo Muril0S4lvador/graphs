@@ -77,4 +77,5 @@ Os experimentos mostraram que as técnicas aplicadas geraram soluções satisfat
 ## 📬 Contato
 
 Caso tenha dúvidas ou sugestões, entre em contato:
+
 📧 Email: murilo.salvador95@gmail.com
