@@ -45,12 +45,4 @@ void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *dema
 // Realiza algoritmo 2OPT entre duas rotas diferentes
 char opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g);
 
-
-/* =============================================== APAGAR DEPOIS ================================================================== */
-
-
-// Printa todas as rotas
-void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands);
-// void printsd(int **routes, int size, int *sizeR, int *demandR);
-
 #endif
