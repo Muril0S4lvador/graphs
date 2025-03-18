@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Executa o programa compilado "main" em todos os arquivos dos diretórios passados
+
 # Especifica o diretório raiz onde as pastas de entrada estão localizadas
 root_folder="entradas"
 
@@ -19,8 +21,8 @@ $delete
 
 # Loop para percorrer as pastas "a," "b," e "e"
 
-# for folder in "$root_folder"/{a,p,b,e,f,m}; do
-for folder in "$root_folder"/vix; do
+for folder in "$root_folder"/{a,p,b,e,f,m}; do
+# for folder in "$root_folder"/vix; do
     # Verifica se a pasta existe
     if [ "$folder/" ]; then
         echo "Achado $folder/"
