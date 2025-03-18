@@ -96,9 +96,8 @@ int *graph_return_demands(Graph *g);
 // Imprime as rotas do grafo no terminal
 void graph_print_routes(Graph *g);
 
-
+// Verifica a viabilidade das rotas, se não desrespeitam algum limite
 int graph_check_routes(char *filename, Graph *g);
-
 
 // Melhora as rotas do grafo de acordo com o algoritmo 2OPT intra-rotas
 void graph_2opt(Graph *g);
@@ -106,6 +105,7 @@ void graph_2opt(Graph *g);
 // Melhora as rotas de um grafo de acordo com o algoritmo VNS
 void graph_Variable_Neighborhood_Search(Graph *g);
 
+// Garante que todas as rotas de um grafo sejam viáveis
 void graph_enables_routes(Graph *g);
 
 // Desaloca as rotas de um grafo da memória
@@ -114,8 +114,7 @@ void graph_route_destroy(Graph *g);
 // Desaloca um grafo da memória
 void graph_destroy(Graph *g);
 
-
+// Realiza o algoritmo de cross entre as rotas de um grafo
 void graph_cross_exchange(Graph *g);
-
 
 #endif

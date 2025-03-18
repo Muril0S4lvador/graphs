@@ -21,6 +21,31 @@ struct Graph{
 
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
 
+// Seleciona versão do algoritmo de Economias
+void _graph_Clarke_Wright_route(Graph *g, char control){
+
+    if( g->direction == DIRECTED ){
+        printf("Grafo não compatível com o que o algoritmo espera.\n");
+        return;
+    }
+
+    int sizeEdges = (g->num_edge / 2) - (g->num_vertex - 1);
+
+    Edges *e = calloc( sizeEdges, sizeof(Edges) ), *near_0 = malloc( g->num_vertex * sizeof(Edges) );
+    
+    matrix_return_edges_savings(graph_return_adjacencies(g), g->num_vertex, e, near_0);
+
+    if(control == 1)
+        clarke_wright_parallel_algorithm(g, e, near_0, sizeEdges);
+    else
+        clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
+    
+    info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
+
+    free(e);
+    free(near_0);
+}
+
 // Retona ótimo da instância a partir de COMMENT
 int _return_optimal(char *string){
 
@@ -70,7 +95,6 @@ void _read_EUC_2D(Graph *g, FILE *arq){
             weight w = (weight)sqrt( ( pow( (x1 - x2), 2) + pow( (y1 - y2), 2) ) );
 
             w = round(w);
-            // w = ceil(w);
 
             graph_add_edge(g, i, j, w);
         }
@@ -387,30 +411,6 @@ Graph *graph_mst_kruskal(Graph *g){
     return mst;
 }
 
-void graph_Clarke_Wright_route(Graph *g, char control){
-
-    if( g->direction == DIRECTED ){
-        printf("Grafo não compatível com o que o algoritmo espera.\n");
-        return;
-    }
-
-    int sizeEdges = (g->num_edge / 2) - (g->num_vertex - 1);
-
-    Edges *e = calloc( sizeEdges, sizeof(Edges) ), *near_0 = malloc( g->num_vertex * sizeof(Edges) );
-    
-    matrix_return_edges_savings(graph_return_adjacencies(g), g->num_vertex, e, near_0);
-
-    if(control == 1)
-        clarke_wright_parallel_algorithm(g, e, near_0, sizeEdges);
-    else
-        clarke_wright_serial_algorithm(g, e, near_0, sizeEdges);
-    
-    info_set_cost_constructive(route_return_total_cost(graph_return_route(g), graph_return_trucks(g)));
-
-    free(e);
-    free(near_0);
-}
-
 void graph_Clarke_Wright_parallel_route(Graph *g){
     graph_Clarke_Wright_route(g, 1);
 }
@@ -500,7 +500,6 @@ int graph_check_routes(char *filename, Graph *g){
     }
     fclose(f);
 
-    // printf("Capacity: %d\nOptimal: %d\n", graph_return_capacity(g), (int)graph_return_optimal_cost(g));
     int num_vertex = graph_return_num_vertex(g);
     int *vtx = calloc(num_vertex, sizeof(int));
     int cost = 0;
@@ -515,7 +514,6 @@ int graph_check_routes(char *filename, Graph *g){
             printf("%d[%d] ", routes[i][j], demands[routes[i][j]]);
             vtx[routes[i][j]]++;
         }
-        // printf("\n");
     }
     printf("\nTotal cost: %d\n", cost);
 
@@ -634,9 +632,6 @@ void graph_destroy(Graph *g){
     free(g);
 }
 
-
-
-
 void graph_cross_exchange(Graph *g){
 
     if( !graph_has_route(g) ){
@@ -648,7 +643,6 @@ void graph_cross_exchange(Graph *g){
         *sizeR = malloc(sizeof(int) * g->trucks),
         *demandsR = malloc(sizeof(int) * g->trucks),
         *demands = graph_return_demands(g),
-        // num_vertex = graph_return_num_vertex(g),
         size = graph_return_trucks(g);
 
     double *cost = malloc(sizeof(double) * g->trucks);
@@ -724,4 +718,3 @@ void graph_cross_exchange(Graph *g){
     free(cost);
     free(demands);
 }
-
