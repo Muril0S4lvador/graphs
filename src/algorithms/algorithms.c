@@ -695,7 +695,6 @@ void _destroyRoutesMatrix(int **routes, int size){
 
 /* =================================================================================================================================== */
 
-// Realiza o algoritmo de kruskal para gerar uma MST
 Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
 
     UF* uf = UF_init(num_vertex);
@@ -725,7 +724,6 @@ Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
     return mst;
 }
 
-// Compara arestas de forma crescente
 int edges_compare_growing(const void* a, const void* b) {
     Edges* ka = (Edges*) a;
     Edges* kb = (Edges*) b;
@@ -733,7 +731,6 @@ int edges_compare_growing(const void* a, const void* b) {
     return kb->weight == ka->weight ? 0 : kb->weight > ka->weight ? -1 : 1;
 }
 
-// Compara arestas de forma decrescente
 int edges_compare_descending(const void* a, const void* b) {
     Edges* ka = (Edges*) a;
     Edges* kb = (Edges*) b;
@@ -741,7 +738,6 @@ int edges_compare_descending(const void* a, const void* b) {
     return kb->weight == ka->weight ? 0 : kb->weight > ka->weight ? 1 : -1;
 }
 
-// Algoritmo de economias de Clarke e Wright de forma sequencial
 void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
     clock_t start, end;
@@ -846,7 +842,6 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
     info_set_time_constructive(start, end);
 }
 
-// Algoritmo de economias de Clarke e Wright de forma paralela
 void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
     clock_t start, end;
@@ -986,7 +981,6 @@ void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int siz
     info_set_time_constructive(start, end);
 }
 
-// Algoritmo 2OPT em uma mesma rota
 void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
     char improved = 1;
 
@@ -1014,7 +1008,6 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
     } // Fim while
 }
 
-// Heurística de otimização VND, com otimizações Move, Swap, e 2OPT entre duas rotas diferentes e em uma única rota
 int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g){
 
     clock_t start, end;
@@ -1117,7 +1110,6 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
     return bestSolution;
 }
 
-// Realiza metaheurística de otimização com algoritmo VNS, utilizando VND como algoritmo busca de melhor local
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *demands, int *demandRoutes){
 
     clock_t start, end;
@@ -1224,7 +1216,6 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     info_set_time_vns(start, end);
 }
 
-// Algoritmo para viabilizar rotas inviáveis trocando vértices entre uma viável e uma inviável, até conseguir manter as duas viáveis
 void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g){
     clock_t start, end;
     start = clock();
@@ -1281,7 +1272,6 @@ void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, i
     info_set_time_enables(start, end);
 }
 
-// Algoritmo para viabilizar rotas inviáveis movendo vértices de uma rota inviável para uma viável, até conseguir manter as duas viáveis
 void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g){
 
     clock_t start, end;
