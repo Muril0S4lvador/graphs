@@ -39,10 +39,19 @@ Info *info;
 
 /* =============================================== FUNÇÕES INTERNAS ================================================================== */
 
+// Calcula o tempo em milissegundos a partir de clock_t
 double _calculate_time(clock_t start, clock_t end){
     return ((double)(end - start) / CLOCKS_PER_SEC);
 }
 
+// Calcula distância percentual entre cost e optimal
+double _distanceToOptimal(double cost, double optimal){
+    double difference;
+    difference = (double)((cost - optimal) / optimal) * 100;
+    return difference;
+}
+
+// Imprime todos os itens de um vetor como uma lista
 void _print_vector_file(int *vet, int size, FILE *arq){
     if(!size){ fprintf(arq, "--\n"); return; }
     for(int i = 0; i < size; i++){
@@ -52,6 +61,7 @@ void _print_vector_file(int *vet, int size, FILE *arq){
     fprintf(arq, "\n");
 }
 
+// Veritica a existência de um diretório e cria-o caso não exista
 void _directory_verify(){
     if(!info || !info->instance){printf("ERRO: No instance\n"); return;}
 
@@ -86,7 +96,6 @@ void _directory_verify(){
 }
 
 /* =================================================================================================================================== */
-
 
 Info *info_malloc(){
     Info *i = malloc(sizeof(Info));
@@ -153,6 +162,7 @@ void info_construct(Graph *g){
     info->improvements_vns_vector = vector_construct();
     info->it_improvements_vns_vector = vector_construct();
 }
+
 
 void info_inc_total_iterations_vns(){
     if ( !info ) return;
@@ -282,39 +292,6 @@ void info_print(){
 
     if(!info->routes) return;
     printf("Cost: %d\n", route_return_total_cost(info->routes, info->num_routes));
-    printf("\n");
-}
-
-void info_print1(Info *info1){
-
-    if(!info1 || !info1->instance ){ printf("ERROR: No instance\n"); return; }
-
-    printf("\nInstance %s (Opt: %d)\n", info1->instance, info1->optimal);
-
-    printf("\nNeighborhood structures: %d\n", info1->neighborhood_structures);
-    printf("Srand seed: %d\n\n", info1->srand_seed);
-    
-    printf("VNS\n");
-    printf("Total iterations:               %d\n", info1->total_iterations_vns);
-    printf("No improvement iterations:      %d\n", info1->noImp_iterations_vns);
-    printf("Improvement iterations:         %d\n", info1->imp_iterations_vns);
-    printf("Real no improvement iterations: %d\n", info1->real_noImp_iterations_vns);
-
-    printf("\nVND\n");
-    printf("Total iterations:               %d\n", info1->total_iterations_vnd);
-    printf("No improvement iterations:      %d\n", info1->noImp_iterations_vnd);
-    printf("Improvement iterations:         %d\n", info1->imp_iterations_vnd);
-
-    printf("\n");
-
-    printf("ALGORITHMS\n");
-    printf("Constructive time:   %.4lf ms\n", info1->time_ms_constructive);
-    printf("Enables routes time: %.4lf ms\n", info1->time_ms_enables);
-    printf("VND time:            %.4lf ms\n", info1->time_ms_vnd);
-    printf("VNS time:            %.4lf ms\n", info1->time_ms_vns);
-
-    if(!info1->routes) return;
-    printf("Cost: %d\n", route_return_total_cost(info1->routes, info1->num_routes));
     printf("\n");
 }
 
@@ -521,7 +498,6 @@ void info_print_vectors(Vector *improv, Vector *it_improv, int seed, char *insta
         exit(EXIT_FAILURE);
     }
 
-    // fprintf(arq, "x y\n");
     while(vector_size(improv)){
         int *it = vector_pop_front(it_improv), *val = vector_pop_front(improv);
         fprintf(arq, "%d %d\n", *it, *val );
@@ -651,17 +627,6 @@ void info_destroy(){
     free(info);
 }
 
-
-
-
-
-double _distanceToOptimal(double cost, double optimal){
-    double difference;
-    difference = (double)((cost - optimal) / optimal) * 100;
-    return difference;
-    // printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
-}
-
 void info_print_ERI(Info **arr, int size){
 
     FILE *arq = fopen("TableERI.txt", "a");
@@ -712,7 +677,6 @@ void info_print_ERI(Info **arr, int size){
     
 
     fprintf(arq, "%c;%.2lf;%.2lf;%.2lf;%.2lf;%.2lf;%d;%.2lf;%.2lf;%.2lf;\n", arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, boolOtimo, gap, totalIt, optIt);
-    // arr[0]->instance[0], savingCost, enableCost, vnsCost, otimo, time, bool_otimo, gap do melhor, totalIt do melhor, optIt do melhor
 
     fclose(arq);
 }
