@@ -263,6 +263,7 @@ void _move_Pertubation(int **routes, int size, int *sizeRoutes, int *demands, in
     return;
 }
 
+// Seleciona dois vértices consecutivos de uma rota e troca com dois vértices consecutivos de outra
 void _cross_perturbation(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, void *graph_adj, Graph *g){
 
     int r1 = rand() % size, r2;
@@ -344,28 +345,14 @@ void _cross_perturbation(int **routes, int size, int *sizeRoutes, int *demands, 
     return;
 }
 
+// Define estrutura de perturbação de acordo com um K
 void _shake(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int k, int capacity, double *cost, void *graph_adj, Graph *g){
 
-    // int div = NUM_IT / 3;
-    // if( k >= 0 && k < div ){
-    //     // printf("MOVE\n");
-    //     _move_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_return_adjacencies(g), g);
-    // } else if( k >= div && k < (div + div)){
-    //     // printf("Random\n");
-    //     _random_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_return_adjacencies(g), g);
-    // } else{
-    //     // printf("Cross\n");
-    //     _cross_perturbation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_adj, g);
-    // }
-
     if( k == 0 ){
-        // printf("MOVE\n");
         _move_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_return_adjacencies(g), g);
     } else if( k == 1 ){
-        // printf("Random\n");
         _random_Pertubation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_return_adjacencies(g), g);
     } else{
-        // printf("Cross\n");
         _cross_perturbation(routes, size, sizeRoutes, demands, demandRoutes, capacity, cost, graph_adj, g);
     }
 
@@ -393,12 +380,14 @@ char _checkDemand(int routeDemand, int old_v, int new_v, int *demands, int capac
     return ( (routeDemand - demands[old_v] + demands[new_v]) <= capacity ) ? 1 : 0;
 }
 
+// Retorna demanda total de uma rota r de tamanho size
 int _return_demand(int *r, int size, int *demands, Graph *g){
     int d = 0;
     for(int i = 0; i < size; i++) d += demands[r[i]];
     return d;
 }
 
+// Heurística de otimização que seleciona um vértice e o coloca no primeiro lugar em que diminua o custo das rotas atuais
 char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, void *graph_adj, Graph *g){
 
     int k = rand() % size;  //rota aletoria
@@ -452,13 +441,6 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
                 }
                 route_dest[routeDestino] = 1;
 
-                // printf("Dest: [");
-                // _printfvet(route_dest, size);
-                // printf("Src: [");
-                // _printfvet(route_src, size);
-
-                // tenta adicionar
-                // printf("Testing vertex %d from %d to %d\n", vertex, routeOrigem, routeDestino);
                 if( demandRoutes[routeDestino]  + demands[vertex] <= capacity )
                 {
 
@@ -474,11 +456,6 @@ char _reallocate_Operator(int **routes, int size, int *sizeRoutes, int *demands,
 
                         // Se custo a->i->b + x->y < a->b + x->i->y
                         if( new_cost < old_cost ){
-
-                                // printf("%d->%d->%d(%.0lf) + %d->%d(%.0lf) < %d->%d(%.0lf) + %d->%d->%d(%.0lf)\n", routes[routeDestino][i-1], vertex, routes[routeDestino][i], costAIB,
-                                                                                                    //   routes[routeOrigem][idx_vertex-1], routes[routeOrigem][idx_vertex+1], matrix_return_edge_weight(graph_adj, routes[routeOrigem][idx_vertex - 1], routes[routeOrigem][idx_vertex + 1], graph_return_direction(g)),
-                                                                                                    //   routes[routeDestino][i-1], routes[routeDestino][i], matrix_return_edge_weight(graph_adj, routes[routeDestino][i - 1], routes[routeDestino][i], graph_return_direction(g)),
-                                                                                                    //   routes[routeOrigem][idx_vertex-1], vertex, routes[routeOrigem][idx_vertex+1], costXIY);
 
                             if(_route_delete_vertex(routes[routeOrigem], &sizeRoutes[routeOrigem], vertex, &cost[routeOrigem], graph_adj)){
 
@@ -580,6 +557,7 @@ char _swap_Operator(int **routes, int size, int *sizeRoutes, int *demands, int *
     return 0;
 }
 
+// Realiza a otimização do algoritmo 2OPT entre duas rotas distintas
 char _opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g){
 
     int route_src[size], route_dest[size];
@@ -717,6 +695,7 @@ void _destroyRoutesMatrix(int **routes, int size){
 
 /* =================================================================================================================================== */
 
+// Realiza o algoritmo de kruskal para gerar uma MST
 Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
 
     UF* uf = UF_init(num_vertex);
@@ -746,20 +725,23 @@ Graph *kruskal_algorithm(Edges *k, int num_vertex, int num_edges, Graph *g){
     return mst;
 }
 
+// Compara arestas de forma crescente
 int edges_compare_growing(const void* a, const void* b) {
     Edges* ka = (Edges*) a;
     Edges* kb = (Edges*) b;
 
-    return (ka->weight - kb->weight)*100 ;
+    return kb->weight == ka->weight ? 0 : kb->weight > ka->weight ? -1 : 1;
 }
 
+// Compara arestas de forma decrescente
 int edges_compare_descending(const void* a, const void* b) {
     Edges* ka = (Edges*) a;
     Edges* kb = (Edges*) b;
 
-    return (kb->weight - ka->weight)*100 ;
+    return kb->weight == ka->weight ? 0 : kb->weight > ka->weight ? 1 : -1;
 }
 
+// Algoritmo de economias de Clarke e Wright de forma sequencial
 void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
     clock_t start, end;
@@ -864,6 +846,7 @@ void clarke_wright_serial_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeE
     info_set_time_constructive(start, end);
 }
 
+// Algoritmo de economias de Clarke e Wright de forma paralela
 void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int sizeEdges){
 
     clock_t start, end;
@@ -1003,6 +986,7 @@ void clarke_wright_parallel_algorithm(Graph *g, Edges *e, Edges *near_0, int siz
     info_set_time_constructive(start, end);
 }
 
+// Algoritmo 2OPT em uma mesma rota
 void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
     char improved = 1;
 
@@ -1030,25 +1014,7 @@ void opt2_algorithm(int *route, int sizeRoute, void *graph_adj, double *cost){
     } // Fim while
 }
 
-
-
-void _int_print_file(int **routes, int size, int *sizeR, int *demandR, double *costR, FILE *arq){
-
-    int sum = 0;
-    for(int j = 0; j < size; j++){
-        fprintf(arq, "Route #%d: ", j + 1);
-        int tam = sizeR[j];
-        for(int i = 0; i < tam; i++){
-            fprintf(arq, "%d ", routes[j][i]);
-        }
-        fprintf(arq, "\nDemand: %d Cost: %.0lf\n\n", demandR[j], costR[j]);
-        sum += costR[j];
-    }
-    fprintf(arq, "Total Cost: %d\n", sum);
-}
-
-
-
+// Heurística de otimização VND, com otimizações Move, Swap, e 2OPT entre duas rotas diferentes e em uma única rota
 int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRoutes, double *costRoutes, int *demands, Graph *g){
 
     clock_t start, end;
@@ -1091,22 +1057,16 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
 
         switch(k){
             case 0:
-            // printf("RELLOCATE\n");
-                // (void)
                 control = _reallocate_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, capacity, test_costR, graph_return_adjacencies(g), g);
                 break;
             case 1:
-            // printf("SWAP\n");
-                // (void)
                 control = _swap_Operator(solutionTest, num_trucks, test_sizeR, demands, test_demandR, capacity, test_costR, g);
                 break;
             case 2:
-            // printf("OPT Intra\n");
                 control = 1;
                 _melhorarRotas(solutionTest, num_trucks, test_sizeR, test_costR, graph_return_adjacencies(g));
                 break;
             case 3:
-            // printf("OPT Inter\n");
                 control = _opt2_inter_routes(solutionTest, num_trucks, test_sizeR, test_demandR, test_costR, demands, g);
                 break;
         }
@@ -1114,13 +1074,9 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
         newCost = 0;
         for(int i = 0; i < num_trucks; i++){
             newCost += test_costR[i];
-            // printf("%d ||| %d\n", (int)newCost, (int)currentCost);
-            // if(test_demandR[i] > capacity){
-                    // printf("Route %d %d/%d\n", i, test_demandR[i], capacity);
-            // }
         }
 
-        if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
+        if( newCost < currentCost ){
             if(control == 0) printf("NOT OK (%d)\n", k);
             k = 0;
             info_inc_imp_iterations_vnd();
@@ -1161,6 +1117,7 @@ int **variable_Neighborhood_Descent(int **routes, int *sizeRoutes, int *demandRo
     return bestSolution;
 }
 
+// Realiza metaheurística de otimização com algoritmo VNS, utilizando VND como algoritmo busca de melhor local
 void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *demands, int *demandRoutes){
 
     clock_t start, end;
@@ -1187,9 +1144,6 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     }
 
     info_save_improvement_vns(currentCost);
-
-    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, NULL);
-    // printsd(bestSolution, num_trucks, best_sizeRoutes, best_demandRoutes, costRoutes, demands);
 
     while( noImp < NUM_IT )
     {
@@ -1218,7 +1172,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
         }
 
         // Se melhorou o custo, pegamos a solução
-        if( newCost < currentCost /*&& _checkCapacity(test_demandR, num_trucks, graph_return_capacity(g))*/ ){
+        if( newCost < currentCost ){
             noImp = 0;
             info_inc_imp_iterations_vns();
             info_inc_total_iterations_vns();
@@ -1270,33 +1224,7 @@ void variable_Neighborhood_Search(Graph *g, int **routes, int *sizeRoutes, int *
     info_set_time_vns(start, end);
 }
 
-/*
-
-define solução inicial
-noimp = 0;
-
-enquanto noimp < 10k {
-    
-    define_k(k, noimp); // k é definido pelo numero de iterações sem melhora
-
-    enquanto k < kmax {
-        S' <- Geração vizinho k aleatório (S)
-        S" <- VND(S')
-        se (S") < (S) {
-            S <- S"
-            k = 1
-        } senão {
-            k++;
-        }
-    } // fim while k < kmax
-
-    se nesse while houve melhora, blz, 
-    caso contrario, noimp++
-    
-} // fim while noimp < 10k
-
-*/
-
+// Algoritmo para viabilizar rotas inviáveis trocando vértices entre uma viável e uma inviável, até conseguir manter as duas viáveis
 void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g){
     clock_t start, end;
     start = clock();
@@ -1353,6 +1281,7 @@ void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, i
     info_set_time_enables(start, end);
 }
 
+// Algoritmo para viabilizar rotas inviáveis movendo vértices de uma rota inviável para uma viável, até conseguir manter as duas viáveis
 void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g){
 
     clock_t start, end;
@@ -1407,28 +1336,4 @@ void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *dema
 
     end = clock();
     info_set_time_enables(start, end);
-}
-
-/* =============================================== APAGAR DEPOIS ================================================================== */
-
-void printsd(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands){
-    for(int i = 0; i < size; i++){
-        printf("\nRoute %d (%d|%.3f): ", i, demandR[i], cost[i]);
-        for(int j = 0; j < sizeR[i]; j++)
-        {
-            printf("%d", routes[i][j]);
-            if(demands) printf("[%d] ", demands[routes[i][j]]);
-            else printf(" ");
-        }
-    }
-    printf("\n");
-}
-
-void printa_rota(int *r, int size, int *demands, int capacity, Graph *g){
-    int d = 0;
-    for(int i = 0; i < size; i++) d += demands[r[i]];
-    double cost = matrix_return_route_cost(graph_return_adjacencies(g), r, size);
-    printf("%.3lf | %d/%d: ", cost, d, capacity);
-    for(int i = 0; i < size; i++) printf("%d ", r[i]);
-    printf("\n");
 }

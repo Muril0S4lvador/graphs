@@ -42,6 +42,7 @@ void enables_route_swap(int **routes, int size, int *sizeRoutes, int *demands, i
 // Busca viabilizar uma rota com o método de realocação de operadores
 void enables_route_reallocate(int **routes, int size, int *sizeRoutes, int *demands, int *demandRoutes, int capacity, double *cost, Graph *g);
 
+// Realiza algoritmo 2OPT entre duas rotas diferentes
 char opt2_inter_routes(int **routes, int size, int *sizeR, int *demandR, double *cost, int *demands, Graph *g);
 
 
