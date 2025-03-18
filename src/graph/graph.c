@@ -262,7 +262,7 @@ bool graph_edge_exists(Graph *g, int v1, int v2){
 
 Graph *graph_read_file_CVRPLIB(char *fileName){
 
-    if( !fileName ) exit(printf("ERRO\nrun ./<exe> <CVRP file>\n"));
+    if( !fileName ) exit(printf("ERRO\nrun ./<exe> <CVRP file> <X>\n"));
     FILE *arq = fopen(fileName, "r");
     if( !arq ) exit(printf("ERRO: Falha ao abrir %s\n", fileName));
 
