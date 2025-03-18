@@ -13,9 +13,11 @@ void distanceToOptimal(double cost, double optimal){
 
 int main( int argc, char* argv[] ){
 
+    if(argc < 3) exit("Error: Faltando <instância> <número de execuções> como argumentos");
+
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    int times = 10;
+    int times = argv[2];
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 

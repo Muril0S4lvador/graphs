@@ -17,6 +17,8 @@ output_file="tabela.txt"
 delete="rm *.txt"
 $delete
 
+times=1
+
 # Use o comando "find" para percorrer todos os arquivos em profundidade nas pastas "a," "b," e "e"
 
 # Loop para percorrer as pastas "a," "b," e "e"
@@ -32,7 +34,7 @@ for folder in "$root_folder"/{a,p,b,e,f,m}; do
             if [ -f "$file" ]; then
                # echo "$file"
                echo "Executando $program com $file"
-                $program "$file" >> "$output_file"
+                $program "$file" $times >> "$output_file"
             fi
         done
     fi
