@@ -11,11 +11,14 @@ void distanceToOptimal(double cost, double optimal){
     printf("%.0lf %.0lf (%.2lf%%)\n", cost, optimal, difference);
 }
 
+/**
+ * Escreve informações de uma instância de entrada em um .csv 
+ */
 int main( int argc, char* argv[] ){
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    FILE *arq = fopen("medias instancias.csv", "a");
+    FILE *arq = fopen("medias_instancias.csv", "a");
 
     printf("%c;%d;%d;%d;%d;\n", graph_return_name(g)[0], graph_return_num_vertex(g), graph_return_trucks(g), graph_return_capacity(g), graph_return_optimal_cost(g));
 

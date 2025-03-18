@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Recebe como argumento um arquivo .txt e retorna um .csv com os mesmos dados,
+ * mas com a separação da casa decimal por meio de vírgulas
+ */
 int main( int argc, char* argv[] ){
 
     if(argc <= 1) exit(printf("Missing .txt file\n"));
