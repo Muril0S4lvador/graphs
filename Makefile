@@ -38,16 +38,16 @@ teste: .objects
 .objects/main.o: main.c
 	gcc -g -c main.c -Wall -o .objects/main.o
 
-main: .objects/main.o .objects/graph.o .objects/graphviz_print.o .objects/algorithms.o .objects/union_find.o .objects/vector.o .objects/matrix.o .objects/data.o .objects/route.o .objects/info.o
+main: output_clean .objects/main.o .objects/graph.o .objects/graphviz_print.o .objects/algorithms.o .objects/union_find.o .objects/vector.o .objects/matrix.o .objects/data.o .objects/route.o .objects/info.o
 	gcc -g -o main .objects/main.o .objects/graph.o .objects/graphviz_print.o .objects/algorithms.o .objects/union_find.o .objects/vector.o .objects/matrix.o .objects/data.o .objects/route.o .objects/info.o -lm
 
 imgs_clean:
 	rm imgs/*
 
-output: out/
+output_clean: out/
 	@rm -rf out/*
 
-out/:
+out_create:
 	@mkdir out
 
 clean:

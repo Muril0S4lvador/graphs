@@ -412,11 +412,11 @@ Graph *graph_mst_kruskal(Graph *g){
 }
 
 void graph_Clarke_Wright_parallel_route(Graph *g){
-    graph_Clarke_Wright_route(g, 1);
+    _graph_Clarke_Wright_route(g, 1);
 }
 
 void graph_Clarke_Wright_serial_route(Graph *g){
-    graph_Clarke_Wright_route(g, 0);
+    _graph_Clarke_Wright_route(g, 0);
 }
 
 void graph_set_route(Graph *g, int idx, void *route, int size, int demand){
@@ -668,7 +668,7 @@ void graph_cross_exchange(Graph *g){
     v_r2 = rand() % (sizeR[r2] - 3) + 1;
 
     printf("Capacity: %d", graph_return_capacity(g));
-    printsd(routes, size, sizeR, demandsR, cost, NULL);
+    // printsd(routes, size, sizeR, demandsR, cost, NULL);
     printf("\n\nSize: %d v_r1 = %d\n", sizeR[r1], v_r1);
 
     void *m = graph_return_adjacencies(g);
@@ -710,7 +710,7 @@ void graph_cross_exchange(Graph *g){
             }
         }
     }
-    printsd(routes, size, sizeR, demandsR, cost, NULL);
+    // printsd(routes, size, sizeR, demandsR, cost, NULL);
 
     free(routes);
     free(sizeR);

@@ -13,11 +13,11 @@ void distanceToOptimal(double cost, double optimal){
 
 int main( int argc, char* argv[] ){
 
-    if(argc < 3) exit("Error: Faltando <instância> <número de execuções> como argumentos");
+    if(argc < 3) exit(printf("Error: Faltando <instância> <número de execuções> como argumentos\n"));
 
     Graph *g = graph_read_file_CVRPLIB(argv[1]);
 
-    int times = argv[2];
+    int times = atoi(argv[2]);
     int seed  = 0;
     FILE *f = fopen("entradas/seeds.bin", "rb");
 
@@ -45,11 +45,11 @@ int main( int argc, char* argv[] ){
     }
     fclose(f);
 
+    printf("Veja os resultados na pasta out/%c/%s\n", graph_return_name(g)[0], graph_return_name(g));
+
     info_print_arr_file(arr, times);
     info_print_solution_file(arr, times);
     info_print_results_file(arr, times);
-
-    info_print_ERI(arr, times);
 
     info_arr_destroy(arr, times);
     graph_destroy(g);
