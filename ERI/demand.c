@@ -26,7 +26,7 @@ int main ( int argc, char* argv[] ) {
 
     if(argc < 2) exit(printf("Error missing cvrp file\n"));
     FILE *arq = fopen(argv[1], "r");
-    if(!arq) exit(printf("Eror fopen failed.\n"));
+    if(!arq) exit(printf("Error fopen failed.\n"));
 
     char buffer[1000];
     int dimension = 0, capacity = 0;
@@ -79,9 +79,12 @@ void write(Node *instance, int dimension, float totalDemand, FILE *f) {
     int caminhaoCap = ceil(totalDemand / APERTO);
     int demanda = ceil(caminhaoCap / qtdCaminhao);
 
-    sprintf(nome, "C-n%d-k%d.vrp", dimension, qtdCaminhao);
+    
+    sprintf(nome, "C-n%d-k%d", dimension, qtdCaminhao);
+    char nomeArq[100];
+    sprintf(nomeArq, "C-n%d-k%d.vrp", dimension, qtdCaminhao);
 
-    FILE *arq = fopen(nome, "w");
+    FILE *arq = fopen(nomeArq, "w");
 
     fprintf(arq, "NAME : %s\n", nome);
     fprintf(arq, "COMMENT : (%s)\n", comment);
